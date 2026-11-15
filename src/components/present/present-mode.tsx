@@ -1,0 +1,333 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  DEFAULT_SETTINGS, SIZE_SCALES, WIDTH_BUCKETS, buildSlides, equivalentIndex, parseSettings,
+  type PresentContent, type PresentSettings,
+} from "@/lib/content/present";
+import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
+import { PrintSlides } from "./print-slides";
+import { SettingsPanel } from "./settings-panel";
+import { SlideView, themeVars } from "./slide-view";
+
+const STORAGE_KEY = "ced-present-v2";
+const IDLE_MS = 3000;
+/** A representative width for each size bucket, so the slides are only rebuilt when the bucket changes. */
+const BUCKET_WIDTH = [400, 800, 1200, 1700];
+
+function loadSettings(): PresentSettings {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) return parseSettings(JSON.parse(raw));
+  } catch { /* storage unavailable or corrupt: use defaults */ }
+  return parseSettings(null);
+}
+
+export function PresentMode({
+  content, exitHref, devotionalId, notesSlot, title, presenterHref,
+}: {
+  content: PresentContent;
+  exitHref: string;
+  devotionalId: string;
+  /** Teacher's private notes editor. Shown only on request, with a warning about mirrored screens. */
+  notesSlot?: ReactNode;
+  title: string;
+  presenterHref: string;
+}) {
+  const [settings, setSettings] = useState<PresentSettings>(DEFAULT_SETTINGS);
+  const [ready, setReady] = useState(false);
+  const [bucket, setBucket] = useState(2);
+  const [index, setIndex] = useState(0);
+  const [panel, setPanel] = useState<"none" | "settings" | "notes">("none");
+  const [chrome, setChrome] = useState(true);
+  const [blank, setBlank] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const stage = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const idleTimer = useRef<number | undefined>(undefined);
+  const channel = useRef<BroadcastChannel | null>(null);
+
+  // Saved settings are read after hydration so the server and first client render agree.
+  useEffect(() => {
+    setSettings(loadSettings());
+    setReady(true);
+  }, []);
+  useEffect(() => {
+    if (!ready) return;
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* ignore */ }
+  }, [settings, ready]);
+
+  // Which size bucket the screen is in decides how much text a slide holds.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth;
+      const k = WIDTH_BUCKETS.findIndex((b) => w < b.below);
+      setBucket(k === -1 ? WIDTH_BUCKETS.length - 1 : k);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const slides = useMemo(() => buildSlides(content, settings, BUCKET_WIDTH[bucket] ?? 1200), [content, settings, bucket]);
+  const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, 1280), [content, settings]);
+
+  // When the slide list is rebuilt, stay on the same part of the lesson.
+  const lastSlides = useRef(slides);
+  const indexRef = useRef(index);
+  indexRef.current = index;
+  useEffect(() => {
+    if (lastSlides.current === slides) return;
+    const was = lastSlides.current[Math.min(indexRef.current, lastSlides.current.length - 1)];
+    lastSlides.current = slides;
+    setIndex(equivalentIndex(was, slides));
+  }, [slides]);
+
+  const safeIndex = Math.min(index, Math.max(slides.length - 1, 0));
+  const slide = slides[safeIndex];
+  const total = slides.length;
+
+  const go = useCallback((delta: number) => setIndex((i) => Math.min(slides.length - 1, Math.max(0, Math.min(i, slides.length - 1) + delta))), [slides.length]);
+  const goTo = useCallback((n: number) => setIndex(Math.min(slides.length - 1, Math.max(0, n))), [slides.length]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen?.().catch(() => undefined);
+  }, []);
+  useEffect(() => {
+    const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
+    onChange();
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // Keep the screen awake while presenting, where the browser supports it.
+  useEffect(() => {
+    let lock: { release: () => Promise<void> } | null = null;
+    let cancelled = false;
+    const acquire = async () => {
+      try {
+        const nav = navigator as Navigator & { wakeLock?: { request: (t: "screen") => Promise<{ release: () => Promise<void> }> } };
+        if (nav.wakeLock && document.visibilityState === "visible") {
+          const l = await nav.wakeLock.request("screen");
+          if (cancelled) void l.release(); else lock = l;
+        }
+      } catch { /* not allowed: carry on */ }
+    };
+    void acquire();
+    document.addEventListener("visibilitychange", acquire);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", acquire);
+      void lock?.release().catch(() => undefined);
+    };
+  }, []);
+
+  // Controls fade away after a few seconds so the slide is all that is left.
+  const poke = useCallback(() => {
+    setChrome(true);
+    window.clearTimeout(idleTimer.current);
+    idleTimer.current = window.setTimeout(() => setChrome(false), IDLE_MS);
+  }, []);
+  useEffect(() => {
+    poke();
+    const events = ["mousemove", "mousedown", "touchstart"] as const;
+    for (const e of events) window.addEventListener(e, poke, { passive: true });
+    return () => {
+      for (const e of events) window.removeEventListener(e, poke);
+      window.clearTimeout(idleTimer.current);
+    };
+  }, [poke]);
+
+  const changeSize = useCallback((delta: number) => setSettings((s) => ({ ...s, size: Math.min(SIZE_SCALES.length - 1, Math.max(0, s.size + delta)) })), []);
+
+  const openPresenter = useCallback(() => {
+    window.open(presenterHref, "ced-presenter", "popup=yes,width=1100,height=760");
+  }, [presenterHref]);
+
+  const leave = useCallback(() => {
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    window.location.assign(exitHref);
+  }, [exitHref]);
+
+  // Keyboard (including slide clickers, which send PageUp / PageDown).
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      const typing = target?.matches("input[type=text],input[type=search],textarea,select,[contenteditable=true]");
+      if (typing) return;
+      if (panel === "settings") return; // the panel handles its own Escape
+      if (e.key === "Escape") {
+        if (panel === "notes") setPanel("none");
+        else if (!document.fullscreenElement) leave();
+        return; // while full screen, the browser's own Escape leaves full screen first
+      }
+      const onControl = target?.matches("button,a,input,summary");
+      switch (e.key) {
+        case "ArrowRight": case "PageDown": case "ArrowDown": e.preventDefault(); go(1); break;
+        case " ": if (onControl) return; e.preventDefault(); go(1); break;
+        case "ArrowLeft": case "PageUp": case "ArrowUp": e.preventDefault(); go(-1); break;
+        case "Home": e.preventDefault(); goTo(0); break;
+        case "End": e.preventDefault(); goTo(slides.length - 1); break;
+        case "+": case "=": changeSize(1); break;
+        case "-": case "_": changeSize(-1); break;
+        case "f": case "F": toggleFullscreen(); break;
+        case "b": case "B": case ".": setBlank((v) => !v); break;
+        case "n": case "N": if (notesSlot) setPanel((p) => (p === "notes" ? "none" : "notes")); break;
+        case "s": case "S": setPanel("settings"); break;
+        case "Tab": poke(); return;
+        default: return;
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke]);
+
+  // Presenter window: this screen reports its state and obeys commands.
+  const stateRef = useRef<ClassMessage>({ type: "empty" });
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const ch = new BroadcastChannel(channelName(devotionalId));
+    channel.current = ch;
+    ch.onmessage = (event: MessageEvent<PresenterCommand>) => {
+      const m = event.data;
+      if (m.type === "hello") ch.postMessage(stateRef.current);
+      else if (m.type === "goto") goTo(m.index);
+      else if (m.type === "cmd") {
+        if (m.cmd === "next") go(1);
+        else if (m.cmd === "prev") go(-1);
+        else if (m.cmd === "first") goTo(0);
+        else if (m.cmd === "last") goTo(slides.length - 1);
+        else setBlank((v) => !v);
+      }
+    };
+    return () => {
+      ch.close();
+      channel.current = null;
+    };
+  }, [devotionalId, go, goTo, slides.length]);
+  useEffect(() => {
+    stateRef.current = slide
+      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, simple: settings.simple, blank }
+      : { type: "empty" };
+    channel.current?.postMessage(stateRef.current);
+  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.simple, blank]);
+
+  const printNow = useCallback(() => {
+    setPanel("none");
+    window.setTimeout(() => window.print(), 50);
+  }, []);
+
+  const bar = `pointer-events-auto flex items-center gap-2 px-3 py-2 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
+  const btn = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
+  const hasPassageText = Boolean(content.scripture.text);
+
+  return (
+    <>
+      <div
+        ref={root}
+        className={`present-stage fixed inset-0 flex flex-col print:hidden ${chrome || panel !== "none" ? "" : "cursor-none"}`}
+        style={{ ...themeVars(settings.theme), visibility: ready ? "visible" : "hidden" }}
+        data-theme={settings.theme}
+        onTouchStart={(e) => { const t = e.touches[0]; touchStart.current = t ? { x: t.clientX, y: t.clientY } : null; }}
+        onTouchEnd={(e) => {
+          const a = touchStart.current;
+          const t = e.changedTouches[0];
+          touchStart.current = null;
+          if (!a || !t) return;
+          const dx = t.clientX - a.x;
+          if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(t.clientY - a.y) * 1.5) go(dx < 0 ? 1 : -1);
+        }}
+      >
+        <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2">
+          <div className={bar}>
+            <Link href={exitHref} onClick={(e) => { e.preventDefault(); leave(); }} className={btn}>← Exit</Link>
+            <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={settings.simple} onClick={() => setSettings((s) => ({ ...s, simple: !s.simple }))}>Younger students</button>
+          </div>
+          <div className={bar}>
+            <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
+            <button type="button" className={`${btn} max-sm:hidden`} aria-label="Larger text" onClick={() => changeSize(1)} disabled={settings.size === SIZE_SCALES.length - 1}>A+</button>
+            {notesSlot ? <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={panel === "notes"} onClick={() => setPanel((p) => (p === "notes" ? "none" : "notes"))}>Notes</button> : null}
+            <button type="button" className={btn} onClick={() => setPanel("settings")}>Settings</button>
+            <button type="button" className={`${btn} max-sm:hidden`} onClick={toggleFullscreen} aria-pressed={fullscreen}>{fullscreen ? "Exit full screen" : "Full screen"}</button>
+          </div>
+        </header>
+
+        <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] pb-20 pt-16" aria-label={slide ? slide.label : "Presentation"}>
+          {slide ? (
+            <SlideView slide={slide} size={settings.size} simple={settings.simple} />
+          ) : (
+            <div className="grid h-full place-items-center text-center">
+              <div>
+                <p className="font-serif text-3xl">No slides to show</p>
+                <p className="mt-2">Choose at least one slide in Settings.</p>
+                <button type="button" className={`${btn} mt-4`} onClick={() => setPanel("settings")}>Open settings</button>
+              </div>
+            </div>
+          )}
+        </main>
+        <p className="sr-only" aria-live="polite">{slide ? `Slide ${safeIndex + 1} of ${total}: ${slide.label}` : ""}</p>
+
+        <footer className="absolute inset-x-0 bottom-0 z-20">
+          <div className={`${bar} justify-between`}>
+            <button type="button" className={btn} onClick={() => go(-1)} disabled={safeIndex === 0}>← Back</button>
+            {total <= 14 ? (
+              <ol className="flex items-center justify-center max-sm:hidden" aria-label="Slides">
+                {slides.map((s, i) => (
+                  <li key={s.key}>
+                    <button type="button" aria-label={`Go to slide ${i + 1}: ${s.label}`} aria-current={i === safeIndex ? "step" : undefined} onClick={() => goTo(i)} className="grid size-9 place-items-center">
+                      <span className="block size-3 rounded-full border-2 border-current" style={{ background: i === safeIndex ? "var(--p-accent)" : "transparent", borderColor: i === safeIndex ? "var(--p-accent)" : "currentColor" }} />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+            {/* A plain count when there are too many dots to fit, and always on phones. */}
+            <p aria-hidden="true" className={`text-lg font-semibold ${total <= 14 ? "sm:hidden" : ""}`}>{safeIndex + 1} / {total}</p>
+            <button type="button" className={btn} onClick={() => go(1)} disabled={safeIndex >= total - 1}>Next →</button>
+          </div>
+        </footer>
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: "color-mix(in srgb, var(--p-fg) 15%, transparent)" }}>
+          <div className="h-full" style={{ width: total ? `${((safeIndex + 1) / total) * 100}%` : 0, background: "var(--p-accent)" }} />
+        </div>
+
+        {blank ? (
+          <button type="button" aria-label="Screen is blank. Press any key or click to show the slide." className="fixed inset-0 z-30 cursor-none bg-black" onClick={() => setBlank(false)} />
+        ) : null}
+
+        {panel === "notes" && notesSlot ? (
+          <aside aria-label="Presenter notes" className="fixed inset-y-0 right-0 z-30 w-full max-w-md overflow-y-auto bg-white p-4 text-[#111] shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-xl font-semibold">Presenter notes</h2>
+              <button type="button" onClick={() => setPanel("none")} className="min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold">Close</button>
+            </div>
+            <p role="note" className="mt-2 rounded-md bg-[#fff3cd] p-3 text-sm font-medium">
+              Anyone looking at this screen can read your notes. If it is mirrored to a projector, use the presenter window instead.
+            </p>
+            <button type="button" onClick={openPresenter} className="mt-3 min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold">Open presenter window</button>
+            <div className="mt-4">{notesSlot}</div>
+          </aside>
+        ) : null}
+
+        {panel === "settings" ? (
+          <SettingsPanel
+            settings={settings}
+            onChange={setSettings}
+            onClose={() => setPanel("none")}
+            onPrint={printNow}
+            hasTheme={Boolean(content.theme)}
+            hasPassageText={hasPassageText}
+            onOpenPresenter={openPresenter}
+          />
+        ) : null}
+      </div>
+      <PrintSlides slides={printSlides} title={title} />
+    </>
+  );
+}

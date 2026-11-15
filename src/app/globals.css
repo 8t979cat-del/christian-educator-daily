@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Design tokens from the approved design system. */
+@theme {
+  --color-parchment: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-ink: #1f2a37;
+  --color-muted: #4a5663;
+  --color-line: #e2ded3;
+  --color-line-strong: #6b7480;
+  --color-brand: #1f5a55;
+  --color-brand-hover: #174642;
+  --color-brand-soft: #e3efec;
+  --color-night: #14202b;
+  --color-night-raised: #22364a;
+  --color-mint: #8fd0c6;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbeae8;
+  --color-gold: #b7791f;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+
+  --radius-control: 0.625rem;
+  --radius-card: 1rem;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-parchment);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* One clear focus ring everywhere (WCAG 2.4.7 / 2.4.11). */
+  :focus-visible {
+    outline: 3px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* On dark surfaces the ring switches to the mint accent. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-mint);
+  }
+
+  ::selection {
+    background: var(--color-brand-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Rich text (editor and reader share the same look) */
+.rich-text > * + * { margin-top: 0.85em; }
+.rich-text { line-height: 1.7; }
+.rich-text h3 { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; margin-top: 1.4em; }
+.rich-text h4 { font-weight: 700; margin-top: 1.2em; }
+.rich-text ul { list-style: disc; padding-left: 1.5rem; }
+.rich-text ol { list-style: decimal; padding-left: 1.5rem; }
+.rich-text li > * + * { margin-top: 0.4em; }
+.rich-text li + li { margin-top: 0.3em; }
+.rich-text blockquote { border-left: 3px solid var(--color-brand); padding-left: 1rem; color: var(--color-muted); font-style: italic; }
+
+/* Classroom presentation: type scales with the slide (em), colours come from the chosen theme */
+.present-stage .rich-text { line-height: 1.4; }
+.present-stage .rich-text > * + * { margin-top: 0.6em; }
+.present-stage .rich-text h3 { font-size: 1em; margin-top: 0.8em; }
+.present-stage .rich-text ul, .present-stage .rich-text ol { padding-left: 1.2em; }
+.present-stage .rich-text li::marker { color: var(--p-accent); }
+.present-stage .rich-text blockquote { border-left-color: var(--p-accent); color: inherit; padding-left: 0.6em; }
+
+/* Printing the slides: one per landscape page, black on white whatever the screen theme */
+@page slides { size: landscape; margin: 0.5in; }
+.print-slides { page: slides; }
+.print-slide { break-after: page; break-inside: avoid; }
+.print-slide:last-child { break-after: auto; }
