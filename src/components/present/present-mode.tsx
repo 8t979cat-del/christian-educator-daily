@@ -260,7 +260,7 @@ export function PresentMode({
   }, []);
 
   const bar = `pointer-events-auto flex items-center gap-2 px-3 py-1.5 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
-  const btn = "inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
+  const btn = "inline-flex min-h-10 min-w-10 items-center justify-center rounded-control border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
   const hasPassageText = Boolean(content.scripture.text);
 
   return (
@@ -355,15 +355,15 @@ export function PresentMode({
         ) : null}
 
         {panel === "notes" && notesSlot ? (
-          <aside aria-label="Presenter notes" className="fixed inset-y-0 right-0 z-30 w-full max-w-md overflow-y-auto bg-white p-4 text-[#111] shadow-2xl">
+          <aside aria-label="Presenter notes" className="fixed inset-y-0 right-0 z-30 w-full max-w-md overflow-y-auto bg-white p-4 text-[#111]">
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-xl font-semibold">Presenter notes</h2>
-              <button type="button" onClick={() => setPanel("none")} className="min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold">Close</button>
+              <button type="button" onClick={() => setPanel("none")} className="min-h-11 rounded-control border border-[#777] px-3 text-sm font-semibold">Close</button>
             </div>
-            <p role="note" className="mt-2 rounded-md bg-[#fff3cd] p-3 text-sm font-medium">
+            <p role="note" className="mt-2 rounded-control bg-[#fff3cd] p-3 text-sm font-medium">
               Anyone looking at this screen can read your notes. If it is mirrored to a projector, use the presenter window instead.
             </p>
-            <button type="button" onClick={openPresenter} className="mt-3 min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold">Open presenter window</button>
+            <button type="button" onClick={openPresenter} className="mt-3 min-h-11 rounded-control border border-[#777] px-3 text-sm font-semibold">Open presenter window</button>
             <div className="mt-4">{notesSlot}</div>
           </aside>
         ) : null}

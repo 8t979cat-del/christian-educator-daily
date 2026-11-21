@@ -5,7 +5,7 @@ import { channelName, type ClassMessage, type PresenterCommand } from "./channel
 import { BandPicker } from "./band-picker";
 import { SlideThumb } from "./slide-view";
 
-const BTN = "min-h-11 min-w-11 rounded-md border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e7e9ef] disabled:opacity-40";
+const BTN = "min-h-11 min-w-11 rounded-control border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e7e9ef] disabled:opacity-40";
 
 /**
  * The teacher's window: the current slide, the next one, notes and a timer.
@@ -61,7 +61,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
       </header>
 
       {!live ? (
-        <p role="status" className="mx-auto mt-10 max-w-xl rounded-lg border border-[#d9d4c7] bg-white p-6 text-center text-lg">
+        <p role="status" className="mx-auto mt-10 max-w-xl rounded-control border border-[#d9d4c7] bg-white p-6 text-center text-lg">
           Waiting for the class screen. Open “Present to class” in another window on this computer, and this window will follow it.
         </p>
       ) : (
@@ -83,7 +83,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
                   <SlideThumb slide={live.next} size={live.size} band={live.band} theme={live.theme} stage={live.stage} />
                 </div>
               ) : (
-                <p className="rounded-lg border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
+                <p className="rounded-control border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
               )}
             </div>
             <div>

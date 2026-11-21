@@ -5,7 +5,7 @@ import type { GradeBand } from "@/lib/content/levels";
 import { BandPicker } from "./band-picker";
 import { PRESENT_THEMES, SECTION_IDS, SECTION_LABELS, SIZE_SCALES, THEME_IDS, type PresentSettings, type SectionId } from "@/lib/content/present";
 
-const BTN = "min-h-11 rounded-md border border-current/40 px-3 text-sm font-semibold hover:bg-black/10";
+const BTN = "min-h-11 rounded-control border border-current/40 px-3 text-sm font-semibold hover:bg-black/10";
 
 /** What to show, how it looks, and print. Opens over the slide; Esc closes it. */
 export function SettingsPanel({
@@ -40,7 +40,7 @@ export function SettingsPanel({
         role="dialog"
         aria-modal="true"
         aria-label="Presentation settings"
-        className="h-full w-full max-w-md overflow-y-auto bg-white p-5 text-[#111] shadow-2xl"
+        className="h-full w-full max-w-md overflow-y-auto bg-white p-5 text-[#111]"
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             e.stopPropagation();
@@ -111,7 +111,7 @@ export function SettingsPanel({
               return (
                 <label key={id} className="relative">
                   <input type="radio" name="theme" className="peer sr-only" checked={settings.theme === id} onChange={() => set("theme", id)} />
-                  <span className="grid min-h-16 place-items-center rounded-md border-2 border-[#777] px-2 text-center text-sm font-bold peer-checked:border-[#1c2a47] peer-checked:ring-4 peer-checked:ring-[#1c2a47]/30 peer-focus-visible:ring-4 peer-focus-visible:ring-[#1c2a47]/50" style={{ background: t.bg, color: t.fg }}>
+                  <span className="grid min-h-16 place-items-center rounded-control border-2 border-[#777] px-2 text-center text-sm font-bold peer-checked:border-[#1c2a47] peer-checked:ring-4 peer-checked:ring-[#1c2a47]/30 peer-focus-visible:ring-4 peer-focus-visible:ring-[#1c2a47]/50" style={{ background: t.bg, color: t.fg }}>
                     {t.label}
                     <span className="text-xs font-semibold" style={{ color: t.accent }}>Sample text</span>
                   </span>

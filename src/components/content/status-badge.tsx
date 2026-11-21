@@ -13,7 +13,7 @@ const STYLES: Record<DevotionalStatus, string> = {
 /** Status is always spelled out, so colour is never the only signal. */
 export function StatusBadge({ status, className }: { status: DevotionalStatus; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", STYLES[status], className)}>
+    <span className={cn("inline-flex items-center rounded-control px-3 py-1 text-xs font-semibold", STYLES[status], className)}>
       {STATUS_LABELS[status]}
     </span>
   );

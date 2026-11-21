@@ -13,13 +13,9 @@
   --color-brand-hover: #121c31;
   --color-brand-soft: #e7e9ef;
   --color-rubric: #a31d16; /* red-letter rubrics: numbers, instructions, verse figures */
-  --color-night: #1c2a47; /* cloth fields */
-  --color-night-raised: #2a3a5e;
-  --color-mint: #d4b25e; /* gilt stamping on cloth */
   --color-gilt: #d4b25e;
   --color-danger: #b3261e;
   --color-danger-soft: #fbeae8;
-  --color-gold: #b7791f;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif: var(--font-caslon), "Libre Caslon Text", "Big Caslon", "Iowan Old Style", Georgia, serif;
@@ -51,9 +47,9 @@
     outline-offset: 2px;
   }
 
-  /* On dark surfaces the ring switches to the mint accent. */
+  /* On bookcloth the focus ring is gilt. */
   .on-dark :focus-visible {
-    outline-color: var(--color-mint);
+    outline-color: var(--color-gilt);
   }
 
   ::selection {

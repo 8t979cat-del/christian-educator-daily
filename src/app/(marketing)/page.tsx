@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { Container } from "@/components/layout/container";
 import { SameDayEveryAge } from "@/components/marketing/same-day-every-age";
 import { SchoolYear } from "@/components/marketing/school-year";
@@ -41,7 +42,7 @@ export default async function LandingPage() {
   const dayNumber = Number(iso.slice(8, 10));
   const month = new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
   const weekday = new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" });
-  const meter = today?.theme ? [today.theme.title, today.theme.dayLabel].filter(Boolean).join(" · ") : null;
+  const meterParts = today?.theme ? [today.theme.title, today.theme.dayLabel].filter(Boolean) : [];
 
   return (
     <>
@@ -69,7 +70,14 @@ export default async function LandingPage() {
                   </h1>
                   {/* Tune and meter: the week's theme, and which day of it this is. */}
                   <p className="mt-2 font-serif italic text-muted">
-                    {today ? meter ?? today.scripture.translationLabel ?? "" : "Everyday Devotional: 180 Days"}
+                    {today
+                      ? meterParts.length
+                        ? meterParts.map((part, i) => (
+                            // Each part stays whole ("Day 1 of 5" never breaks); the line may break at the separator.
+                            <Fragment key={part}>{i > 0 ? " · " : ""}<span className="whitespace-nowrap">{part}</span></Fragment>
+                          ))
+                        : today.scripture.translationLabel ?? ""
+                      : "Everyday Devotional: 180 Days"}
                   </p>
                 </div>
               </div>

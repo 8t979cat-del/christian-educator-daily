@@ -119,7 +119,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
             <ul className="mt-2 flex flex-wrap gap-2">
               {topics.map((t) => (
                 <li key={t}>
-                  <button type="button" onClick={() => toggle(t)} className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-brand bg-brand-soft px-3 font-semibold text-brand" aria-label={`Remove ${t}`}>
+                  <button type="button" onClick={() => toggle(t)} className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-brand bg-brand-soft px-3 font-semibold text-brand" aria-label={`Remove ${t}`}>
                     {t} <Icon name="x" size={14} />
                   </button>
                 </li>

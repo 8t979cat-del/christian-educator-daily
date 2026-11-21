@@ -24,12 +24,6 @@ export function Heading({ level = 2, size, className, ...props }: HeadingProps) 
   return <Tag className={cn("font-serif text-balance", HEADING_SIZES[size ?? level], className)} {...props} />;
 }
 
-export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <p className={cn("text-sm font-semibold uppercase tracking-wider text-brand", className)}>{children}</p>
-  );
-}
-
 type TextProps = ComponentProps<"p"> & {
   size?: "sm" | "md" | "lg";
   muted?: boolean;
@@ -56,7 +50,7 @@ export function Scripture({
   return (
     <figure className={className}>
       <blockquote className="font-serif text-2xl leading-relaxed md:text-3xl">{children}</blockquote>
-      <figcaption className="mt-3 text-sm font-semibold uppercase tracking-wider text-brand">
+      <figcaption className="mt-3 font-serif italic text-rubric">
         {reference} · {translation}
       </figcaption>
     </figure>

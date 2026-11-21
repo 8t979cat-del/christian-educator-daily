@@ -257,7 +257,7 @@ export function DevotionalForm({
           </div>
         </Card>
 
-        <div className="sticky bottom-20 z-10 flex flex-wrap items-center gap-4 rounded-card border border-line bg-surface/95 p-4 shadow-sm backdrop-blur md:bottom-4">
+        <div className="sticky bottom-20 z-10 flex flex-wrap items-center gap-4 rounded-card border border-line bg-surface/95 p-4 backdrop-blur md:bottom-4">
           <SubmitButton>{initial.id ? "Save changes" : "Save draft"}</SubmitButton>
           <p className="text-sm text-muted">Saving never publishes. Publishing happens in the workflow.</p>
         </div>

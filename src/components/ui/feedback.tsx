@@ -55,7 +55,7 @@ export function EmptyState({ icon = "info", title, description, action, classNam
         className,
       )}
     >
-      <span className="mb-4 grid size-12 place-items-center rounded-full bg-brand-soft text-brand">
+      <span className="mb-4 grid size-12 place-items-center rounded-control bg-brand-soft text-brand">
         <Icon name={icon} size={24} />
       </span>
       <h2 className="font-serif text-xl font-semibold">{title}</h2>
@@ -107,7 +107,7 @@ export function Badge({ children, className }: { children: ReactNode; className?
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand",
+        "inline-flex items-center rounded-control bg-brand-soft px-3 py-1 text-xs font-semibold text-brand",
         className,
       )}
     >

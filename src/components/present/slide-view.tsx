@@ -23,6 +23,9 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
   // Section labels: sentence case, never letter-spaced capitals, so early readers can read them too.
   const label_ = "font-serif italic text-[0.58em] leading-tight";
 
+  // A passage or section that runs on to the next slide says so, as a printed page would.
+  const continues = slide.page < slide.pageCount - 1;
+
   switch (b.kind) {
     case "opener":
       return (
@@ -39,12 +42,18 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
         </FitText>
       );
     case "scripture": {
-      const label = [b.reference, slide.pageCount > 1 ? `${slide.page + 1} of ${slide.pageCount}` : null].filter(Boolean).join(" · ");
+      // Later pages say "continued" rather than "2 of 3": the controls already count slides.
+      const label = slide.page > 0 ? `${b.reference ?? "Scripture"}, continued` : b.reference;
       return (
         <FitText fitKey={fitKey} scale={scale} align="center">
           <figure className="mx-auto max-w-[36em]">
             {/* The reference leads: it is what the teacher says aloud before reading. */}
-            {label ? <figcaption className="mb-[0.4em] font-serif text-[0.75em] font-semibold leading-tight" style={accent}>{label}</figcaption> : null}
+            {label || continues ? (
+              <figcaption className="mb-[0.4em] flex items-baseline justify-between gap-[1em]">
+                <span className="font-serif text-[0.75em] font-semibold leading-tight" style={accent}>{label}</span>
+                {continues ? <ContinuesNote /> : null}
+              </figcaption>
+            ) : null}
             <blockquote className="font-serif leading-[1.38] [text-wrap:pretty]">
               {b.text.split("\n").map((line, i) => {
                 const verse = /^(\d{1,3})\s+(.*)$/.exec(line);
@@ -90,9 +99,12 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
             {b.parts.map((part, i) => (
               <section key={part.section}>
                 {/* One heading level for every section label, so a slide with two parts reads as two sections. */}
-                <h2 className={`${label_} mb-[0.6em]`} style={accent}>
-                  {part.heading}{i === 0 && slide.pageCount > 1 ? ` · ${slide.page + 1} of ${slide.pageCount}` : ""}
-                </h2>
+                <div className="mb-[0.6em] flex items-baseline justify-between gap-[1em]">
+                  <h2 className={label_} style={accent}>
+                    {part.heading}{i === 0 && slide.page > 0 ? ", continued" : ""}
+                  </h2>
+                  {i === 0 && continues ? <ContinuesNote /> : null}
+                </div>
                 <RichTextView doc={part.doc} className={b.emphasis ? "font-serif font-semibold [text-wrap:balance]" : "[text-wrap:pretty]"} />
               </section>
             ))}
@@ -100,6 +112,11 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
         </FitText>
       );
   }
+}
+
+/** The note on a page whose text runs on to the next slide. */
+function ContinuesNote() {
+  return <span className="shrink-0 font-serif text-[max(12px,0.42em)] italic" style={muted}>continues on the next slide</span>;
 }
 
 /**
@@ -124,7 +141,7 @@ export function SlideThumb({ slide, size, band, theme, stage }: { slide: Slide; 
     return () => observer.disconnect();
   }, [outerW]);
   return (
-    <div ref={box} className="present-stage relative w-full overflow-hidden rounded-lg border border-[#6b7480]" style={{ ...themeVars(theme), aspectRatio: `${outerW} / ${outerH}` }}>
+    <div ref={box} className="present-stage relative w-full overflow-hidden rounded-control border border-[#6b7480]" style={{ ...themeVars(theme), aspectRatio: `${outerW} / ${outerH}` }}>
       <div className="absolute left-0 top-0 origin-top-left" style={{ width: outerW, height: outerH, padding: pad, transform: `scale(${scale})`, visibility: scale ? "visible" : "hidden" }}>
         <SlideView slide={slide} size={size} band={band} />
       </div>

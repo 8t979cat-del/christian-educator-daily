@@ -8,7 +8,7 @@ export function AiCounter({ quota }: { quota: AiQuota }) {
   const out = !isUnlimited(quota) && quota.remaining <= 0;
   return (
     <p
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums ${
+      className={`inline-flex items-center gap-1.5 rounded-control border px-2.5 py-1 text-xs font-semibold tabular-nums ${
         out ? "border-[#b3261e]/40 bg-[#fbeae8] text-[#8a1c14]" : "border-[#1c2a47]/30 bg-[#e7e9ef] text-[#1c2a47]"
       }`}
       aria-live="polite"

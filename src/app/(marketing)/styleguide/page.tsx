@@ -12,17 +12,17 @@ import { Avatar } from "@/components/ui/avatar";
 import { Alert, Badge, EmptyState, Skeleton, Spinner } from "@/components/ui/feedback";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/form";
 import { SearchInput } from "@/components/ui/search-input";
-import { Eyebrow, Heading, Scripture, Text } from "@/components/ui/typography";
+import { Heading, Scripture, Text } from "@/components/ui/typography";
 
 export const metadata: Metadata = { title: "Design system" };
 
 const SWATCHES = [
-  ["Parchment", "bg-parchment", "#F7F5F0"],
-  ["Brand", "bg-brand", "#1F5A55"],
-  ["Brand soft", "bg-brand-soft", "#E3EFEC"],
-  ["Night", "bg-night", "#14202B"],
-  ["Mint", "bg-mint", "#8FD0C6"],
-  ["Ink", "bg-ink", "#1F2A37"],
+  ["Bible paper", "bg-parchment", "#FBFAF6"],
+  ["Bookcloth navy", "bg-brand", "#1C2A47"],
+  ["Navy wash", "bg-brand-soft", "#E7E9EF"],
+  ["Gilt", "bg-gilt", "#D4B25E"],
+  ["Rubric red", "bg-rubric", "#A31D16"],
+  ["Ink", "bg-ink", "#1B1A17"],
   ["Danger", "bg-danger", "#B3261E"],
 ] as const;
 
@@ -40,7 +40,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export default function StyleguidePage() {
   return (
     <Container className="py-12">
-      <Eyebrow>Design system</Eyebrow>
       <Heading level={1} size={2} className="mt-2">
         Components
       </Heading>
