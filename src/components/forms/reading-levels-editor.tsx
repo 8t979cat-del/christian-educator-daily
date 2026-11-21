@@ -50,33 +50,59 @@ export function ReadingLevelsEditor({
   };
   const formDoc = (name: string): RichDoc => parseRichDoc(formValue(name)) ?? EMPTY_DOC;
 
-  const draftWithAi = (band: GradeBand) => {
-    const hasText = LEVEL_FIELDS.some((f) => (parseRichDoc(formValue(levelFieldName(band, f)))?.content.length ?? 0) > 0);
-    if (hasText && !window.confirm(`Replace the ${BAND_SHORT[band]} text with an AI draft?`)) return;
+  const bandHasText = (band: GradeBand) =>
+    LEVEL_FIELDS.some((f) => (parseRichDoc(formValue(levelFieldName(band, f)))?.content.length ?? 0) > 0);
+
+  /** Asks the AI for one band's version and puts it in that band's boxes. Returns false if it failed. */
+  const runDraft = async (band: GradeBand): Promise<boolean> => {
     setStatus((s) => ({ ...s, [band]: { tone: "info", message: `Writing a draft for ${BAND_LONG[band].toLowerCase()}. This takes about half a minute.` } }));
+    const result = await draftLevelForEditorAction({
+      band,
+      title: formValue("title"),
+      topic: formValue("dailyTopic"),
+      reference: formValue("scriptureReference"),
+      scriptureText: formValue("scriptureText"),
+      standard: {
+        reflection: formDoc("reflection"),
+        discussion_question: formDoc("discussionQuestion"),
+        practical_application: formDoc("practicalApplication"),
+        prayer: formDoc("prayer"),
+      },
+    });
+    if (!result.ok) {
+      setStatus((s) => ({ ...s, [band]: { tone: "error", message: result.error } }));
+      if (/used today/.test(result.error)) setQuota((q) => (q ? { ...q, remaining: 0 } : q));
+      return false;
+    }
+    setQuota((q) => (q ? { ...q, remaining: result.remaining } : q));
+    setDrafts((d) => ({ ...d, [band]: result.version }));
+    setNonce((n) => ({ ...n, [band]: (n[band] ?? 0) + 1 }));
+    setStatus((s) => ({ ...s, [band]: { tone: "info", message: "AI draft added below. Read and edit it, then save the devotional. It goes through review like any other change." } }));
+    return true;
+  };
+
+  const draftWithAi = (band: GradeBand) => {
+    if (bandHasText(band) && !window.confirm(`Replace the ${BAND_SHORT[band]} text with an AI draft?`)) return;
+    start(async () => { await runDraft(band); });
+  };
+
+  // Every age band that has no text of its own yet, drafted one after another.
+  const [allStatus, setAllStatus] = useState<{ tone: "info" | "error"; message: string } | null>(null);
+  const draftAllMissing = () => {
+    const missing = BANDS.filter((b) => !bandHasText(b));
+    if (missing.length === 0) { setAllStatus({ tone: "info", message: "Every reading level already has its own text." }); return; }
     start(async () => {
-      const result = await draftLevelForEditorAction({
-        band,
-        title: formValue("title"),
-        topic: formValue("dailyTopic"),
-        reference: formValue("scriptureReference"),
-        scriptureText: formValue("scriptureText"),
-        standard: {
-          reflection: formDoc("reflection"),
-          discussion_question: formDoc("discussionQuestion"),
-          practical_application: formDoc("practicalApplication"),
-          prayer: formDoc("prayer"),
-        },
-      });
-      if (!result.ok) {
-        setStatus((s) => ({ ...s, [band]: { tone: "error", message: result.error } }));
-        if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
-        return;
+      const done: GradeBand[] = [];
+      for (const band of missing) {
+        setAllStatus({ tone: "info", message: `Writing ${BAND_SHORT[band]} (${done.length + 1} of ${missing.length}). About half a minute each.` });
+        if (!(await runDraft(band))) {
+          setAllStatus({ tone: "error", message: `Stopped at ${BAND_SHORT[band]}. ${done.length ? `Drafted: ${done.map((b) => BAND_SHORT[b]).join(", ")}. ` : ""}See that tab for why.` });
+          setActive(band);
+          return;
+        }
+        done.push(band);
       }
-      if (quota) setQuota({ ...quota, remaining: result.remaining });
-      setDrafts((d) => ({ ...d, [band]: result.version }));
-      setNonce((n) => ({ ...n, [band]: (n[band] ?? 0) + 1 }));
-      setStatus((s) => ({ ...s, [band]: { tone: "info", message: "AI draft added below. Read and edit it, then save the devotional. It goes through review like any other change." } }));
+      setAllStatus({ tone: "info", message: `Drafted ${done.map((b) => BAND_SHORT[b]).join(", ")}. Read each tab, edit anything, then Save changes.` });
     });
   };
 
@@ -98,6 +124,24 @@ export function ReadingLevelsEditor({
 
   return (
     <div ref={root}>
+      {ai ? (
+        <div className="mb-5 grid gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={draftAllMissing}
+              disabled={!ai.configured || pending || outOfRequests}
+              className="inline-flex min-h-11 items-center rounded-control border border-brand px-4 font-semibold text-brand hover:bg-brand-soft disabled:opacity-50"
+            >
+              {pending ? "Writing…" : "Draft every missing level with AI"}
+            </button>
+            <span className="text-sm text-muted">Writes each age band that has no text of its own yet, from the standard text above. One AI request per level.</span>
+          </div>
+          {allStatus ? (
+            <p role={allStatus.tone === "error" ? "alert" : "status"} className={`text-sm font-medium ${allStatus.tone === "error" ? "text-danger" : "text-brand"}`}>{allStatus.message}</p>
+          ) : null}
+        </div>
+      ) : null}
       <div role="tablist" aria-label="Reading level" className="flex flex-wrap gap-2 border-b border-line">
         {BANDS.map((band, i) => {
           const selected = band === active;
