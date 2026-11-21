@@ -339,7 +339,7 @@ export function floorPx(stage: Stage, opts: { size: number; band: GradeBand | nu
 
 /** Measured proportions of the slide typography: average character width and line height, in em. */
 const METRICS = {
-  scripture: { charEm: 0.46, lineEm: 1.4, maxWidthEm: 40, overheadEm: 3 },
+  scripture: { charEm: 0.46, lineEm: 1.5, maxWidthEm: 36, overheadEm: 3.2 },
   rich: { charEm: 0.5, lineEm: 1.45, maxWidthEm: 34, overheadEm: 1.6 },
   emphasis: { charEm: 0.5, lineEm: 1.3, maxWidthEm: 26, overheadEm: 1.6 },
 } as const;

@@ -19,7 +19,7 @@
   --color-gold: #b7791f;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 
   --radius-control: 0.625rem;
   --radius-card: 1rem;

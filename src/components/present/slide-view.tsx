@@ -20,7 +20,8 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
   const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
   const b = slide.body;
   const fitKey = `${slide.key}|${size}|${band}`;
-  const eyebrow = "font-semibold uppercase tracking-[0.12em] text-[0.45em]";
+  // Section labels: sentence case, never letter-spaced capitals, so early readers can read them too.
+  const label_ = "font-sans font-semibold text-[0.55em] leading-tight";
 
   switch (b.kind) {
     case "opener":
@@ -37,33 +38,47 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
           </div>
         </FitText>
       );
-    case "scripture":
+    case "scripture": {
+      const label = [b.reference, slide.pageCount > 1 ? `${slide.page + 1} of ${slide.pageCount}` : null].filter(Boolean).join(" · ");
       return (
         <FitText fitKey={fitKey} scale={scale} align="center">
-          <figure className="mx-auto max-w-[40em]">
-            {slide.pageCount > 1 ? <p className={`${eyebrow} mb-[0.8em]`} style={muted}>{slide.page + 1} of {slide.pageCount}</p> : null}
-            <blockquote className="font-serif leading-[1.4] [text-wrap:pretty]">
-              {b.text.split("\n").map((line, i) => (
-                <span key={i} className={i === 0 ? "block" : "mt-[0.3em] block"}>{line}</span>
-              ))}
+          <figure className="mx-auto max-w-[36em]">
+            {/* The reference leads: it is what the teacher says aloud before reading. */}
+            {label ? <figcaption className="mb-[0.4em] font-serif text-[0.75em] font-semibold leading-tight" style={accent}>{label}</figcaption> : null}
+            <blockquote className="font-serif leading-[1.38] [text-wrap:pretty]">
+              {b.text.split("\n").map((line, i) => {
+                const verse = /^(\d{1,3})\s+(.*)$/.exec(line);
+                return (
+                  <span key={i} className={i === 0 ? "block" : "mt-[0.22em] block"}>
+                    {verse ? (
+                      <>
+                        <sup className="mr-[0.25em] align-[0.5em] font-sans text-[0.5em] font-semibold leading-none" style={accent}>{verse[1]}</sup>
+                        {verse[2]}
+                      </>
+                    ) : line}
+                  </span>
+                );
+              })}
             </blockquote>
-            {b.reference || b.translation ? (
-              <figcaption className="mt-[0.9em] text-[0.5em] font-semibold uppercase tracking-[0.1em]" style={accent}>
-                {[b.reference, b.translation].filter(Boolean).join(" · ")}
-              </figcaption>
+            {b.translation || b.notice ? (
+              <p className="mt-[0.7em] text-[max(14px,0.38em)] leading-snug" style={muted}>
+                {/* Most notices already name the translation; don't say it twice. */}
+                {b.notice && b.translation && b.notice.startsWith(b.translation.replace(/\s*\(.*$/, "")) ? b.notice : [b.translation, b.notice].filter(Boolean).join(". ")}
+              </p>
             ) : null}
-            {b.notice ? <p className="mt-[0.5em] text-[max(12px,0.4em)] leading-snug" style={muted}>{b.notice}</p> : null}
           </figure>
         </FitText>
       );
+    }
     case "reference":
       return (
         <FitText fitKey={fitKey} scale={scale} ratio={1.2}>
           <div className="mx-auto max-w-[22em] text-center">
-            <p className={eyebrow} style={accent}>{simple ? "Let’s read God’s Word" : "Scripture"}</p>
-            <h1 className="mt-[0.5em] font-serif font-semibold leading-[1.1]">{b.reference}</h1>
+            <h1 className="font-serif font-semibold leading-[1.1]">{b.reference}</h1>
             {b.translation ? <p className="mt-[0.4em] text-[0.5em]" style={muted}>{b.translation}</p> : null}
-            <p className="mt-[0.9em] text-[0.55em] leading-snug" style={muted}>Open your Bible and read this passage together.</p>
+            <p className="mt-[1em] text-[0.55em] leading-snug" style={accent}>
+              {simple ? "Let’s open our Bibles and read it together." : "Open your Bible and read this passage together."}
+            </p>
           </div>
         </FitText>
       );
@@ -74,7 +89,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
             {b.parts.map((part, i) => (
               <section key={part.section}>
                 {/* One heading level for every section label, so a slide with two parts reads as two sections. */}
-                <h2 className={`${eyebrow} mb-[0.9em]`} style={accent}>
+                <h2 className={`${label_} mb-[0.6em]`} style={accent}>
                   {part.heading}{i === 0 && slide.pageCount > 1 ? ` · ${slide.page + 1} of ${slide.pageCount}` : ""}
                 </h2>
                 <RichTextView doc={part.doc} className={b.emphasis ? "font-serif font-semibold [text-wrap:balance]" : "[text-wrap:pretty]"} />
