@@ -164,7 +164,10 @@ export function DevotionalForm({
               <SelectField
                 label="Translation"
                 name="translationCode"
-                value={translationCode}
+                // Not a controlled value: React's reset after saving blanks a controlled dropdown.
+                // It keeps its own value and is refreshed only when the saved value changes.
+                key={`translationCode:${v("translationCode", initial.translation_code)}`}
+                defaultValue={translationCode}
                 onChange={(event) => changeTranslation(event.target.value)}
                 error={fe.translationCode}
                 options={[
