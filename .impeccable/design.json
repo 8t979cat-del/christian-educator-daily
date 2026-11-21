@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T17:57:21+00:00",
+  "title": "Design System: Everyday Devotional",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Bible Paper",
+        "canonical": "#fbfaf6",
+        "tonalRamp": [
+          "#4b4b4a",
+          "#7e7d7b",
+          "#b0afac",
+          "#dddcd8",
+          "#fcfbf8",
+          "#fdfcfa",
+          "#fefefd",
+          "#fffffe"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Clean Leaf",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#4d4d4d",
+          "#808080",
+          "#b2b2b2",
+          "#e0e0e0",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Press Ink",
+        "canonical": "#1b1a17",
+        "tonalRamp": [
+          "#080807",
+          "#0e0d0c",
+          "#131210",
+          "#181714",
+          "#545351",
+          "#8d8c8b",
+          "#c6c6c5",
+          "#ededec"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#55524b",
+        "tonalRamp": [
+          "#1a1917",
+          "#2a2926",
+          "#3b3934",
+          "#4b4842",
+          "#807d78",
+          "#aaa8a5",
+          "#d4d4d2",
+          "#f1f1f1"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d9d4c7",
+        "tonalRamp": [
+          "#41403c",
+          "#6c6a64",
+          "#98948b",
+          "#bfbbaf",
+          "#e2dfd5",
+          "#eceae3",
+          "#f6f4f1",
+          "#fcfcfb"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "#6b665c",
+        "tonalRamp": [
+          "#201f1c",
+          "#36332e",
+          "#4b4740",
+          "#5e5a51",
+          "#908c85",
+          "#b5b2ae",
+          "#dad9d6",
+          "#f3f3f2"
+        ]
+      },
+      "bookcloth": {
+        "role": "primary",
+        "displayName": "Bookcloth Navy",
+        "canonical": "#1c2a47",
+        "tonalRamp": [
+          "#080d15",
+          "#0e1524",
+          "#141d32",
+          "#19253e",
+          "#555f75",
+          "#8e94a3",
+          "#c6cad1",
+          "#edeef0"
+        ]
+      },
+      "bookcloth-deep": {
+        "role": "primary",
+        "displayName": "Bookcloth Deep",
+        "canonical": "#121c31",
+        "tonalRamp": [
+          "#05080f",
+          "#090e18",
+          "#0d1422",
+          "#10192b",
+          "#4d5564",
+          "#888e98",
+          "#c4c6cc",
+          "#ecedef"
+        ]
+      },
+      "bookcloth-raised": {
+        "role": "primary",
+        "displayName": "Bookcloth Raised",
+        "canonical": "#2a3a5e",
+        "tonalRamp": [
+          "#0d111c",
+          "#151d2f",
+          "#1d2942",
+          "#253353",
+          "#5f6b86",
+          "#949cae",
+          "#caced7",
+          "#eeeff2"
+        ]
+      },
+      "bookcloth-wash": {
+        "role": "primary",
+        "displayName": "Bookcloth Wash",
+        "canonical": "#e7e9ef",
+        "tonalRamp": [
+          "#454648",
+          "#747478",
+          "#a2a3a7",
+          "#cbcdd2",
+          "#edeef3",
+          "#f3f4f7",
+          "#f9fafb",
+          "#fdfdfe"
+        ]
+      },
+      "cloth-text": {
+        "role": "neutral",
+        "displayName": "Cloth Text",
+        "canonical": "#e9e3d2",
+        "tonalRamp": [
+          "#46443f",
+          "#747269",
+          "#a39f93",
+          "#cdc8b9",
+          "#eeeadd",
+          "#f4f1e8",
+          "#faf8f4",
+          "#fdfdfb"
+        ]
+      },
+      "gilt": {
+        "role": "tertiary",
+        "displayName": "Gilt",
+        "canonical": "#d4b25e",
+        "tonalRamp": [
+          "#40351c",
+          "#6a592f",
+          "#947d42",
+          "#bb9d53",
+          "#dfc586",
+          "#ead8ae",
+          "#f4ecd7",
+          "#fcf9f2"
+        ]
+      },
+      "rubric": {
+        "role": "secondary",
+        "displayName": "Rubric Red",
+        "canonical": "#a31d16",
+        "tonalRamp": [
+          "#310907",
+          "#520e0b",
+          "#72140f",
+          "#8f1a13",
+          "#ba5650",
+          "#d18e8a",
+          "#e8c6c5",
+          "#f8edec"
+        ]
+      },
+      "danger": {
+        "role": "error",
+        "displayName": "Danger",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#360b09",
+          "#5a130f",
+          "#7d1b15",
+          "#9e211a",
+          "#c65c56",
+          "#d9928e",
+          "#ecc9c7",
+          "#f9eeed"
+        ]
+      },
+      "danger-soft": {
+        "role": "error",
+        "displayName": "Danger Wash",
+        "canonical": "#fbeae8",
+        "tonalRamp": [
+          "#4b4646",
+          "#7e7574",
+          "#b0a4a2",
+          "#ddcecc",
+          "#fcefee",
+          "#fdf4f4",
+          "#fefaf9",
+          "#fffdfd"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Day Number",
+        "purpose": "The red-letter day number at the head of today's page; rubric red, tabular figures."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page and section titles, Caslon regular, 1.875rem to 2.75rem."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "List-entry names, sample passages, order-of-day entries."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All reading prose on paper and cloth."
+      },
+      "rubric": {
+        "displayName": "Rubric",
+        "purpose": "Italic red instructions to the teacher and reading-level labels."
+      },
+      "label": {
+        "displayName": "Tracked Capitals",
+        "purpose": "Stand-in for small capitals (the face has none): wordmark, month, back-cover sub-heads."
+      },
+      "ui": {
+        "displayName": "Interface Sans",
+        "purpose": "App form labels, fields and default button labels only."
+      }
+    },
+    "shadows": [],
+    "rules": [
+      {
+        "name": "double-rule",
+        "value": "4px double rgb(27 26 23 / .7)",
+        "purpose": "Opens sections, lists and the running head on paper; on cloth in gilt at 60 to 70%."
+      },
+      {
+        "name": "hairline",
+        "value": "1px solid #d9d4c7",
+        "purpose": "Divides list entries and sections."
+      },
+      {
+        "name": "dotted-leader",
+        "value": "1px dotted rgb(107 102 92 / .5)",
+        "purpose": "Leads the eye across index entries."
+      },
+      {
+        "name": "keyline-frame",
+        "value": "1px solid rgb(27 26 23 / .7) + outline 1px rgb(107 102 92 / .5) offset 5px",
+        "purpose": "Frames the inline presenter and the empty verse block."
+      },
+      {
+        "name": "focus-ring",
+        "value": "3px solid #1c2a47, offset 2px; gilt on cloth",
+        "purpose": "The one focus treatment everywhere."
+      }
+    ],
+    "presentThemes": {
+      "source": "src/lib/content/present.ts PRESENT_THEMES",
+      "minContrast": 7,
+      "themes": {
+        "white": {
+          "label": "White",
+          "bg": "#ffffff",
+          "fg": "#111111",
+          "accent": "#a31d16",
+          "muted": "#333333"
+        },
+        "cream": {
+          "label": "Paper",
+          "bg": "#fbfaf6",
+          "fg": "#161616",
+          "accent": "#a31d16",
+          "muted": "#363636"
+        },
+        "dark": {
+          "label": "Bookcloth",
+          "bg": "#141f36",
+          "fg": "#ffffff",
+          "accent": "#d4b25e",
+          "muted": "#d9dce4"
+        },
+        "contrast": {
+          "label": "High contrast",
+          "bg": "#000000",
+          "fg": "#ffffff",
+          "accent": "#ffe14d",
+          "muted": "#e8e8e8"
+        }
+      }
+    },
+    "motion": [
+      {
+        "name": "color-transition",
+        "value": "transition-colors 150ms",
+        "purpose": "Hover fills on buttons; nothing else moves. Reduced motion collapses all durations."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Bookcloth navy fill for the single primary action, e.g. Present full screen.",
+      "html": "<button class=\"ds-btn-primary\">Present full screen</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 20px; background:var(--color-brand,#1c2a47); color:#fff; border:1px solid var(--color-brand,#1c2a47); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1rem; font-weight:400; cursor:pointer; transition:background-color .15s; } .ds-btn-primary:hover { background:var(--color-brand-hover,#121c31); } .ds-btn-primary:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White leaf with a strong hairline; Back, Next, text size.",
+      "html": "<button class=\"ds-btn-secondary\">Next</button>",
+      "css": ".ds-btn-secondary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px; padding:0 12px; background:var(--color-surface,#fff); color:var(--color-ink,#1b1a17); border:1px solid rgb(107 102 92 / .5); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1rem; cursor:pointer; transition:background-color .15s; } .ds-btn-secondary:hover { background:var(--color-brand-soft,#e7e9ef); } .ds-btn-secondary:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+    },
+    {
+      "name": "Gilt Button",
+      "kind": "button",
+      "refersTo": "button-gilt",
+      "description": "The one gilt-filled action, on the back cover only.",
+      "html": "<div class=\"ds-cloth\"><a class=\"ds-btn-gilt\" href=\"#\">Write to us about your school</a></div>",
+      "css": ".ds-cloth { background:#1c2a47; padding:24px; } .ds-btn-gilt { display:inline-flex; align-items:center; min-height:52px; padding:0 28px; background:var(--color-gilt,#d4b25e); color:var(--color-brand,#1c2a47); border:1px solid var(--color-gilt,#d4b25e); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1.125rem; text-decoration:none; transition:background-color .15s; } .ds-btn-gilt:hover { background:#e2c57a; } .ds-btn-gilt:focus-visible { outline:3px solid var(--color-gilt,#d4b25e); outline-offset:2px; }"
+    },
+    {
+      "name": "Rubric Link",
+      "kind": "custom",
+      "refersTo": "colors.rubric",
+      "description": "Red Caslon link with a 40% red underline that fills on hover.",
+      "html": "<a class=\"ds-rubric-link\" href=\"#\">Become a founding school</a>",
+      "css": ".ds-rubric-link { font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1.125rem; color:var(--color-rubric,#a31d16); text-decoration:underline; text-decoration-color:rgb(163 29 22 / .4); text-underline-offset:4px; } .ds-rubric-link:hover { text-decoration-color:var(--color-rubric,#a31d16); } .ds-rubric-link:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "App field: white leaf, strong hairline, square-cut, system sans.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">School name</span><input class=\"ds-input\" placeholder=\"St. Mark's School\"></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:6px; font-family:ui-sans-serif,system-ui,sans-serif; } .ds-field-label { font-size:.875rem; font-weight:600; color:var(--color-ink,#1b1a17); } .ds-input { min-height:44px; padding:8px 12px; background:var(--color-surface,#fff); color:var(--color-ink,#1b1a17); border:1px solid rgb(107 102 92 / .6); border-radius:var(--radius-control,0.1875rem); font-size:1rem; } .ds-input:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+    },
+    {
+      "name": "Masthead",
+      "kind": "nav",
+      "refersTo": "masthead",
+      "description": "Navy cloth band with gilt wordmark, Caslon links and a gilt double rule beneath.",
+      "html": "<header class=\"ds-masthead\"><a class=\"ds-mark\" href=\"#\"><span class=\"ds-mark-box\"><span>180</span></span><span class=\"ds-mark-name\">Everyday Devotional</span></a><nav class=\"ds-nav\"><a href=\"#\">Today</a><a href=\"#\">The year</a><a class=\"ds-signin\" href=\"#\">Sign in</a></nav></header>",
+      "css": ".ds-masthead { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:0 16px; background:#1c2a47; color:#e9e3d2; border-bottom:4px double rgb(212 178 94 / .6); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); } .ds-mark { display:inline-flex; align-items:center; gap:12px; color:#d4b25e; text-decoration:none; } .ds-mark-box { display:grid; place-items:center; height:36px; padding:0 6px; border:1px solid currentColor; font-variant-numeric:oldstyle-nums; } .ds-mark-box span { border-block:1px solid currentColor; padding:4px; line-height:1; } .ds-mark-name { text-transform:uppercase; letter-spacing:.18em; font-size:.95rem; } .ds-nav { display:flex; align-items:center; gap:4px; } .ds-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 12px; color:#e9e3d2; text-decoration:none; text-underline-offset:6px; } .ds-nav a:hover { color:#d4b25e; text-decoration:underline; } .ds-nav a.ds-signin { margin-left:8px; padding:0 20px; color:#d4b25e; border:1px solid rgb(212 178 94 / .7); border-radius:0.1875rem; } .ds-nav a.ds-signin:hover { background:rgb(255 255 255 / .1); text-decoration:none; } .ds-nav a:focus-visible, .ds-mark:focus-visible { outline:3px solid #d4b25e; outline-offset:2px; }"
+    },
+    {
+      "name": "Ruled Order List",
+      "kind": "custom",
+      "refersTo": "colors.rubric",
+      "description": "Double-rule-opened list with red roman numerals and red italic rubrics.",
+      "html": "<ol class=\"ds-order\"><li><span class=\"ds-num\">I</span><div><p class=\"ds-name\">The title</p><p class=\"ds-rubric\">Read it aloud. The week's theme sits beneath it.</p></div></li><li><span class=\"ds-num\">II</span><div><p class=\"ds-name\">Scripture</p><p class=\"ds-rubric\">The class reads together.</p></div></li></ol>",
+      "css": ".ds-order { list-style:none; margin:0; padding:0; border-top:4px double rgb(27 26 23 / .7); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); background:#fbfaf6; } .ds-order li { display:grid; grid-template-columns:3rem 1fr; column-gap:12px; padding:16px 0; border-bottom:1px solid #d9d4c7; } .ds-num { font-size:1.25rem; color:#a31d16; } .ds-name { margin:0; font-size:1.25rem; color:#1b1a17; } .ds-rubric { margin:4px 0 0; font-style:italic; color:#a31d16; }"
+    },
+    {
+      "name": "Day Number",
+      "kind": "custom",
+      "refersTo": "typography.display",
+      "description": "Red-letter calendar day: display figure with tracked month beneath, beside the title.",
+      "html": "<div class=\"ds-day\"><p class=\"ds-daynum\"><span>14</span><span class=\"ds-month\">Nov</span></p><div><h1 class=\"ds-title\">Wait for the Lord</h1><p class=\"ds-meter\">Patience · Day 3 of 5</p></div></div>",
+      "css": ".ds-day { display:flex; align-items:flex-start; gap:28px; font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); background:#fbfaf6; padding:16px; } .ds-daynum { display:grid; justify-items:center; margin:0; color:#a31d16; } .ds-daynum span:first-child { font-size:6rem; line-height:.8; font-variant-numeric:tabular-nums; } .ds-month { margin-top:8px; font-size:.875rem; text-transform:uppercase; letter-spacing:.2em; } .ds-title { margin:4px 0 0; font-size:2.75rem; font-weight:400; line-height:1.12; color:#1b1a17; } .ds-meter { margin:8px 0 0; font-style:italic; color:#55524b; }"
+    },
+    {
+      "name": "Back Cover Frame",
+      "kind": "card",
+      "refersTo": "colors.gilt",
+      "description": "Gilt double rule with inset gilt rule on bookcloth, for the founding section.",
+      "html": "<div class=\"ds-cover\"><div class=\"ds-cover-frame\"><div class=\"ds-cover-inner\"><h2>Become a founding school</h2><h3>What we ask</h3><p>Honest feedback, including “not yet” if that is the answer.</p></div></div></div>",
+      "css": ".ds-cover { background:#1c2a47; color:#e9e3d2; padding:24px; font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); } .ds-cover-frame { border:4px double rgb(212 178 94 / .7); padding:6px; } .ds-cover-inner { border:1px solid rgb(212 178 94 / .4); padding:40px 24px; } .ds-cover-inner h2 { margin:0; font-size:2.25rem; font-weight:400; color:#d4b25e; } .ds-cover-inner h3 { margin:28px 0 0; font-size:.875rem; font-weight:400; text-transform:uppercase; letter-spacing:.16em; color:#d4b25e; } .ds-cover-inner p { margin:12px 0 0; font-size:1.125rem; line-height:1.6; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The School Hymnal",
+    "overview": "The site is a well-made hymnal, a numbered book for every school day. Inside, the page is bright, thin Bible paper with true ink black and red rubrics; outside, whole regions are bound in navy bookcloth with gilt stamping. The masthead is the front board, the founding section and colophon are the back cover. Everything between them reads as printed matter: Caslon set at regular weight, square-cut corners, hairline and double rules where another product would put cards.\n\nDensity is that of a well-leaded book page, not a dashboard. Sections are separated by rules and paper, not by boxes and shadows. The red is the red-letter tradition: it marks what the teacher does (instructions set in italic) and what you count by (day numbers, roman order numerals, verse figures), never decoration. Gilt only ever appears on cloth.\n\nThis world replaces an earlier cream-parchment, teal, Source Serif look with rounded cards; that look is retired and nothing of it is current.",
+    "keyCharacteristics": [
+      "Bible paper (#fbfaf6) inside, navy bookcloth (#1c2a47) for the masthead, back cover and colophon.",
+      "Red italic rubrics as the signature: instructions to the teacher, day numbers, order numerals.",
+      "Libre Caslon Text throughout, regular weight even at display sizes.",
+      "Printed rules instead of containers: 4px double rules open lists and sections, hairlines divide items, dotted leaders run index entries.",
+      "Square-cut corners (3px and 4px); no shadows on the page."
+    ],
+    "rules": [
+      {
+        "name": "The Red-Letter Rule",
+        "body": "Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, verse figures. It never fills a surface, a button or a heading.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gilt-on-Cloth Rule",
+        "body": "Gilt appears only on bookcloth navy. On paper it has no contrast and no meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Binding Rule",
+        "body": "Navy either carries a whole region (masthead, back cover, colophon) or the single primary action in view. It is never a tinted card in the middle of the page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Regular-Weight Display Rule",
+        "body": "Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3).",
+        "section": "typography"
+      },
+      {
+        "name": "The Stated Substitution Rule",
+        "body": "Libre Caslon Text has no true small capitals, so tracked full capitals (0.16em to 0.2em) stand in for them: the wordmark, the month abbreviation, the founding sub-heads. Never synthesize small caps with `font-variant: small-caps` or scaled capitals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Figures Rule",
+        "body": "Counted numbers use tabular figures; the wordmark's \"180\" and the index ranges use old-style figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Printed-Depth Rule",
+        "body": "No shadows on paper or cloth. Separation comes from rules, keylines and the paper/cloth boundary.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** separate sections and list items with printed rules: a 4px double rule to open, 1px hairlines between entries, dotted leaders in indexes.",
+      "**Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3.",
+      "**Do** put instructions to the teacher in red italic rubrics, and number things (days, order steps) in rubric red.",
+      "**Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.",
+      "**Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.",
+      "**Do** keep every projector theme at 7:1 or better for text, muted and accent colours, and add any new theme to the contrast test.",
+      "**Do** keep controls at least 44px and square-cut (3px)."
+    ],
+    "donts": [
+      "**Don't** synthesize small capitals with `font-variant: small-caps` or scaled-down capitals.",
+      "**Don't** use cards, icon tiles, pills or shadows on the page; frame with rules and keylines instead.",
+      "**Don't** use rubric red for fills, buttons or decorative headings.",
+      "**Don't** put gilt on paper.",
+      "**Don't** bring back the retired look: cream parchment ground with teal accents, Source Serif, rounded cards.",
+      "**Don't** add uppercase semibold label lines above headings; the only tracked capitals are the wordmark, the month and the back-cover sub-heads."
+    ]
+  }
+}

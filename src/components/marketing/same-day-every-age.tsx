@@ -21,9 +21,8 @@ export function SameDayEveryAge() {
       <div className="grid border-y-4 border-double border-ink/70 md:grid-cols-2">
         {SAMPLES.map((s, i) => (
           <div key={s.band} className={`px-0 py-6 md:px-8 ${i === 1 ? "border-t border-line md:border-l md:border-t-0" : ""}`}>
-            <p className="font-serif text-sm italic text-rubric">{s.band}</p>
-            <p className="mt-3 font-serif text-sm uppercase tracking-[0.14em] text-muted">{s.label}</p>
-            <p className="mt-2 font-serif text-2xl leading-snug text-balance md:text-[1.75rem]">{s.text}</p>
+            <p className="font-serif text-sm italic text-rubric">{s.band} · {s.label}</p>
+            <p className="mt-3 font-serif text-2xl leading-snug text-balance md:text-[1.75rem]">{s.text}</p>
           </div>
         ))}
       </div>

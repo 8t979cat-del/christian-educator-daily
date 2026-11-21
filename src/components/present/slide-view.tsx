@@ -21,7 +21,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
   const b = slide.body;
   const fitKey = `${slide.key}|${size}|${band}`;
   // Section labels: sentence case, never letter-spaced capitals, so early readers can read them too.
-  const label_ = "font-sans font-semibold text-[0.55em] leading-tight";
+  const label_ = "font-serif italic text-[0.58em] leading-tight";
 
   switch (b.kind) {
     case "opener":
@@ -31,7 +31,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
             <h1 className="font-serif font-semibold leading-[1.1] [text-wrap:balance]">{b.heading}</h1>
             {b.text ? <p className="mt-[0.6em] text-[0.55em] leading-snug [text-wrap:balance]" style={muted}>{b.text}</p> : null}
             {b.theme || b.dayLabel ? (
-              <p className="mt-[1.4em] text-[0.4em] font-semibold" style={accent}>
+              <p className="mt-[1.4em] text-[0.42em] italic" style={accent}>
                 {[b.theme, simple ? null : b.dayLabel].filter(Boolean).join(" · ")}
               </p>
             ) : null}
@@ -52,7 +52,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
                   <span key={i} className={i === 0 ? "block" : "mt-[0.22em] block"}>
                     {verse ? (
                       <>
-                        <sup className="align-[0.5em] font-sans text-[0.5em] font-semibold leading-none" style={accent}>{verse[1]}</sup>
+                        <sup className="align-[0.45em] text-[0.55em] leading-none" style={accent}>{verse[1]}</sup>
                         {/* A real space, so copied text and screen readers get "1 The", not "1The". */}
                         {" "}{verse[2]}
                       </>

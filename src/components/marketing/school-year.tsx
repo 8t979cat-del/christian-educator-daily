@@ -13,7 +13,7 @@ export function SchoolYear() {
           <li key={w} className="flex items-baseline gap-2 border-b border-line py-1.5 text-sm">
             <span className="w-14 shrink-0 italic text-muted">Week {w + 1}</span>
             <span aria-hidden="true" className="min-w-2 flex-1 translate-y-[-0.2em] border-b border-dotted border-line-strong/50" />
-            <span className={`tabular-nums [font-variant-numeric:oldstyle-nums_tabular-nums] ${w === 0 ? "text-rubric" : "text-ink"}`}>
+            <span className="tabular-nums text-ink [font-variant-numeric:oldstyle-nums_tabular-nums]">
               {w * 5 + 1}–{w * 5 + 5}
             </span>
           </li>

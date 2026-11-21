@@ -84,6 +84,8 @@
 .rich-text blockquote { border-left: 3px solid var(--color-brand); padding-left: 1rem; color: var(--color-muted); font-style: italic; }
 
 /* Classroom presentation: type scales with the slide (em), colours come from the chosen theme */
+/* Slides are set in Caslon throughout, like the page; controls keep the interface face. */
+.present-stage [data-fit] { font-family: var(--font-serif); }
 .present-stage .rich-text { line-height: 1.4; }
 .present-stage .rich-text > * + * { margin-top: 0.6em; }
 .present-stage .rich-text h3 { font-size: 1em; margin-top: 0.8em; }

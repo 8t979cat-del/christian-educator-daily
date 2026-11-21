@@ -50,6 +50,15 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
     setIndex(equivalentIndex(was, slides));
   }, [slides]);
 
+  // The page already shows the title above, so the inline view opens on the Scripture; Back still reaches the title slide.
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current || slides.length === 0) return;
+    opened.current = true;
+    const scripture = slides.findIndex((s) => s.section === "scripture");
+    if (scripture > 0) setIndex(scripture);
+  }, [slides]);
+
   const safe = Math.min(index, Math.max(0, slides.length - 1));
   const slide = slides[safe];
   const go = useCallback((d: number) => setIndex((i) => Math.max(0, Math.min(slides.length - 1, Math.min(i, slides.length - 1) + d))), [slides.length]);
@@ -93,11 +102,11 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         </div>
         {fullscreen ? (
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2">
-            <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>← Back</button>
-            <span className="font-semibold tabular-nums">{safe + 1} / {slides.length}</span>
+            <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
+            <span className="font-serif tabular-nums">{safe + 1} / {slides.length}</span>
             <span className="flex gap-2">
               <button type="button" className={btn} onClick={toggleFullscreen}>Exit full screen</button>
-              <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next →</button>
+              <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next</button>
             </span>
           </div>
         ) : null}
@@ -108,9 +117,9 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
       <p className="sr-only" aria-live="polite">{slide ? `Slide ${safe + 1} of ${slides.length}: ${slide.label}` : ""}</p>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>← Back</button>
-        <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next →</button>
-        <span className="px-1 text-sm font-semibold text-muted tabular-nums">Slide {safe + 1} of {slides.length}</span>
+        <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
+        <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next</button>
+        <span className="px-1 font-serif text-sm italic text-muted tabular-nums">Slide {safe + 1} of {slides.length}</span>
         <span className="flex w-full gap-2 sm:ml-auto sm:w-auto">
           <button type="button" className={btn} aria-label="Smaller text" onClick={() => setSize((s) => Math.max(0, s - 1))} disabled={size === 0}>A−</button>
           <button type="button" className={btn} aria-label="Larger text" onClick={() => setSize((s) => Math.min(SIZE_SCALES.length - 1, s + 1))} disabled={size === SIZE_SCALES.length - 1}>A+</button>
