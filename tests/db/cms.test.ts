@@ -679,3 +679,35 @@ describe("reading levels", () => {
     await expect(q(teacher, `update devotionals set levels = '{}' where id = $1 returning id`, [id]).then((r) => { if (r.length === 0) throw new Error("permission denied (no rows)"); })).rejects.toThrow(DENIED);
   });
 });
+
+describe("today's devotional for signed-out visitors", () => {
+  const today = () => new Date().toISOString().slice(0, 10);
+  const anonToday = async () =>
+    h.asAnon(async () => (await h.db.query<{ d: Record<string, unknown> | null }>(`select public_today_devotional($1::date) as d`, [today()])).rows[0]!.d);
+
+  it("shows the live free devotional's standard text, never its reading-level versions or anything else", async () => {
+    await admin(`update devotionals set devotional_date = devotional_date - 3650 where devotional_date >= current_date - 7 and devotional_date <= current_date`);
+    const id = await create(editorA, { date: today(), translation: "kjv", text: "In the beginning God created the heaven and the earth." });
+    await q(editorA, `update devotionals set levels = $2::jsonb where id = $1`, [id, JSON.stringify({ k2: { reflection: JSON.parse(doc("Only for signed-in teachers.")) } })]);
+    expect(await anonToday()).toBeNull(); // still a draft
+    await approve(id);
+    await move(editorB, id, "published");
+    const d = await anonToday();
+    expect(d).toMatchObject({ id, title: "Waiting well", scripture_reference: "Galatians 6:9" });
+    expect(d!.scripture_text).toMatch(/In the beginning/);
+    expect(JSON.stringify(d)).not.toMatch(/Only for signed-in teachers/);
+    expect(Object.keys(d!)).not.toContain("levels");
+    // Signed-out visitors still cannot read the table itself.
+    await expect(h.asAnon(async () => (await h.db.query(`select id from devotionals`)).rows)).rejects.toThrow(DENIED);
+  });
+
+  it("hides Scripture text the translation's licence does not allow, and Plus devotionals entirely", async () => {
+    await admin(`update devotionals set devotional_date = devotional_date - 3650 where devotional_date >= current_date - 7 and devotional_date <= current_date`);
+    const id = await create(editorA, { date: today(), translation: "nkjv", text: null });
+    await approve(id);
+    await move(editorB, id, "published");
+    expect((await anonToday())!.scripture_text).toBeNull();
+    await admin(`update devotionals set access_level = 'plus' where id = $1`, [id]);
+    expect(await anonToday()).toBeNull();
+  });
+});

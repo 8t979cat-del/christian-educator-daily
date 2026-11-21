@@ -1,11 +1,16 @@
 import { Container } from "@/components/layout/container";
-import { ClassroomPreview } from "@/components/marketing/classroom-preview";
 import { SameDayEveryAge } from "@/components/marketing/same-day-every-age";
 import { SchoolYear } from "@/components/marketing/school-year";
+import { InlinePresenter } from "@/components/present/inline-presenter";
 import { ButtonLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Heading, Text } from "@/components/ui/typography";
-import { getFoundingContactEmail } from "@/lib/env";
+import { todayIn } from "@/lib/content/dates";
+import { getPublicToday } from "@/lib/content/queries";
+import { getFoundingContactEmail, getSiteTimeZone } from "@/lib/env";
+
+// Today's devotional changes daily and comes from the database on each visit.
+export const dynamic = "force-dynamic";
 
 /** The five slides of a typical day, in the order a class sees them. */
 const DAY = [
@@ -30,8 +35,9 @@ const TRUST = [
   { title: "Your school’s information stays yours", body: "Each school’s accounts and records are kept private from every other school." },
 ] as const;
 
-export default function LandingPage() {
+export default async function LandingPage() {
   const contact = getFoundingContactEmail();
+  const today = await getPublicToday(todayIn(getSiteTimeZone()));
   const contactHref = contact
     ? `mailto:${contact}?subject=${encodeURIComponent("Founding school: Everyday Devotional")}`
     : "#founding";
@@ -53,16 +59,33 @@ export default function LandingPage() {
               <ButtonLink href={contactHref} size="lg">
                 Become a founding school
               </ButtonLink>
-              <ButtonLink href="/classroom-demo" variant="secondary" size="lg">
-                Try classroom mode
+              <ButtonLink href={today ? "#today" : "/classroom-demo"} variant="secondary" size="lg">
+                {today ? "Present today’s devotional" : "Try classroom mode"}
               </ButtonLink>
             </div>
             <Text size="sm" muted className="mt-4">
               We are inviting a small group of Christian schools to be the first to use it, free, and to help shape it.
             </Text>
           </div>
-          <div className="mt-12 md:mt-16">
-            <SameDayEveryAge />
+          <div id="today" className="mt-12 scroll-mt-20 md:mt-16">
+            {today ? (
+              <>
+                <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <Heading level={2} size={3}>Today’s devotional</Heading>
+                  <p className="text-muted">{today.dateLabel}{today.scripture.reference ? ` · ${today.scripture.reference}` : ""}</p>
+                </div>
+                <InlinePresenter content={today} />
+              </>
+            ) : (
+              <div className="rounded-card border border-dashed border-line-strong/50 bg-surface px-6 py-10 text-center">
+                <Heading level={2} size={3}>Today’s devotional appears here each school day</Heading>
+                <Text muted className="mx-auto mt-3 max-w-xl">
+                  Open this page in the morning and present it to your class, no sign-in needed. Until the first
+                  devotionals are published, you can try classroom mode with a sample.
+                </Text>
+                <ButtonLink href="/classroom-demo" variant="secondary" className="mt-6">Try classroom mode</ButtonLink>
+              </div>
+            )}
           </div>
         </Container>
       </section>
@@ -117,7 +140,10 @@ export default function LandingPage() {
               Try it with a sample devotional
             </ButtonLink>
           </div>
-          <ClassroomPreview />
+          <div>
+            <Heading level={3} size={4} className="mb-4">With an account: the same day, at every age</Heading>
+            <SameDayEveryAge />
+          </div>
         </Container>
       </section>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PresentMode } from "@/components/present/present-mode";
 import { PresenterView } from "@/components/present/presenter-view";
+import { InlinePresenter } from "@/components/present/inline-presenter";
 import type { PresentContent } from "@/lib/content/present";
 
 export const metadata: Metadata = { title: "Classroom mode demo", robots: { index: false } };
@@ -95,6 +96,8 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
       <p className="mt-1 text-sm">In the real app this is the teacher’s private notes box. Ask the group about their own experience first.</p>
     </div>
   );
+  // The home page's built-in presenter, with sample content (for checking it without a database).
+  if (view === "inline") return <main className="mx-auto max-w-5xl p-6"><InlinePresenter content={{ ...content, levels: {} }} /></main>;
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
   return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes} />;
 }

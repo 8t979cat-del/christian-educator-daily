@@ -18,7 +18,7 @@ const SAMPLES = [
 export function SameDayEveryAge() {
   return (
     <figure>
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
         {SAMPLES.map((s) => (
           <div key={s.band}>
             <p className="mb-2 text-sm font-semibold text-muted">{s.band}</p>
@@ -26,7 +26,7 @@ export function SameDayEveryAge() {
             <div className="grid aspect-video place-items-center rounded-card border border-line-strong/40 bg-surface p-[7%] text-center shadow-[0_18px_40px_-24px_rgb(20_32_43/0.45)]">
               <div>
                 <p className="text-sm font-semibold text-brand md:text-lg">{s.label}</p>
-                <p className="mt-2 font-serif text-xl font-semibold leading-snug text-balance sm:text-2xl lg:text-[2rem] lg:leading-tight">{s.text}</p>
+                <p className="mt-2 font-serif text-xl font-semibold leading-snug text-balance sm:text-2xl xl:text-2xl">{s.text}</p>
               </div>
             </div>
           </div>
