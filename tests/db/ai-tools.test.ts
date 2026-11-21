@@ -8,6 +8,7 @@ let free: string;
 let plus: string;
 let other: string;
 let devotionalId: string;
+let editor: string;
 
 const q = <T = Record<string, unknown>>(user: string, sql: string, params: unknown[] = []) =>
   h.as(user, async () => (await h.db.query<T & object>(sql, params)).rows);
@@ -23,6 +24,8 @@ beforeAll(async () => {
   for (const u of [plus, other]) {
     await admin(`insert into entitlement_grants (user_id, plan_key, reason) values ($1, 'plus', 'test')`, [u]);
   }
+  editor = await h.createUser("editor@ai.test");
+  await admin(`insert into platform_roles (user_id, role) values ($1, 'content_editor')`, [editor]);
   devotionalId = (await admin<{ id: string }>(`insert into devotionals (title, devotional_date) values ('Test', '2040-03-05') returning id`))[0]!.id;
 });
 afterAll(async () => h?.db.close());
@@ -55,5 +58,13 @@ describe("AI tools", () => {
     await expect(q(plus, `insert into presentation_versions (devotional_id, band, source, content) values ($1, 'g68', 'edited', '{"sermon": "x"}'::jsonb)`, [devotionalId])).rejects.toThrow(/check constraint/);
     await expect(q(plus, `insert into presentation_versions (source, content) values ('ai_generated', $1::jsonb)`, [content])).rejects.toThrow(/generated_has_scripture/);
     await q(plus, `insert into presentation_versions (source, title, content, scripture, topics) values ('ai_generated', 'New day', $1::jsonb, '{"reference": "Psalm 23", "translation_code": "web"}'::jsonb, '{patience,friendship}')`, [content]);
+  });
+
+  it("give content editors up to 50 AI drafts a day, whatever their own plan", async () => {
+    expect(await q(editor, `select * from ai_remaining()`)).toEqual([{ remaining: 50, daily_limit: 50 }]);
+    const [{ ai_consume: left }] = (await q<{ ai_consume: number }>(editor, `select ai_consume()`)) as [{ ai_consume: number }];
+    expect(left).toBe(49);
+    await expect(q(free, `select ai_consume()`)).rejects.toThrow(/Educator Plus/);
+    await expect(q(editor, `select ai_daily_limit($1)`, [editor])).rejects.toThrow(/permission denied/);
   });
 });

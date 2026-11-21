@@ -1,8 +1,11 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useId, useRef, useState, useTransition, type KeyboardEvent } from "react";
+import { draftLevelForEditorAction } from "@/app/actions/ai";
+import { AiCounter, OUT_OF_REQUESTS } from "@/components/present/ai-counter";
+import type { AiQuota } from "@/lib/ai/devotional-ai";
 import { RichTextEditor } from "@/components/content/rich-text-editor";
-import { BANDS, BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type Levels } from "@/lib/content/levels";
+import { BANDS, BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type Levels, type LevelVersion } from "@/lib/content/levels";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import { levelFieldName } from "@/lib/content/schemas";
 
@@ -18,8 +21,10 @@ const FIELD_LABELS: Record<LevelField, { label: string; minHeight: number }> = {
  * hidden), so switching tabs never loses text and saving submits all of them.
  */
 export function ReadingLevelsEditor({
-  initial, echoed, errors,
+  initial, echoed, errors, ai,
 }: {
+  /** AI drafting for editors: whether the server has an AI key, and requests left today. */
+  ai?: { configured: boolean; quota: AiQuota | null };
   initial: Levels;
   /** Values sent back after a failed save, keyed by form field name. */
   echoed: Record<string, unknown> | undefined;
@@ -28,10 +33,56 @@ export function ReadingLevelsEditor({
   const [active, setActive] = useState<GradeBand>("k2");
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
   const base = useId();
+  const root = useRef<HTMLDivElement>(null);
+  // AI drafts replace a band's four boxes; the nonce remounts those editors with the new text.
+  const [drafts, setDrafts] = useState<Partial<Record<GradeBand, Required<LevelVersion>>>>({});
+  const [nonce, setNonce] = useState<Partial<Record<GradeBand, number>>>({});
+  const [status, setStatus] = useState<Partial<Record<GradeBand, { tone: "info" | "error"; message: string }>>>({});
+  const [quota, setQuota] = useState<AiQuota | null>(ai?.quota ?? null);
+  const [pending, start] = useTransition();
+  const outOfRequests = quota !== null && quota.remaining <= 0;
+
+  /** Reads a field of the surrounding devotional form as it is now (saved or not). */
+  const formValue = (name: string): string => {
+    const el = root.current?.closest("form")?.elements.namedItem(name);
+    // A single field, or (for repeated names) a RadioNodeList; both expose .value.
+    return el && "value" in el ? String(el.value ?? "") : "";
+  };
+  const formDoc = (name: string): RichDoc => parseRichDoc(formValue(name)) ?? EMPTY_DOC;
+
+  const draftWithAi = (band: GradeBand) => {
+    const hasText = LEVEL_FIELDS.some((f) => (parseRichDoc(formValue(levelFieldName(band, f)))?.content.length ?? 0) > 0);
+    if (hasText && !window.confirm(`Replace the ${BAND_SHORT[band]} text with an AI draft?`)) return;
+    setStatus((s) => ({ ...s, [band]: { tone: "info", message: `Writing a draft for ${BAND_LONG[band].toLowerCase()}. This takes about half a minute.` } }));
+    start(async () => {
+      const result = await draftLevelForEditorAction({
+        band,
+        title: formValue("title"),
+        topic: formValue("dailyTopic"),
+        reference: formValue("scriptureReference"),
+        scriptureText: formValue("scriptureText"),
+        standard: {
+          reflection: formDoc("reflection"),
+          discussion_question: formDoc("discussionQuestion"),
+          practical_application: formDoc("practicalApplication"),
+          prayer: formDoc("prayer"),
+        },
+      });
+      if (!result.ok) {
+        setStatus((s) => ({ ...s, [band]: { tone: "error", message: result.error } }));
+        if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
+        return;
+      }
+      if (quota) setQuota({ ...quota, remaining: result.remaining });
+      setDrafts((d) => ({ ...d, [band]: result.version }));
+      setNonce((n) => ({ ...n, [band]: (n[band] ?? 0) + 1 }));
+      setStatus((s) => ({ ...s, [band]: { tone: "info", message: "AI draft added below. Read and edit it, then save the devotional. It goes through review like any other change." } }));
+    });
+  };
 
   const value = (band: GradeBand, field: LevelField): RichDoc => {
     const raw = echoed?.[levelFieldName(band, field)];
-    return (typeof raw === "string" ? parseRichDoc(raw) : null) ?? initial[band]?.[field] ?? EMPTY_DOC;
+    return drafts[band]?.[field] ?? (typeof raw === "string" ? parseRichDoc(raw) : null) ?? initial[band]?.[field] ?? EMPTY_DOC;
   };
   const written = (band: GradeBand) => LEVEL_FIELDS.filter((f) => initial[band]?.[f] !== undefined).length;
   const hasError = (band: GradeBand) => LEVEL_FIELDS.some((f) => errors[levelFieldName(band, f)]);
@@ -46,7 +97,7 @@ export function ReadingLevelsEditor({
   };
 
   return (
-    <div>
+    <div ref={root}>
       <div role="tablist" aria-label="Reading level" className="flex flex-wrap gap-2 border-b border-line">
         {BANDS.map((band, i) => {
           const selected = band === active;
@@ -85,11 +136,38 @@ export function ReadingLevelsEditor({
           <p className="text-sm text-muted">
             Write {BAND_LONG[band].toLowerCase()} their own version of any part. Anything left empty uses the standard text above.
           </p>
+          {ai ? (
+            <div className="grid gap-2 rounded-control border border-line bg-parchment p-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => draftWithAi(band)}
+                  disabled={!ai.configured || pending || outOfRequests}
+                  className="inline-flex min-h-11 items-center rounded-control border border-brand bg-brand px-4 font-semibold text-white hover:bg-brand-hover disabled:opacity-50"
+                >
+                  {pending ? "Writing…" : `Draft ${BAND_SHORT[band]} with AI`}
+                </button>
+                {ai.configured && quota ? <AiCounter quota={quota} /> : null}
+              </div>
+              <p className="text-sm text-muted">
+                {!ai.configured
+                  ? "The AI tools are not set up on this server yet (ANTHROPIC_API_KEY)."
+                  : outOfRequests && quota
+                    ? OUT_OF_REQUESTS(quota.limit)
+                    : "Adapts the standard text above for this age, keeping the same Scripture. You review and edit it before saving."}
+              </p>
+              {status[band] ? (
+                <p role={status[band]!.tone === "error" ? "alert" : "status"} className={`text-sm font-medium ${status[band]!.tone === "error" ? "text-danger" : "text-brand"}`}>
+                  {status[band]!.message}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {LEVEL_FIELDS.map((field) => {
             const name = levelFieldName(band, field);
             return (
               <RichTextEditor
-                key={name}
+                key={`${name}-${nonce[band] ?? 0}`}
                 name={name}
                 label={`${FIELD_LABELS[field].label} (${BAND_SHORT[band]})`}
                 initial={value(band, field)}
