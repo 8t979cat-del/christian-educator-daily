@@ -125,7 +125,7 @@ A three-ink book: black on bright paper, one red for rubrics, and navy cloth sta
 - **Bookcloth Navy** (bookcloth): primary actions (Present full screen, primary buttons), the masthead, the founding "back cover" and the footer colophon. It is the binding, so it carries whole regions or the single most important control, nothing in between. **Bookcloth Deep** (bookcloth-deep) is its hover; **Bookcloth Raised** (bookcloth-raised) is a lifted surface on cloth; **Bookcloth Wash** (bookcloth-wash) is the hover and selection tint on paper.
 
 ### Secondary
-- **Rubric Red** (rubric): the red-letter ink. Day numbers, roman order numerals, italic instructions to the teacher, the progress bar and verse figures in slides, and rubric links (red text with a 40% red underline that fills on hover). Measured ≥7:1 on paper.
+- **Rubric Red** (rubric): the red-letter ink. Day numbers, roman order numerals, the section figures of the reading page (set in Caslon on the heading baseline, black in print), italic instructions to the teacher, the progress bar and verse figures in slides, and rubric links (red text with a 40% red underline that fills on hover). Measured ≥7:1 on paper.
 
 ### Tertiary
 - **Gilt** (gilt): stamping on cloth only. The wordmark, cloth headings and sub-heads, double-rule frames on the back cover, the Sign in outline, the focus ring on dark surfaces, and the one gilt-filled button on the back cover.
@@ -140,7 +140,7 @@ A three-ink book: black on bright paper, one red for rubrics, and navy cloth sta
 - **Danger** (danger, danger-soft): form errors and destructive actions in the app only.
 
 ### Named Rules
-**The Red-Letter Rule.** Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, verse figures. It never fills a surface, a button or a heading.
+**The Red-Letter Rule.** Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, section figures, verse figures. It never fills a surface, a button or a heading, and numbers are bare figures, never set in discs or badges.
 
 **The Gilt-on-Cloth Rule.** Gilt appears only on bookcloth navy. On paper it has no contrast and no meaning.
 
@@ -157,13 +157,13 @@ A three-ink book: black on bright paper, one red for rubrics, and navy cloth sta
 ### Hierarchy
 - **Display** (400, 4.5rem to 6rem, line-height 0.8, tabular figures, rubric red): the day number at the head of today's page, with the month beneath it in tracked capitals.
 - **Headline** (400, 1.875rem to 2.75rem, line-height 1.12 to 1.15, balanced): page and section titles; `Heading` levels 1 to 3 are all regular weight.
-- **Title** (400, 1.25rem to 1.75rem, snug): list-item names, sample passages, order-of-day entries. Level-4 headings are the one place Caslon bold appears.
+- **Title** (400, 1.25rem to 1.75rem, snug): list-item names, sample passages, order-of-day entries. Level-4 headings (and rich-text h3) are the small-heading place Caslon bold appears.
 - **Body** (400, 1rem to 1.125rem, line-height 1.6; rich text 1.7): reading prose, kept to about 36rem (`max-w-xl`/`max-w-md`) in marketing copy. Paragraphs and list items use `text-wrap: pretty`.
 - **Rubric** (400 italic, 0.875rem to 1rem, rubric red): instructions to the teacher and reading-level labels.
 - **Label** (400, 0.875rem, uppercase, tracking 0.16em to 0.2em): the wordmark, the month under the day number, and sub-heads on the back cover (in gilt).
 
 ### Named Rules
-**The Regular-Weight Display Rule.** Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3).
+**The Regular-Weight Display Rule.** Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3). The one stated exception at display size is the projected discussion question on slides (the emphasis block), set semibold so it carries across a classroom; nowhere else does Caslon pair with a heavier weight.
 
 **The Stated Substitution Rule.** Libre Caslon Text has no true small capitals, so tracked full capitals (0.16em to 0.2em) stand in for them: the wordmark, the month abbreviation, the founding sub-heads. Never synthesize small caps with `font-variant: small-caps` or scaled capitals.
 
@@ -177,7 +177,7 @@ The page opens with a running head: the passage reference on the left, the weekd
 
 ## Elevation & Depth
 
-The page is flat. Depth is printed, not lit: a double rule, an inset keyline, or the change from paper to cloth. Framed blocks (the inline presenter, the empty-state verse block) use a 1px ink border with a second 1px keyline outline offset 5px, and the back cover uses a 4px gilt double rule with a 1px inset gilt rule 6px inside it. Dialogs are ruled frames as well: a 1px ink border at 70% with 4px corners and a 1px Hairline outline offset 4px, laid over a backdrop of bookcloth navy at 60%. Nothing is lifted with a shadow anywhere in the product.
+The page is flat. Depth is printed, not lit: a double rule, an inset keyline, or the change from paper to cloth. Framed blocks (the inline presenter, the empty-state verse block) use a 1px ink border with a second 1px keyline outline offset 5px, and the back cover uses a 4px gilt double rule with a 1px inset gilt rule 6px inside it. Dialogs are ruled frames as well: a 1px ink border at 70% with 4px corners and a 1px Hairline outline offset 4px, laid over a backdrop of bookcloth navy at 60%. The presenter's Settings and Edit drawers dim the slide with the same bookcloth wash, never grey or black. Nothing is lifted with a shadow anywhere in the product.
 
 ### Named Rules
 **The Printed-Depth Rule.** No shadows on paper or cloth. Separation comes from rules, keylines and the paper/cloth boundary.
@@ -235,7 +235,7 @@ Slides are set in Caslon (type scales in em with the slide) and take their colou
 
 ### Do:
 - **Do** separate sections and list items with printed rules: a 4px double rule to open, 1px hairlines between entries, dotted leaders in indexes.
-- **Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3.
+- **Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3, plus the projected discussion question on slides.
 - **Do** put instructions to the teacher in red italic rubrics, and number things (days, order steps) in rubric red.
 - **Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.
 - **Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.

@@ -447,7 +447,7 @@
     "rules": [
       {
         "name": "The Red-Letter Rule",
-        "body": "Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, verse figures. It never fills a surface, a button or a heading.",
+        "body": "Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, section figures, verse figures. It never fills a surface, a button or a heading, and numbers are bare figures, never set in discs or badges.",
         "section": "colors"
       },
       {
@@ -462,7 +462,7 @@
       },
       {
         "name": "The Regular-Weight Display Rule",
-        "body": "Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3).",
+        "body": "Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3). The one stated exception at display size is the projected discussion question on slides (the emphasis block), set semibold so it carries across a classroom; nowhere else does Caslon pair with a heavier weight.",
         "section": "typography"
       },
       {
@@ -483,7 +483,7 @@
     ],
     "dos": [
       "**Do** separate sections and list items with printed rules: a 4px double rule to open, 1px hairlines between entries, dotted leaders in indexes.",
-      "**Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3.",
+      "**Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3, plus the projected discussion question on slides.",
       "**Do** put instructions to the teacher in red italic rubrics, and number things (days, order steps) in rubric red.",
       "**Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.",
       "**Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.",
