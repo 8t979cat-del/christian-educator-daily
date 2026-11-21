@@ -23,7 +23,7 @@ export const APP_NAV: NavItem[] = [
 
 /** Links in the public marketing header. */
 export const MARKETING_NAV = [
-  { href: "/#pillars", label: "What it offers" },
+  { href: "/#year", label: "How it works" },
   { href: "/#classroom", label: "Classroom mode" },
-  { href: "/#schools", label: "For schools" },
+  { href: "/#founding", label: "Founding schools" },
 ] as const;

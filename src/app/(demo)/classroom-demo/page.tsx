@@ -96,5 +96,5 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     </div>
   );
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
-  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/styleguide" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes} />;
+  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes} />;
 }

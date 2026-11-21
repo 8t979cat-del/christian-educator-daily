@@ -27,10 +27,10 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <ButtonLink href="/login" variant="ghost" className="ml-2">
+          {/* Teachers join by invitation, so there is no public sign-up here. */}
+          <ButtonLink href="/login" variant="secondary" className="ml-2">
             Sign in
           </ButtonLink>
-          <ButtonLink href="/signup">Create account</ButtonLink>
         </nav>
 
         <button
@@ -60,9 +60,6 @@ export function SiteHeader() {
             ))}
             <ButtonLink href="/login" variant="secondary" fullWidth className="mt-2" onClick={() => setOpen(false)}>
               Sign in
-            </ButtonLink>
-            <ButtonLink href="/signup" fullWidth onClick={() => setOpen(false)}>
-              Create account
             </ButtonLink>
           </Container>
         </nav>

@@ -49,6 +49,16 @@ export function getServiceRoleKey(): string | undefined {
   return blank(process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
+/**
+ * Where schools write to ask about becoming a founding school. Shown on the
+ * home page as an email link. Undefined (and the page says places are by
+ * invitation) until it is set.
+ */
+export function getFoundingContactEmail(): string | undefined {
+  const value = blank(process.env.FOUNDING_CONTACT_EMAIL);
+  return value && z.email().safeParse(value).success ? value : undefined;
+}
+
 /** Shared secret that scheduled jobs present to /api/cron/*. Undefined when not configured, which disables those routes. */
 export function getCronSecret(): string | undefined {
   return blank(process.env.CRON_SECRET);
