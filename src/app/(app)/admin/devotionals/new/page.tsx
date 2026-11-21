@@ -45,14 +45,16 @@ export const metadata: Metadata = { title: "New devotional" };
 export const dynamic = "force-dynamic";
 
 export default async function NewDevotionalPage({ searchParams }: { searchParams: Promise<{ theme?: string; date?: string; submission?: string }> }) {
-  await requirePlatformRole(["content_editor", "platform_admin"]);
+  const ctx = await requirePlatformRole(["content_editor", "platform_admin"]);
   const sp = await searchParams;
+  // The author defaults to the editor's own name, shown in the field so it can be changed.
+  const myName = [ctx.profile.first_name, ctx.profile.last_name].map((x) => x?.trim()).filter(Boolean).join(" ") || ctx.profile.display_name?.trim() || "";
   const [translations, themes] = await Promise.all([listTranslations(), listThemes()]);
   const themeId = themes.some((t) => t.id === sp.theme) ? sp.theme : undefined;
   const date = sp.date && isValidIsoDate(sp.date) ? sp.date : todayIn(getSiteTimeZone());
   const quota = await aiQuota();
   const ai = { configured: isAiConfigured(), quota };
-  const base = { devotional_date: date, ...(themeId ? { theme_id: themeId } : {}) };
+  const base = { devotional_date: date, author_name: myName, ...(themeId ? { theme_id: themeId } : {}) };
   const submission = sp.submission && uuidSchema.safeParse(sp.submission).success ? await getSubmission(sp.submission) : null;
   const initial = submission ? { ...base, ...submission.initial } : base;
 

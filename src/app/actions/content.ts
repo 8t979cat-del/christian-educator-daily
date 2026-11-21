@@ -122,7 +122,12 @@ export async function transitionDevotionalAction(_previous: FormState, formData:
     p_publish_at: publishAt,
     p_note: note || null,
   });
-  if (error) return errorState(describe(error, "That step could not be completed."));
+  if (error) {
+    // The workflow checks the saved devotional, not what is typed in the form but not yet saved.
+    const missing = /^missing required fields: (.+)$/.exec(error.message)?.[1];
+    if (missing) return errorState(`These are still empty in the saved devotional: ${missing}. Fill them in, click Save changes, then try this step again.`);
+    return errorState(describe(error, "That step could not be completed."));
+  }
 
   revalidatePath("/admin/devotionals");
   revalidatePath(`/admin/devotionals/${id}`);
