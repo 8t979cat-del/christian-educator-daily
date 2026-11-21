@@ -4,7 +4,7 @@ import { PresentMode } from "@/components/present/present-mode";
 import { PresenterView } from "@/components/present/presenter-view";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requireAccess } from "@/lib/auth/session";
-import { KJV, kjvPassage } from "@/lib/bible/kjv";
+import { BIBLES, biblePassage, isBibleCode } from "@/lib/bible/kjv";
 import { formatDate, todayIn } from "@/lib/content/dates";
 import { toLevels } from "@/lib/content/levels";
 import type { PresentContent } from "@/lib/content/present";
@@ -26,15 +26,18 @@ export default async function PresentGeneratedPage({ params, searchParams }: { p
   if (!data) notFound();
 
   const text = toLevels({ k2: data.content }).k2 ?? {};
-  const reference = String((data.scripture as { reference?: unknown } | null)?.reference ?? "");
+  const scripture = data.scripture as { reference?: unknown; translation_code?: unknown } | null;
+  const reference = String(scripture?.reference ?? "");
+  // Saved before WEB and ASV were offered: those are KJV.
+  const bible = BIBLES[isBibleCode(scripture?.translation_code) ? scripture.translation_code : "kjv"];
   // Scripture text is looked up from the bundled public-domain Bible every time; it is never stored as AI output.
-  const passage = kjvPassage(reference);
+  const passage = biblePassage(bible.code, reference);
   const content: PresentContent = {
     dateLabel: formatDate(todayIn(getSiteTimeZone())),
     title: data.title as string,
     topic: data.topic as string,
     theme: null,
-    scripture: { reference, translationLabel: KJV.label, text: passage?.text ?? null, notice: passage ? KJV.notice : null },
+    scripture: { reference, translationLabel: bible.label, text: passage?.text ?? null, notice: passage ? bible.notice : null },
     reflection: text.reflection ?? EMPTY_DOC,
     discussion: text.discussion_question ?? EMPTY_DOC,
     practice: text.practical_application ?? EMPTY_DOC,

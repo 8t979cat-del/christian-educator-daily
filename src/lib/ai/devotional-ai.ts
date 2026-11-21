@@ -10,7 +10,7 @@ import { richTextToPlain, type RichDoc } from "@/lib/content/richtext";
  * new one from topics a teacher chooses. Everything AI writes is a draft the
  * teacher reads and can edit before it reaches the class screen. The AI never
  * writes Scripture: re-leveling keeps the day's passage, and a new devotional
- * gets its passage text from the bundled public-domain KJV (src/lib/bible/kjv.ts).
+ * gets its passage text from the bundled public-domain KJV, WEB or ASV (src/lib/bible/kjv.ts).
  */
 
 // Claude Sonnet 5.5: about half the price of the Opus model, and ample for short devotionals at a set length.

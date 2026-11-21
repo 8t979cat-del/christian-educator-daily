@@ -4,7 +4,7 @@ import { z } from "zod";
 import { AiError, isAiConfigured, relevelDevotional, writeDevotional, type AiQuota } from "@/lib/ai/devotional-ai";
 import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
-import { KJV, kjvPassage } from "@/lib/bible/kjv";
+import { BIBLES, BIBLE_CODES, biblePassage } from "@/lib/bible/kjv";
 import { BANDS, LEVEL_FIELDS, type LevelVersion } from "@/lib/content/levels";
 import { getDevotional, getTranslation } from "@/lib/content/queries";
 import { sanitizeRichDoc } from "@/lib/content/richtext";
@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 type Result<T> = ({ ok: true } & T) | { ok: false; error: string };
 
 const band = z.enum(BANDS);
+const bible = z.enum(BIBLE_CODES).default("kjv");
 const fail = (error: string) => ({ ok: false as const, error });
 
 /** The signed-in teacher's AI requests left today, for the counter. Null when unavailable. */
@@ -110,17 +111,18 @@ export type GeneratedDraft = {
   scriptureText: string;
   notice: string;
   translationLabel: string;
+  translationCode: string;
   version: Required<LevelVersion>;
 };
 
 /**
  * Writes a new devotional about the chosen topics. The AI chooses the passage; its text
- * comes from the bundled KJV. If the AI names a passage that is not valid or too long,
+ * comes from the chosen bundled public-domain Bible (KJV, WEB or ASV). If the AI names a passage that is not valid or too long,
  * it is asked once more for a different one.
  */
-export async function writeDevotionalAction(input: { topics: string[]; band: string }): Promise<Result<{ draft: GeneratedDraft; remaining: number }>> {
+export async function writeDevotionalAction(input: { topics: string[]; band: string; translation?: string }): Promise<Result<{ draft: GeneratedDraft; remaining: number }>> {
   await requireAccess();
-  const parsed = z.object({ topics: z.array(z.string().trim().min(2).max(40)).min(1).max(6), band }).safeParse(input);
+  const parsed = z.object({ topics: z.array(z.string().trim().min(2).max(40)).min(1).max(6), band, translation: bible }).safeParse(input);
   if (!parsed.success) return fail("Choose between one and six topics.");
   const spent = await consume();
   if (spent.error !== null) return fail(spent.error);
@@ -128,12 +130,13 @@ export async function writeDevotionalAction(input: { topics: string[]; band: str
     const tried: string[] = [];
     for (let attempt = 0; attempt < 2; attempt++) {
       const draft = await writeDevotional(parsed.data.topics, parsed.data.band, tried);
-      const passage = kjvPassage(draft.reference);
+      const passage = biblePassage(parsed.data.translation, draft.reference);
       if (passage) {
         const { reference, title, topic, ...version } = draft;
+        const b = BIBLES[parsed.data.translation];
         return {
           ok: true,
-          draft: { title, topic, reference: passage.reference, scriptureText: passage.text, notice: KJV.notice, translationLabel: KJV.label, version },
+          draft: { title, topic, reference: passage.reference, scriptureText: passage.text, notice: b.notice, translationLabel: b.label, translationCode: b.code, version },
           remaining: spent.remaining,
         };
       }
@@ -146,24 +149,25 @@ export async function writeDevotionalAction(input: { topics: string[]; band: str
 }
 
 /** Saves a generated devotional (after the teacher's review and edits) to the teacher's own list. */
-export async function saveGeneratedAction(input: { title: string; topic: string; reference: string; topics: string[]; version: unknown }): Promise<Result<{ id: string }>> {
+export async function saveGeneratedAction(input: { title: string; topic: string; reference: string; topics: string[]; translation?: string; version: unknown }): Promise<Result<{ id: string }>> {
   await requireAccess();
   const parsed = z.object({
     title: z.string().trim().min(1).max(140),
     topic: z.string().trim().max(140),
     reference: z.string().trim().max(120),
     topics: z.array(z.string().trim().max(40)).max(12),
+    translation: bible,
   }).safeParse(input);
   const version = cleanVersion(input.version);
   // The passage must still be one the bundled Bible can show: its text is never taken from the client.
-  if (!parsed.success || !version || !kjvPassage(parsed.data.reference)) return fail("This devotional could not be saved. Check the text and try again.");
+  if (!parsed.success || !version || !biblePassage(parsed.data.translation, parsed.data.reference)) return fail("This devotional could not be saved. Check the text and try again.");
   const { data, error } = await (await createClient()).from("presentation_versions").insert({
     source: "ai_generated",
     title: parsed.data.title,
     topic: parsed.data.topic,
     topics: parsed.data.topics,
     content: version,
-    scripture: { reference: parsed.data.reference, translation_code: KJV.code },
+    scripture: { reference: parsed.data.reference, translation_code: parsed.data.translation },
   }).select("id").single();
   if (error || !data) {
     return fail(/row-level security/.test(error?.message ?? "") ? "Saving is part of Educator Plus and school licences." : "This devotional could not be saved. Please try again.");
@@ -208,4 +212,17 @@ export async function draftLevelForEditorAction(input: {
   } catch (error) {
     return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
   }
+}
+
+/**
+ * Editors: the text of a passage from one of the bundled public-domain Bibles, to fill
+ * the Scripture text field. Nothing is saved. Uses no AI request.
+ */
+export async function passageTextAction(input: { reference: string; translation: string }): Promise<Result<{ reference: string; text: string }>> {
+  await requirePlatformRole(["content_editor", "platform_admin"]);
+  const parsed = z.object({ reference: z.string().trim().min(1).max(120), translation: z.enum(BIBLE_CODES) }).safeParse(input);
+  if (!parsed.success) return fail("Enter a reference first, such as Galatians 6:9–10.");
+  const passage = biblePassage(parsed.data.translation, parsed.data.reference, 80);
+  if (!passage) return fail(`“${parsed.data.reference}” could not be found in the ${BIBLES[parsed.data.translation].label}. Check the reference (at most 80 verses).`);
+  return { ok: true, reference: passage.reference, text: passage.text };
 }
