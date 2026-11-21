@@ -67,4 +67,14 @@ describe("AI tools", () => {
     await expect(q(free, `select ai_consume()`)).rejects.toThrow(/Educator Plus/);
     await expect(q(editor, `select ai_daily_limit($1)`, [editor])).rejects.toThrow(/permission denied/);
   });
+
+  it("give platform administrators unlimited AI requests", async () => {
+    const root = await h.createUser("root@ai.test");
+    await admin(`insert into platform_roles (user_id, role) values ($1, 'platform_admin')`, [root]);
+    await admin(`insert into ai_usage (user_id, day, uses) values ($1, (now() at time zone 'utc')::date, 5000)`, [root]);
+    const [{ ai_consume: left }] = (await q<{ ai_consume: number }>(root, `select ai_consume()`)) as [{ ai_consume: number }];
+    expect(left).toBeGreaterThan(1_000_000_000);
+    expect((await q<{ daily_limit: number }>(root, `select daily_limit from ai_remaining()`))[0]!.daily_limit).toBe(2147483647);
+  });
 });
+

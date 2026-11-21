@@ -9,7 +9,8 @@ import { Icon } from "@/components/ui/icon";
 import { docToText, textToDoc } from "@/lib/content/editable";
 import { BANDS, BAND_LONG, type GradeBand, type LevelField } from "@/lib/content/levels";
 import { TopicMap } from "./topic-map";
-import { AiCounter, OUT_OF_REQUESTS } from "@/components/present/ai-counter";
+import { START_TOPICS, TOPIC_WEB } from "@/lib/content/topic-web";
+import { AiCounter, OUT_OF_REQUESTS, isUnlimited } from "@/components/present/ai-counter";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
 
 const FIELDS: Array<{ key: LevelField; label: string; rows: number }> = [
@@ -33,14 +34,14 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [quota, setQuota] = useState<AiQuota | null>(initialQuota);
-  const outOfRequests = quota !== null && quota.remaining <= 0;
+  const outOfRequests = quota !== null && !isUnlimited(quota) && quota.remaining <= 0;
 
   const toggle = (t: string) => setTopics((list) => (list.includes(t) ? list.filter((x) => x !== t) : [...list, t]));
 
-  const write = (again: boolean) => {
+  const write = (again: boolean, chosen: string[] = topics) => {
     setError(null);
     start(async () => {
-      const result = await writeDevotionalAction({ topics, band });
+      const result = await writeDevotionalAction({ topics: chosen, band });
       if (!result.ok) {
         setError(result.error);
         if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
@@ -57,6 +58,17 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
       });
       setTried((t) => (again ? [...t, result.draft.reference] : [result.draft.reference]));
     });
+  };
+
+  /** "Surprise me": a random starting topic and one related to it, then write. */
+  const surprise = () => {
+    const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)]!;
+    const first = pick(START_TOPICS);
+    const second = pick(TOPIC_WEB[first] ?? START_TOPICS);
+    const chosen = [first, second];
+    setTopics(chosen);
+    setFocus(second);
+    write(false, chosen);
   };
 
   const save = () => {
@@ -137,6 +149,9 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
             <Button onClick={() => write(false)} disabled={!configured || topics.length === 0 || pending || outOfRequests}>
               {pending && !draft ? "Writing…" : draft ? "Write a new one with these topics" : "Write a devotional"}
             </Button>
+            <Button variant="secondary" onClick={surprise} disabled={!configured || pending || outOfRequests}>
+              Surprise me
+            </Button>
             {configured && quota ? <AiCounter quota={quota} /> : null}
           </div>
           <p className="mt-2 text-sm text-muted">
@@ -144,7 +159,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
               ? "The AI tools are not set up on this server yet."
               : outOfRequests && quota
                 ? OUT_OF_REQUESTS(quota.limit)
-                : "Takes about half a minute and uses one AI request. Scripture comes from the King James Version, never from the AI."}
+                : "Takes about half a minute and uses one AI request. “Surprise me” picks two related topics at random. Scripture comes from the King James Version, never from the AI."}
           </p>
         </div>
 
