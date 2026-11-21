@@ -1,4 +1,6 @@
-# Christian Educator Daily
+# Everyday Devotional: 180 Days
+
+(Formerly "Christian Educator Daily". The repository and package keep the old name.)
 
 Application foundation for the Christian Educator Daily platform: Next.js (App Router), TypeScript, Tailwind CSS v4 and Supabase.
 
@@ -320,3 +322,20 @@ New environment variables: `APP_ENV`, `ERROR_REPORT_URL`, `ERROR_REPORT_TOKEN`, 
 ### Documents
 
 `docs/LAUNCH-ASSESSMENT.md` (read first) · `docs/DEPLOYMENT.md` · `docs/ADMIN-GUIDE.md` · `docs/ADMINISTRATION.md` · `docs/MODERATION-GUIDE.md` · `docs/EDUCATOR-ONBOARDING.md` · `docs/PILOT-SETUP.md` · `docs/PRIVACY-RETENTION.md` · `docs/TROUBLESHOOTING.md` · `docs/RECOVERY-ROLLBACK.md` · `docs/KNOWN-LIMITATIONS.md` · `docs/BACKLOG.md` · `docs/QA-AUDIT.md`
+
+## Reading levels and classroom slides (migration 0010)
+
+`0010_reading_levels.sql` adds `devotionals.levels`: an optional version of the reflection, discussion question, practical application and prayer for each age band (K–2, 3–5, 6–8, 9–12). The existing text columns are the standard version; a band without its own version, or a field left empty in it, uses the standard text. Every band shares the day's Scripture and theme. Editing a band's text after approval returns the devotional to draft, like any other content change, and keeps a revision.
+
+- **Editor:** the devotional form has a Reading levels section with one tab per band.
+- **Classroom mode:** the teacher chooses the reading level once, in Settings or the presenter window; it is remembered on that computer. Slides are sized by the real screen: a section continues onto another slide only when its text would otherwise fall below a legibility floor (about 1/22 of the screen height). The theme and title share one opening slide, and the practical step and prayer share the closing slide when they fit, so a typical day is five slides on a projector.
+- **Home page:** the "Become a founding school" button emails `FOUNDING_CONTACT_EMAIL` (see `.env.example`). Without it, the page says founding places are by invitation. There is no pricing page during the pilot; `/pricing` redirects to the founding-schools section.
+
+## Public today's devotional, AI tools and class comments (migrations 0011 and 0012)
+
+- **Today's devotional without signing in.** The home page shows the most recent live, free devotional of the past week with a simple presenter (Back, Next, text size, full screen). `public_today_devotional()` (0011) is the only thing signed-out visitors can read: standard text only, never reading-level versions, and Scripture text only where the translation's licence allows. Reading levels, notes, editing and the presenter window need an account. Signed-in visitors who open `/` go straight to `/today`.
+- **Email verification** ends on the sign-in page with "Email verified." In the Supabase dashboard, add `<NEXT_PUBLIC_SITE_URL>/auth/callback` to Authentication → URL Configuration → Redirect URLs. If it is missing, Supabase sends people to the home page instead; the proxy now forwards such links to the callback, but the allow-list entry is the proper fix.
+- **Devotional comments** ("Reflect Together") are removed from devotional pages and Settings for launch. The component and its database switch remain.
+- **AI teaching tools** (Educator Plus and school licences; plan feature `ai_tools`, 10 requests per teacher per day (0012, lowered from 40 by 0013); teachers see a "requests left today" counter. Set `ANTHROPIC_API_KEY` on the server. In classroom mode, **Edit** lets a teacher change the reflection, question, practical step and prayer, **re-level with AI** for the chosen reading level, show the result on the class screen, and **save my version** (private to them, one per devotional and level). **Write** (`/create`) builds a new devotional from topics chosen on a topic web; AI chooses a passage of at most 12 verses and its text comes from the bundled public-domain KJV (`data/kjv.json`), never from the AI. All AI text is a draft the teacher reviews before the class sees it. Requests use `claude-sonnet-5-5` at low effort (about 2–3 US cents each) with structured output and the server-side refusal fallback.
+- **Class comments (trial).** A Settings switch in classroom mode, off by default, for signed-in teachers. The teacher types what a student said, picks an emoji (or ends with "post comment with smiley emoji"), and it appears beside the slide. Comments are screened for names and contact details, never saved, and gone when the presentation closes. There is no microphone input yet: recording students needs counsel's review first.
+

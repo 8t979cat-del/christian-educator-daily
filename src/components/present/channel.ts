@@ -1,4 +1,5 @@
-import type { Slide, ThemeId } from "@/lib/content/present";
+import type { GradeBand } from "@/lib/content/levels";
+import type { Slide, Stage, ThemeId } from "@/lib/content/present";
 
 /**
  * Messages between the class screen (the projector window) and the presenter
@@ -8,12 +9,13 @@ import type { Slide, ThemeId } from "@/lib/content/present";
  * never leaves the browser.
  */
 export type ClassMessage =
-  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; simple: boolean; blank: boolean }
+  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; band: GradeBand | null; writtenBands: GradeBand[]; blank: boolean; stage: Stage }
   | { type: "empty" };
 
 export type PresenterCommand =
   | { type: "hello" }
   | { type: "cmd"; cmd: "next" | "prev" | "first" | "last" | "blank" }
-  | { type: "goto"; index: number };
+  | { type: "goto"; index: number }
+  | { type: "band"; band: GradeBand };
 
-export const channelName = (devotionalId: string) => `ced-present:${devotionalId}`;
+export const channelName = (devotionalId: string) => `ed180-present:${devotionalId}`;

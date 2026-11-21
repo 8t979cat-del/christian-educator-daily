@@ -4,6 +4,7 @@
  * and long text across several slides so everything stays readable from the back of
  * a room, and holds the display settings and colour themes.
  */
+import { isBand, textForBand, type GradeBand, type Levels } from "./levels";
 import { richTextToPlain, type Block, type Inline, type RichDoc } from "./richtext";
 
 // ---------------------------------------------------------------------------
@@ -39,8 +40,10 @@ export const DEFAULT_SIZE = 1;
 export type PresentSettings = {
   theme: ThemeId;
   size: number;
-  /** Younger students: bigger type, friendlier headings, one small idea per slide. */
-  simple: boolean;
+  /** The students' reading level. Null until the teacher chooses: the standard text is shown. */
+  band: GradeBand | null;
+  /** The class comment board (a trial feature): off unless the teacher turns it on. */
+  comments: boolean;
   sections: Record<SectionId, boolean>;
   showReference: boolean;
   showTranslation: boolean;
@@ -49,7 +52,8 @@ export type PresentSettings = {
 export const DEFAULT_SETTINGS: PresentSettings = {
   theme: "white",
   size: DEFAULT_SIZE,
-  simple: false,
+  band: null,
+  comments: false,
   sections: { theme: true, title: true, scripture: true, reflection: true, discussion: true, practice: true, prayer: true },
   showReference: true,
   showTranslation: true,
@@ -67,7 +71,9 @@ export function parseSettings(raw: unknown): PresentSettings {
   return {
     theme: typeof r.theme === "string" && (THEME_IDS as string[]).includes(r.theme) ? (r.theme as ThemeId) : d.theme,
     size,
-    simple: typeof r.simple === "boolean" ? r.simple : d.simple,
+    // Settings saved before reading levels had a single "younger students" switch.
+    band: isBand(r.band) ? r.band : r.simple === true ? "k2" : d.band,
+    comments: r.comments === true,
     sections,
     showReference: typeof r.showReference === "boolean" ? r.showReference : d.showReference,
     showTranslation: typeof r.showTranslation === "boolean" ? r.showTranslation : d.showTranslation,
@@ -125,12 +131,22 @@ export function cutPoints(text: string, max: number): number[] {
 
 type Unit = { text: string; sepBefore: string };
 
-function packUnits(units: Unit[], max: number): string[] {
+/**
+ * How much room a page's text takes. With `lineChars`, every verse (line) is
+ * rounded up to whole lines, since each verse starts on a new line and its last
+ * line is rarely full.
+ */
+function pageCost(page: string, lineChars?: number): number {
+  if (!lineChars) return page.length;
+  return page.split("\n").reduce((n, line) => n + Math.max(1, Math.ceil(line.length / lineChars)) * lineChars, 0);
+}
+
+function packUnits(units: Unit[], max: number, lineChars?: number): string[] {
   const pages: string[] = [];
   let cur = "";
   for (const unit of units) {
     const candidate = cur ? cur + unit.sepBefore + unit.text : unit.text;
-    if (cur && candidate.length > max) {
+    if (cur && pageCost(candidate, lineChars) > max) {
       pages.push(cur);
       cur = unit.text;
     } else {
@@ -146,11 +162,11 @@ function packUnits(units: Unit[], max: number): string[] {
  * break between verses (lines), then sentences, then clauses. Never drops or
  * reorders text, and evens out page lengths so the last page is not a stub.
  */
-export function splitPassage(text: string, max: number): string[] {
+export function splitPassage(text: string, max: number, lineChars?: number): string[] {
   const clean = text.replace(/\r\n?/g, "\n").trim();
   if (clean === "") return [];
   const limit = Math.max(40, Math.floor(max));
-  if (clean.length <= limit) return [clean];
+  if (pageCost(clean, lineChars) <= limit) return [clean];
 
   const units: Unit[] = [];
   for (const line of clean.split(/\n+/)) {
@@ -168,11 +184,11 @@ export function splitPassage(text: string, max: number): string[] {
     });
   }
 
-  const pages = packUnits(units, limit);
+  const pages = packUnits(units, limit, lineChars);
   if (pages.length > 1) {
     // Even out: same page count with a smaller budget, if it still fits.
-    const total = units.reduce((n, u) => n + u.text.length + 1, 0);
-    const balanced = packUnits(units, Math.min(limit, Math.ceil((total / pages.length) * 1.15)));
+    const total = pageCost(clean, lineChars);
+    const balanced = packUnits(units, Math.min(limit, Math.ceil((total / pages.length) * 1.15)), lineChars);
     if (balanced.length === pages.length) return balanced;
   }
   return pages;
@@ -285,22 +301,28 @@ export type PresentContent = {
     /** Copyright or public-domain notice that goes with the text. */
     notice: string | null;
   };
+  /** The standard version of the text. */
   reflection: RichDoc;
   discussion: RichDoc;
   practice: RichDoc;
   prayer: RichDoc;
+  /** Versions written for an age band, where an editor has written them. */
+  levels: Levels;
 };
 
+export type SlidePart = { section: SectionId; heading: string; doc: RichDoc };
+
 export type SlideBody =
-  | { kind: "theme"; eyebrow: string; heading: string; text: string; dayLabel: string }
-  | { kind: "title"; eyebrow: string; heading: string; text: string }
+  | { kind: "opener"; heading: string; text: string; theme: string | null; dayLabel: string | null }
   | { kind: "scripture"; reference: string | null; translation: string | null; text: string; notice: string | null }
   | { kind: "reference"; reference: string; translation: string | null }
-  | { kind: "rich"; heading: string; doc: RichDoc; emphasis: boolean };
+  | { kind: "rich"; parts: SlidePart[]; emphasis: boolean };
 
 export type Slide = {
   key: string;
+  /** The first section on the slide. Some slides carry two (the opener, and practice with prayer). */
   section: SectionId;
+  sections: SectionId[];
   /** Zero-based page within the section, when a long section spans several slides. */
   page: number;
   pageCount: number;
@@ -309,41 +331,92 @@ export type Slide = {
   body: SlideBody;
 };
 
-export const WIDTH_BUCKETS = [
-  { below: 600, factor: 0.5 },
-  { below: 1000, factor: 0.8 },
-  { below: 1500, factor: 1 },
-  { below: Number.POSITIVE_INFINITY, factor: 1.25 },
-] as const;
+/** The box a slide is drawn in, in CSS pixels. */
+export type Stage = { width: number; height: number };
 
 /**
- * How many characters of one slide to aim for. Smaller screens, bigger type and
- * the young-students mode all allow fewer characters, so text keeps a readable
- * size instead of shrinking to fit.
+ * The smallest text a slide may use, in pixels: about 1/22 of the screen height,
+ * the size that stays readable from the back of a classroom on a projector.
+ * Larger text settings and the young-students mode raise it.
  */
-export function charBudget(kind: "scripture" | "rich", opts: { widthPx: number; size: number; simple: boolean }): number {
-  const base = kind === "scripture" ? 700 : 420;
-  const bucket = WIDTH_BUCKETS.find((b) => opts.widthPx < b.below)!.factor;
+/** Younger readers get larger letters: early readers need bigger type, and their versions are shorter. */
+export const BAND_TYPE_SCALE: Record<GradeBand, number> = { k2: 1.25, g35: 1.1, g68: 1, g912: 1 };
+export const bandScale = (band: GradeBand | null): number => (band ? BAND_TYPE_SCALE[band] : 1);
+/** The youngest band gets the friendlier headings. */
+export const isYoungest = (band: GradeBand | null): boolean => band === "k2";
+
+export function floorPx(stage: Stage, opts: { size: number; band: GradeBand | null }): number {
   const scale = SIZE_SCALES[opts.size] ?? 1;
-  const simple = opts.simple ? 0.45 : 1;
-  return Math.max(60, Math.round((base * bucket * simple) / (scale * scale)));
+  const base = Math.min(stage.height * 0.045, stage.width * 0.06);
+  return Math.max(16, base * scale * bandScale(opts.band));
+}
+
+/** Measured proportions of the slide typography: average character width and line height, in em. */
+const METRICS = {
+  // overheadPx: fixed-size text that does not scale with the slide, such as the copyright notice (14px minimum, up to two lines).
+  scripture: { charEm: 0.46, lineEm: 1.5, maxWidthEm: 36, overheadEm: 3.2, overheadPx: 0 },
+  rich: { charEm: 0.5, lineEm: 1.45, maxWidthEm: 34, overheadEm: 1.6, overheadPx: 0 },
+  emphasis: { charEm: 0.5, lineEm: 1.3, maxWidthEm: 26, overheadEm: 1.6, overheadPx: 0 },
+} as const;
+/** Word wrap, short last lines and paragraph gaps leave some of every page empty. */
+const FILL = 0.85;
+
+/**
+ * How many characters of one kind of text fit on a slide at the legibility floor.
+ * Slides are split only when the text would otherwise have to shrink below that
+ * floor, so a short devotional stays on as few slides as possible.
+ */
+export function pageCapacity(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; band: GradeBand | null; headings?: number }): number {
+  return pageGeometry(kind, stage, opts).capacity;
+}
+
+/** Characters per line and lines per slide at the legibility floor, and the resulting capacity. */
+export function pageGeometry(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; band: GradeBand | null; headings?: number }) {
+  const m = METRICS[kind];
+  const px = floorPx(stage, opts);
+  const lineWidth = Math.min(stage.width, m.maxWidthEm * px);
+  const charsPerLine = lineWidth / (m.charEm * px);
+  const overhead = m.overheadEm * (opts.headings ?? 1);
+  const lines = Math.max(1, Math.floor(((stage.height - m.overheadPx) / px - overhead) / m.lineEm));
+  return { charsPerLine, lines, capacity: Math.max(60, Math.round(lines * charsPerLine * FILL)) };
+}
+
+/** Splits a rich document into the fewest pages that fit, then evens them out. */
+function paginateBalanced(doc: RichDoc, max: number): RichDoc[] {
+  const pages = paginateDoc(doc, max);
+  if (pages.length < 2) return pages;
+  const total = richTextToPlain(doc).length;
+  const balanced = paginateDoc(doc, Math.min(max, Math.ceil((total / pages.length) * 1.15)));
+  return balanced.length === pages.length ? balanced : pages;
 }
 
 const HEADINGS = {
-  normal: { reflection: "Reflection", discussion: "Think about it", practice: "Put it into practice", prayer: "Closing prayer", scripture: "Scripture", theme: "This week’s theme" },
-  simple: { reflection: "Let’s think about it", discussion: "Let’s talk", practice: "Let’s try it", prayer: "Let’s pray", scripture: "Let’s read God’s Word", theme: "This week" },
+  normal: { reflection: "Reflection", discussion: "Think about it", practice: "Put it into practice", prayer: "Closing prayer", scripture: "Scripture" },
+  simple: { reflection: "Let’s think about it", discussion: "Let’s talk", practice: "Let’s try it", prayer: "Let’s pray", scripture: "Let’s read God’s Word" },
 } as const;
 
-export function buildSlides(content: PresentContent, settings: PresentSettings, widthPx: number): Slide[] {
-  const H = settings.simple ? HEADINGS.simple : HEADINGS.normal;
+/**
+ * Turns a devotional into slides: an opener (title with the week's theme), the
+ * Scripture, the reflection, the discussion question, and one closing slide
+ * with the practical step and the prayer. A section continues onto more slides
+ * only when it cannot fit at a readable size.
+ */
+export function buildSlides(content: PresentContent, settings: PresentSettings, stage: Stage): Slide[] {
+  const H = isYoungest(settings.band) ? HEADINGS.simple : HEADINGS.normal;
+  const opts = { size: settings.size, band: settings.band };
+  // The class's own version of the text where one is written, the standard text elsewhere.
+  const text = settings.band
+    ? textForBand({ reflection: content.reflection, discussion_question: content.discussion, practical_application: content.practice, prayer: content.prayer }, content.levels, settings.band)
+    : { reflection: content.reflection, discussion_question: content.discussion, practical_application: content.practice, prayer: content.prayer };
   const slides: Slide[] = [];
   const on = (id: SectionId) => settings.sections[id];
 
-  const add = (section: SectionId, label: string, bodies: SlideBody[]) => {
+  const add = (sections: SectionId[], label: string, bodies: SlideBody[]) => {
     bodies.forEach((body, page) =>
       slides.push({
-        key: `${section}-${page}`,
-        section,
+        key: `${sections.join("+")}-${page}`,
+        section: sections[0]!,
+        sections,
         page,
         pageCount: bodies.length,
         label: bodies.length > 1 ? `${label} (${page + 1} of ${bodies.length})` : label,
@@ -352,18 +425,32 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
     );
   };
 
-  if (on("theme") && content.theme) {
-    add("theme", SECTION_LABELS.theme, [{ kind: "theme", eyebrow: H.theme, heading: content.theme.title, text: content.theme.summary, dayLabel: content.theme.dayLabel }]);
+  // Opener: the day's title, with the week's theme beneath it. One slide, not two.
+  const showTitle = on("title") && content.title.trim() !== "";
+  const showTheme = on("theme") && content.theme !== null;
+  if (showTitle || showTheme) {
+    const theme = showTheme ? content.theme : null;
+    const sections: SectionId[] = [...(showTheme ? (["theme"] as const) : []), ...(showTitle ? (["title"] as const) : [])];
+    add(sections, showTitle ? SECTION_LABELS.title : SECTION_LABELS.theme, [{
+      kind: "opener",
+      heading: showTitle ? content.title : theme!.title,
+      text: showTitle ? content.topic : theme!.summary,
+      theme: showTitle && theme ? theme.title : null,
+      dayLabel: theme?.dayLabel || null,
+    }]);
   }
-  if (on("title") && content.title.trim()) {
-    add("title", SECTION_LABELS.title, [{ kind: "title", eyebrow: content.dateLabel, heading: content.title, text: content.topic }]);
-  }
+
   if (on("scripture")) {
     const s = content.scripture;
     const translation = settings.showTranslation ? s.translationLabel : null;
     if (s.text) {
-      const pages = splitPassage(s.text, charBudget("scripture", { widthPx, size: settings.size, simple: settings.simple }));
-      add("scripture", SECTION_LABELS.scripture, pages.map((text) => ({
+      // Scripture is the one passage every age shares, usually read aloud together, so it keeps the
+      // standard floor rather than splitting further for younger readers. It still grows when it fits.
+      // Counted in whole lines: each verse starts a new line, so short verses take more room than their letters.
+      const g = pageGeometry("scripture", stage, { ...opts, band: null });
+      const lineChars = Math.max(10, Math.floor(g.charsPerLine * 0.97));
+      const pages = splitPassage(s.text, g.lines * lineChars, lineChars);
+      add(["scripture"], SECTION_LABELS.scripture, pages.map((text) => ({
         kind: "scripture" as const,
         reference: settings.showReference ? s.reference || null : null,
         translation,
@@ -372,21 +459,31 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
       })));
     } else if (s.reference) {
       // Text we may not display: the reference is all the class has to go on, so it is always shown.
-      add("scripture", SECTION_LABELS.scripture, [{ kind: "reference", reference: s.reference, translation }]);
+      add(["scripture"], SECTION_LABELS.scripture, [{ kind: "reference", reference: s.reference, translation }]);
     }
   }
 
-  const rich: Array<[SectionId, RichDoc, string, boolean]> = [
-    ["reflection", content.reflection, H.reflection, false],
-    ["discussion", content.discussion, H.discussion, true],
-    ["practice", content.practice, H.practice, false],
-    ["prayer", content.prayer, H.prayer, false],
-  ];
-  for (const [id, doc, heading, emphasis] of rich) {
-    if (!on(id)) continue;
-    const pages = paginateDoc(doc, charBudget("rich", { widthPx, size: settings.size, simple: settings.simple }));
-    if (pages.length === 0) continue;
-    add(id, SECTION_LABELS[id], pages.map((page) => ({ kind: "rich" as const, heading, doc: page, emphasis })));
+  const richSection = (id: SectionId, doc: RichDoc, heading: string, emphasis: boolean) => {
+    if (!on(id)) return;
+    const pages = paginateBalanced(doc, pageCapacity(emphasis ? "emphasis" : "rich", stage, opts));
+    if (pages.length === 0) return;
+    add([id], SECTION_LABELS[id], pages.map((page) => ({ kind: "rich" as const, parts: [{ section: id, heading, doc: page }], emphasis })));
+  };
+  richSection("reflection", text.reflection, H.reflection, false);
+  richSection("discussion", text.discussion_question, H.discussion, true);
+
+  // Respond: the practical step and the prayer share one closing slide when they fit together.
+  const respond = ([["practice", text.practical_application, H.practice], ["prayer", text.prayer, H.prayer]] as const)
+    .filter(([id, doc]) => on(id) && richTextToPlain(doc).trim() !== "");
+  const together = respond.reduce((n, [, doc]) => n + richTextToPlain(doc).length, 0);
+  if (respond.length === 2 && together <= pageCapacity("rich", stage, { ...opts, headings: 2 })) {
+    add(["practice", "prayer"], `${SECTION_LABELS.practice} and ${SECTION_LABELS.prayer.toLowerCase()}`, [{
+      kind: "rich",
+      parts: respond.map(([id, doc, heading]) => ({ section: id, heading, doc })),
+      emphasis: false,
+    }]);
+  } else {
+    for (const [id, doc, heading] of respond) richSection(id, doc, heading, false);
   }
   return slides;
 }
@@ -397,7 +494,7 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
  */
 export function equivalentIndex(prev: Pick<Slide, "section" | "page" | "pageCount"> | undefined, next: Slide[]): number {
   if (!prev || next.length === 0) return 0;
-  const same = next.map((s, i) => ({ s, i })).filter(({ s }) => s.section === prev.section);
+  const same = next.map((s, i) => ({ s, i })).filter(({ s }) => s.sections.includes(prev.section));
   if (same.length > 0) {
     const fraction = prev.pageCount > 0 ? prev.page / prev.pageCount : 0;
     return same[Math.min(same.length - 1, Math.floor(fraction * same.length))]!.i;

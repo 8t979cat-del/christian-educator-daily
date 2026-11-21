@@ -1,6 +1,8 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { richTextToPlain } from "./richtext";
+import { formatDate } from "./dates";
+import type { PresentContent } from "./present";
+import { EMPTY_DOC, richTextToPlain, sanitizeRichDoc } from "./richtext";
 import { toDevotional, type DevotionalRecord, type SearchHit, type ThemeRecord } from "./types";
 import type { TranslationLicense } from "./scripture";
 import type { DevotionalStatus } from "./options";
@@ -230,4 +232,44 @@ export async function getBookmarkedHits(page: number, pageSize: number): Promise
     return [{ ...(d as object), excerpt: richTextToPlain(reflection).slice(0, 220), total: count ?? 0 } as unknown as SearchHit];
   });
   return { hits, total: count ?? 0 };
+}
+
+/**
+ * Today's devotional for anyone, signed in or not: the most recent live, free
+ * devotional of the past week, standard text only (migration 0011). Returns null
+ * when there is none or the database is not configured.
+ */
+export async function getPublicToday(today: string): Promise<PresentContent | null> {
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    return null;
+  }
+  const { data, error } = await supabase.rpc("public_today_devotional", { p_today: today });
+  if (error || !data) return null;
+  const d = data as Record<string, unknown>;
+  const str = (k: string) => (typeof d[k] === "string" ? (d[k] as string) : "");
+  const doc = (k: string) => sanitizeRichDoc(d[k]) ?? EMPTY_DOC;
+  const code = str("translation_code");
+  const text = str("scripture_text").trim();
+  return {
+    dateLabel: formatDate(str("devotional_date")),
+    title: str("title"),
+    topic: str("daily_topic"),
+    theme: str("theme_title")
+      ? { title: str("theme_title"), summary: str("theme_summary"), dayLabel: typeof d.theme_day === "number" ? `Day ${d.theme_day} of 5` : "" }
+      : null,
+    scripture: {
+      reference: str("scripture_reference"),
+      translationLabel: str("translation_name") ? `${str("translation_name")} (${code.toUpperCase()})` : null,
+      text: text || null,
+      notice: text ? str("attribution") || `${str("translation_name")} (${code.toUpperCase()}), public domain.` : null,
+    },
+    reflection: doc("reflection"),
+    discussion: doc("discussion_question"),
+    practice: doc("practical_application"),
+    prayer: doc("prayer"),
+    levels: {},
+  };
 }

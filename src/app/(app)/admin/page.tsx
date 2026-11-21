@@ -41,7 +41,7 @@ export default async function AdminPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHeader title="Platform admin" description="Staff tools for the Christian Educator Daily team." />
+      <PageHeader title="Platform admin" description="Staff tools for the Everyday Devotional team." />
       {isEditor ? <AdminNav current="/admin" isAdmin={isAdmin} /> : null}
       <NoticeBanner code={notice} />
       <div className="grid gap-6">

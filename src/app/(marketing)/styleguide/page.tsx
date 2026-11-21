@@ -182,6 +182,7 @@ const SAMPLE: DevotionalRecord = {
   scripture_text: "And let us not be weary in well doing: for in due season we shall reap, if we faint not.",
   reflection: para("Sample reflection text for the style guide."), prayer: para("Sample prayer."),
   discussion_question: para("Sample discussion question?"), practical_application: para("Sample practical application."),
+  levels: {},
   audience: "teachers", access_level: "free", grade_levels: ["g68", "g912"], educational_category: "classroom", author_id: null,
   author_name: "Style guide", status: "published", publish_at: null, approved_by: null, approved_at: null,
   published_at: null, updated_at: "", created_at: "",

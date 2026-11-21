@@ -10,7 +10,7 @@ const fs = require("fs");
 const { chromium } = require("playwright");
 const base = process.argv[2] || "http://localhost:3111";
 const axeSrc = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-const PAGES = ["/", "/classroom-demo", "/pricing", "/login", "/signup", "/forgot-password", "/reset-password", "/verify-email"];
+const PAGES = ["/", "/classroom-demo", "/login", "/signup", "/forgot-password", "/reset-password", "/verify-email"];
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const failures = [];
 const fail = (m) => { failures.push(m); console.log("FAIL", m); };
@@ -44,7 +44,7 @@ const fail = (m) => { failures.push(m); console.log("FAIL", m); };
     await ctx.close();
   }
   const ctx = await browser.newContext({ reducedMotion: "reduce" });
-  for (const p of ["/", "/classroom-demo", "/pricing"]) {
+  for (const p of ["/", "/classroom-demo"]) {
     const page = await ctx.newPage();
     await page.goto(base + p, { waitUntil: "load" });
     const moving = await page.evaluate(() => [...document.querySelectorAll("*")].filter((e) => { const c = getComputedStyle(e); return (c.animationName !== "none" && parseFloat(c.animationDuration) > 0.05) || parseFloat(c.transitionDuration) > 0.05; }).length);
@@ -53,7 +53,7 @@ const fail = (m) => { failures.push(m); console.log("FAIL", m); };
   }
   await ctx.close();
   const kctx = await browser.newContext();
-  for (const p of ["/login", "/signup", "/pricing", "/classroom-demo"]) {
+  for (const p of ["/login", "/signup", "/classroom-demo"]) {
     const page = await kctx.newPage();
     await page.goto(base + p, { waitUntil: "load" });
     let first = true;

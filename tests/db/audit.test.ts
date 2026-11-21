@@ -530,8 +530,9 @@ describe("privacy: deletion, minimization and roles", () => {
     const rows = (await h.admin.query<{ proname: string }>(
       `select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prokind = 'f'
          and has_function_privilege('anon', p.oid, 'execute')`)).rows.map((r) => r.proname);
-    // Trigger functions and pure helpers that return false/null for anonymous callers. None reads or writes data.
-    const harmless = new Set(["bible_translations_after_update", "devotional_missing_fields", "devotional_transition_allowed", "devotionals_after_update", "devotionals_before_write", "handle_new_user", "has_platform_role", "has_school_role", "is_school_member", "protect_last_owner", "rich_text_plain", "set_updated_at", "weekly_themes_before_update"]);
+    // Trigger functions and pure helpers that return false/null for anonymous callers. None reads or writes data,
+    // except public_today_devotional: deliberately public, it returns only today's free devotional (migration 0011).
+    const harmless = new Set(["bible_translations_after_update", "devotional_missing_fields", "devotional_transition_allowed", "devotionals_after_update", "devotionals_before_write", "handle_new_user", "has_platform_role", "has_school_role", "is_school_member", "protect_last_owner", "public_today_devotional", "rich_text_plain", "set_updated_at", "weekly_themes_before_update"]);
     expect(rows.filter((r) => !harmless.has(r))).toEqual([]);
     expect(rows.some((r) => /screen|accept_covenant|billing_apply|admin_|restrict_|delete_/.test(r))).toBe(false);
   });

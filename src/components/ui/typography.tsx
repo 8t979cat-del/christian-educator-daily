@@ -20,7 +20,7 @@ type HeadingProps = ComponentProps<"h1"> & {
 /** Serif heading. Choose `level` for document structure and `size` for looks. */
 export function Heading({ level = 2, size, className, ...props }: HeadingProps) {
   const Tag = `h${level}` as const;
-  return <Tag className={cn("font-serif font-semibold tracking-tight", HEADING_SIZES[size ?? level], className)} {...props} />;
+  return <Tag className={cn("font-serif font-semibold tracking-tight text-balance", HEADING_SIZES[size ?? level], className)} {...props} />;
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
@@ -37,7 +37,7 @@ type TextProps = ComponentProps<"p"> & {
 const TEXT_SIZES = { sm: "text-sm", md: "text-base", lg: "text-lg md:text-xl" } as const;
 
 export function Text({ size = "md", muted, className, ...props }: TextProps) {
-  return <p className={cn(TEXT_SIZES[size], muted && "text-muted", className)} {...props} />;
+  return <p className={cn("text-pretty", TEXT_SIZES[size], muted && "text-muted", className)} {...props} />;
 }
 
 /** Scripture quotation in the serif face. The reference is always shown. */

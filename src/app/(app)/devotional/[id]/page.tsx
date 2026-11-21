@@ -8,20 +8,17 @@ import { canUse, getEntitlements, getLockInfo } from "@/lib/billing/queries";
 import { createClient } from "@/lib/supabase/server";
 import { DevotionalView } from "@/components/content/devotional-view";
 import { NotesEditor } from "@/components/content/notes-editor";
-import { ReflectTogether } from "@/components/community/reflect-together";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requireAccess } from "@/lib/auth/session";
 import { formatDate, todayIn } from "@/lib/content/dates";
 import { getDevotional, getNeighbors, getThemeInfo, getTranslation, getUserState } from "@/lib/content/queries";
 import { getSiteTimeZone } from "@/lib/env";
-import { myRestriction } from "@/lib/community/queries";
 import { devotionalCredits, recordUsage } from "@/lib/governance/queries";
 
 export const metadata: Metadata = { title: "Devotional" };
 export const dynamic = "force-dynamic";
 
 type SearchParams = Record<string, string | string[] | undefined>;
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 export default async function DevotionalPage({
   params,
@@ -30,9 +27,9 @@ export default async function DevotionalPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<SearchParams>;
 }) {
-  const ctx = await requireAccess();
+  await requireAccess();
   const { id } = await params;
-  const sp = await searchParams;
+  await searchParams;
   if (!uuidSchema.safeParse(id).success) notFound();
 
   const today = todayIn(getSiteTimeZone());
@@ -46,7 +43,6 @@ export default async function DevotionalPage({
     return <LockedDevotional title={lock.title} date={lock.devotional_date} reference={lock.scripture_reference} reason={lock.reason} archiveDays={days} />;
   }
 
-  const restriction = ctx.profile.show_discussions ? await myRestriction() : null;
   const collections = (await canUse("collections"))
     ? (((await (await createClient()).from("user_collections").select("id, name").order("name")).data ?? []) as { id: string; name: string }[])
     : [];
@@ -91,14 +87,7 @@ export default async function DevotionalPage({
         <NotesEditor devotionalId={id} initial={state?.note ?? ""} />
         <div className="mt-6"><AddToCollectionControl devotionalId={id} collections={collections} /></div>
       </div>
-      <ReflectTogether
-        devotionalId={id}
-        timeZone={getSiteTimeZone()}
-        enabled={ctx.profile.show_discussions}
-        canParticipate={!restriction}
-        isModerator={ctx.platformRoles.some((r) => r === "platform_admin" || r === "moderator")}
-        params={{ kind: one(sp.r_kind), q: one(sp.r_q), sort: one(sp.r_sort), ts: one(sp.r_ts), id: one(sp.r_id) }}
-      />
+      {/* Comments ("Reflect Together") are off for launch: they need moderation the pilot is not staffed for. The component and its database switch remain. */}
       <nav aria-label="Devotional navigation" className="mx-auto grid w-full max-w-3xl gap-3 print:hidden sm:grid-cols-2">
         {prev ? (
           <Link href={`/devotional/${prev.id}`} className="rounded-card border border-line bg-surface p-4 hover:border-brand">

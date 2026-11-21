@@ -1,10 +1,12 @@
 import type { IconName } from "@/components/ui/icon";
 
 export const SITE = {
-  name: "Christian Educator Daily",
-  shortName: "CED",
+  name: "Everyday Devotional: 180 Days",
+  /** The wordmark and its numeral mark, set together in the logo. */
+  wordmark: "Everyday Devotional",
+  mark: "180",
   description:
-    "A daily devotional and school-ministry platform for Christian teachers, administrators and schools.",
+    "A classroom devotional for every day of the school year, at your students' reading level, ready to present in a minute.",
 } as const;
 
 export type NavItem = { href: string; label: string; icon: IconName };
@@ -14,6 +16,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/today", label: "Today", icon: "sun" },
   { href: "/archive", label: "Archive", icon: "calendar" },
   { href: "/library", label: "Library", icon: "book" },
+  { href: "/create", label: "Write", icon: "presentation" },
   { href: "/resources", label: "Resources", icon: "file" },
   { href: "/community", label: "Community", icon: "users" },
   { href: "/school", label: "My School", icon: "building" },
@@ -21,7 +24,7 @@ export const APP_NAV: NavItem[] = [
 
 /** Links in the public marketing header. */
 export const MARKETING_NAV = [
-  { href: "/#pillars", label: "What it offers" },
+  { href: "/#year", label: "How it works" },
   { href: "/#classroom", label: "Classroom mode" },
-  { href: "/#schools", label: "For schools" },
+  { href: "/#founding", label: "Founding schools" },
 ] as const;

@@ -23,8 +23,8 @@ const NOT_CONFIGURED = errorState(
   "Sign-in is not available because this server has no Supabase configuration. See the README.",
 );
 
-const callbackUrl = (next: string) =>
-  `${getPublicEnv().NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`;
+const callbackUrl = (next: string, flow?: "verify") =>
+  `${getPublicEnv().NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}${flow ? `&flow=${flow}` : ""}`;
 
 export async function signUpAction(_previous: FormState, formData: FormData): Promise<FormState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
@@ -40,7 +40,8 @@ export async function signUpAction(_previous: FormState, formData: FormData): Pr
     password,
     options: {
       data: { first_name: firstName, last_name: lastName },
-      emailRedirectTo: callbackUrl(next),
+      // Verifying the address ends on the sign-in page with "Email verified." (see /auth/callback).
+      emailRedirectTo: callbackUrl(next, "verify"),
     },
   });
 
@@ -129,7 +130,7 @@ export async function resendVerificationAction(_previous: FormState, formData: F
   await supabase.auth.resend({
     type: "signup",
     email: email.data,
-    options: { emailRedirectTo: callbackUrl("/onboarding") },
+    options: { emailRedirectTo: callbackUrl("/onboarding", "verify") },
   });
   return successState("If that address is waiting for verification, we have sent a new link.");
 }

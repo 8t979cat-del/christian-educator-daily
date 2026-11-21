@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { PresentMode } from "@/components/present/present-mode";
 import { PresenterView } from "@/components/present/presenter-view";
+import { InlinePresenter } from "@/components/present/inline-presenter";
+import { CreateStudio } from "@/components/create/create-studio";
 import type { PresentContent } from "@/lib/content/present";
 
 export const metadata: Metadata = { title: "Classroom mode demo", robots: { index: false } };
@@ -44,8 +46,8 @@ const PASSAGES: Record<string, { reference: string; text: string }> = {
   },
 };
 
-export default async function PresentDemo({ searchParams }: { searchParams: Promise<{ p?: string; view?: string; text?: string }> }) {
-  const { p, view, text } = await searchParams;
+export default async function PresentDemo({ searchParams }: { searchParams: Promise<{ p?: string; view?: string; text?: string; tools?: string }> }) {
+  const { p, view, text, tools } = await searchParams;
   const passage = PASSAGES[p ?? "psalm23"] ?? PASSAGES.psalm23!;
   const referenceOnly = text === "no";
   const content: PresentContent = {
@@ -67,6 +69,27 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     discussion: doc("When did someone's patience with you make a real difference, and what did it feel like?"),
     practice: doc("Before you answer the next question today, pause for three slow breaths."),
     prayer: doc("Lord, give us unhurried hearts. Help us to wait well, to listen first, and to love the people in front of us as you have loved us. Amen."),
+    // Sample versions for two age bands, to show reading levels. The other bands use the text above.
+    levels: {
+      k2: {
+        reflection: doc(
+          "Sometimes learning something new takes a long time. That is okay!",
+          "A shepherd takes care of his sheep. He walks slowly so every sheep can keep up. God is patient with us like that.",
+        ),
+        discussion_question: doc("When did someone wait for you to finish something?"),
+        practical_application: doc("Today, when a friend is slow, wait kindly."),
+        prayer: doc("Dear God, thank you for being patient with me. Help me be patient with my friends. Amen."),
+      },
+      g912: {
+        reflection: doc(
+          "Psalm 23 describes a shepherd who sets the pace by the slowest of the flock: green pastures, still waters, paths walked together rather than raced.",
+          "Patience here is not passivity. It is a decision to stay present with someone, or with a problem, while understanding catches up. That applies to the classmate who needs one more explanation, and to the part of yourself that is still learning.",
+        ),
+        discussion_question: doc("Where does our culture reward speed over patience, and what gets lost when it does?"),
+        practical_application: doc("Notice one moment today when you want to rush someone. Ask one more question instead."),
+        prayer: doc("Lord, slow us down enough to see the people around us. Make us patient with others and honest with ourselves. Amen."),
+      },
+    },
   };
   const notes = (
     <div className="rounded-lg border border-[#e2ded3] bg-white p-4 text-[#111]">
@@ -74,6 +97,12 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
       <p className="mt-1 text-sm">In the real app this is the teacher’s private notes box. Ask the group about their own experience first.</p>
     </div>
   );
+  // The home page's built-in presenter, with sample content (for checking it without a database).
+  // The "Write a devotional" studio, for checking its layout without an account (the AI is not connected here).
+  if (view === "create") return <main className="mx-auto max-w-6xl p-6"><CreateStudio allowed configured quota={{ remaining: 7, limit: 10 }} /></main>;
+  if (view === "inline") return <main className="mx-auto max-w-5xl p-6"><InlinePresenter content={{ ...content, levels: {} }} /></main>;
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
-  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/styleguide" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes} />;
+  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes}
+    // ?tools=plus shows the Plus editing tools with a sample counter. The demo has no account: AI and saving ask you to sign in.
+    tools={tools === "plus" ? { allowed: true, configured: true, devotionalId: "demo", quota: { remaining: 7, limit: 10 } } : tools === "free" ? { allowed: false, configured: false, devotionalId: "demo", quota: null } : undefined} />;
 }

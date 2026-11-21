@@ -176,7 +176,8 @@ async function walk(page, label) {
     for (let n = 0; n < nOrder; n++) { order.push((await slideFacts(page)).label.replace(/ \(\d+ of \d+\)$/, "")); await page.keyboard.press("ArrowRight"); }
     const dedup = order.filter((x, i) => x !== order[i - 1]);
     console.log("  order:", dedup.join(" | "));
-    check(dedup.join("|") === "Weekly theme|Devotional title|Scripture passage|Reflection|Discussion question|Put it into practice|Closing prayer", "slide order");
+    // Theme and title share the opening slide; practice and prayer share the closing one.
+    check(dedup.join("|") === "Devotional title|Scripture passage|Reflection|Discussion question|Put it into practice and closing prayer", "slide order");
 
     // Controls fade away so only the slide remains.
     await page.mouse.move(600, 400);
@@ -221,7 +222,7 @@ async function walk(page, label) {
     check(!sequence.includes("Weekly theme") && !sequence.includes("Put it into practice") && sequence.includes("Closing prayer"), "section toggles");
     await page.keyboard.press("Home"); await page.keyboard.press("ArrowRight");
     const scr = await slideFacts(page);
-    check(!/Psalm 23|King James/.test(scr.text.split("\n").slice(-3).join(" ").replace(/King James Version \(KJV\), public domain/, "")) , "reference/translation hidden on the Scripture slide");
+    check(!/Psalm 23|King James/.test(scr.text.replace(/King James Version \(KJV\), public domain/, "")), "reference/translation hidden on the Scripture slide");
     check(/public domain/.test(scr.text), "the copyright notice must stay");
     const bg = await page.evaluate(() => getComputedStyle(document.querySelector(".present-stage")).backgroundColor);
     check(bg === "rgb(0, 0, 0)", `high contrast background was ${bg}`);
@@ -231,17 +232,18 @@ async function walk(page, label) {
     const remembered = await page.waitForSelector(".present-stage[data-theme=contrast]", { timeout: 3000 }).then(() => true, () => false);
     check(remembered, "settings are remembered after a reload");
 
-    // Young students
+    // Reading level: the youngest band (the demo has a K-2 version of the text)
     await page.keyboard.press("s");
-    await page.getByRole("dialog").getByLabel("Younger students").check();
+    await page.getByRole("dialog").locator("label", { hasText: "K–2" }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
     await page.keyboard.press("End");
     const last = await slideFacts(page);
-    check(/Let’s pray/i.test(last.text), "younger students: friendly closing heading");
+    check(/Let’s pray/i.test(last.text), "K-2: friendly closing heading");
+    check(/Help me be patient with my friends/.test(last.text), "K-2: the K-2 version of the prayer is shown");
     await page.keyboard.press("Home");
     const totalSimple = await totalSlides(page);
-    console.log(`  younger students: ${totalSimple} slides (more, smaller slides)`);
-    check(totalSimple > sequence.length, "younger students should have more, smaller slides");
+    console.log(`  K-2 reading level: ${totalSimple} slides (standard text: ${sequence.length})`);
+    check(totalSimple <= sequence.length, "the K-2 version should not need more slides than the standard text");
     await page.screenshot({ path: `${OUT}/laptop-young-students.png` });
 
     // Presenter notes: off the big screen until asked, with a warning

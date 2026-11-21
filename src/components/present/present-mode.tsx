@@ -3,30 +3,41 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  DEFAULT_SETTINGS, SIZE_SCALES, WIDTH_BUCKETS, buildSlides, equivalentIndex, parseSettings,
-  type PresentContent, type PresentSettings,
+  DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
+  type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
+import { BAND_SHORT, bandsWithVersion, textForBand, type LevelVersion } from "@/lib/content/levels";
+import { EditPanel, type AiTools } from "./edit-panel";
+import { CommentComposer, CommentRail, type ClassComment } from "./comment-board";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
 import { PrintSlides } from "./print-slides";
 import { SettingsPanel } from "./settings-panel";
 import { SlideView, themeVars } from "./slide-view";
 
-const STORAGE_KEY = "ced-present-v2";
+// Settings saved under the old key carry over once (see loadSettings).
+const STORAGE_KEY = "ed180-present-v3";
+const OLD_STORAGE_KEY = "ced-present-v2";
 const IDLE_MS = 3000;
-/** A representative width for each size bucket, so the slides are only rebuilt when the bucket changes. */
-const BUCKET_WIDTH = [400, 800, 1200, 1700];
+/** The printed slide area in CSS pixels (landscape Letter, less margins and footer). Its legibility floor works out to the 19pt print body size. */
+const PRINT_STAGE: Stage = { width: 800, height: 560 };
+/** Rounds the measured slide box so tiny resizes do not rebuild the slides. */
+const quantize = (n: number) => Math.max(160, Math.round(n / 24) * 24);
 
 function loadSettings(): PresentSettings {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(OLD_STORAGE_KEY);
     if (raw) return parseSettings(JSON.parse(raw));
   } catch { /* storage unavailable or corrupt: use defaults */ }
   return parseSettings(null);
 }
 
 export function PresentMode({
-  content, exitHref, devotionalId, notesSlot, title, presenterHref,
+  content, exitHref, devotionalId, notesSlot, title, presenterHref, tools, savedVersions,
 }: {
+  /** Signed-in teachers: editing, saving and AI re-leveling (enabled by plan). */
+  tools?: AiTools;
+  /** The teacher's saved versions, keyed by reading level ("standard" for the standard text). */
+  savedVersions?: Partial<Record<string, Required<LevelVersion>>>;
   content: PresentContent;
   exitHref: string;
   devotionalId: string;
@@ -37,9 +48,16 @@ export function PresentMode({
 }) {
   const [settings, setSettings] = useState<PresentSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
-  const [bucket, setBucket] = useState(2);
+  const [stageSize, setStageSize] = useState<Stage>({ width: 1152, height: 648 });
   const [index, setIndex] = useState(0);
-  const [panel, setPanel] = useState<"none" | "settings" | "notes">("none");
+  const [panel, setPanel] = useState<"none" | "settings" | "notes" | "edit">("none");
+  // The teacher's own text per reading level: saved versions, plus edits shown this session.
+  const [overrides, setOverrides] = useState<Partial<Record<string, Required<LevelVersion>>>>(() => ({ ...savedVersions }));
+  // Class comments, per slide, for this presentation only: never saved or sent anywhere.
+  const [comments, setComments] = useState<Record<string, ClassComment[]>>({});
+  const [composing, setComposing] = useState(false);
+  const commentId = useRef(0);
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(() => new Set(Object.keys(savedVersions ?? {})));
   const [chrome, setChrome] = useState(true);
   const [blank, setBlank] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -59,14 +77,15 @@ export function PresentMode({
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* ignore */ }
   }, [settings, ready]);
 
-  // Which size bucket the screen is in decides how much text a slide holds.
+  // The size of the slide box decides how much text fits on a slide at a readable size.
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
     const measure = () => {
-      const w = el.clientWidth;
-      const k = WIDTH_BUCKETS.findIndex((b) => w < b.below);
-      setBucket(k === -1 ? WIDTH_BUCKETS.length - 1 : k);
+      const cs = getComputedStyle(el);
+      const width = quantize(el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+      const height = quantize(el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom));
+      setStageSize((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -74,8 +93,21 @@ export function PresentMode({
     return () => observer.disconnect();
   }, []);
 
-  const slides = useMemo(() => buildSlides(content, settings, BUCKET_WIDTH[bucket] ?? 1200), [content, settings, bucket]);
-  const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, 1280), [content, settings]);
+  const versionKey = settings.band ?? "standard";
+  const effective = useMemo<PresentContent>(() => {
+    const o = overrides[versionKey];
+    if (!o) return content;
+    if (settings.band) return { ...content, levels: { ...content.levels, [settings.band]: o } };
+    return { ...content, reflection: o.reflection, discussion: o.discussion_question, practice: o.practical_application, prayer: o.prayer };
+  }, [content, overrides, versionKey, settings.band]);
+  const slides = useMemo(() => buildSlides(effective, settings, stageSize), [effective, settings, stageSize]);
+  const writtenBands = useMemo(() => bandsWithVersion(content.levels), [content.levels]);
+  const printSlides = useMemo(() => buildSlides(effective, { ...settings, size: 1 }, PRINT_STAGE), [effective, settings]);
+  const currentText = useMemo(() => {
+    const standard = { reflection: effective.reflection, discussion_question: effective.discussion, practical_application: effective.practice, prayer: effective.prayer };
+    const t = settings.band ? textForBand(standard, effective.levels, settings.band) : standard;
+    return { reflection: t.reflection, discussion_question: t.discussion_question, practical_application: t.practical_application, prayer: t.prayer };
+  }, [effective, settings.band]);
 
   // When the slide list is rebuilt, stay on the same part of the lesson.
   const lastSlides = useRef(slides);
@@ -90,6 +122,7 @@ export function PresentMode({
 
   const safeIndex = Math.min(index, Math.max(slides.length - 1, 0));
   const slide = slides[safeIndex];
+  const slideComments = (settings.comments && slide ? comments[slide.key] : undefined) ?? [];
   const total = slides.length;
 
   const go = useCallback((delta: number) => setIndex((i) => Math.min(slides.length - 1, Math.max(0, Math.min(i, slides.length - 1) + delta))), [slides.length]);
@@ -147,7 +180,7 @@ export function PresentMode({
   const changeSize = useCallback((delta: number) => setSettings((s) => ({ ...s, size: Math.min(SIZE_SCALES.length - 1, Math.max(0, s.size + delta)) })), []);
 
   const openPresenter = useCallback(() => {
-    window.open(presenterHref, "ced-presenter", "popup=yes,width=1100,height=760");
+    window.open(presenterHref, "ed180-presenter", "popup=yes,width=1100,height=760");
   }, [presenterHref]);
 
   const leave = useCallback(() => {
@@ -162,7 +195,7 @@ export function PresentMode({
       const target = e.target as HTMLElement | null;
       const typing = target?.matches("input[type=text],input[type=search],textarea,select,[contenteditable=true]");
       if (typing) return;
-      if (panel === "settings") return; // the panel handles its own Escape
+      if (panel === "settings" || panel === "edit") return; // the panel handles its own Escape
       if (e.key === "Escape") {
         if (panel === "notes") setPanel("none");
         else if (!document.fullscreenElement) leave();
@@ -181,13 +214,14 @@ export function PresentMode({
         case "b": case "B": case ".": setBlank((v) => !v); break;
         case "n": case "N": if (notesSlot) setPanel((p) => (p === "notes" ? "none" : "notes")); break;
         case "s": case "S": setPanel("settings"); break;
+        case "c": case "C": if (tools && settings.comments) { e.preventDefault(); setComposing(true); } break;
         case "Tab": poke(); return;
         default: return;
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke]);
+  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke, tools, settings.comments]);
 
   // Presenter window: this screen reports its state and obeys commands.
   const stateRef = useRef<ClassMessage>({ type: "empty" });
@@ -199,6 +233,7 @@ export function PresentMode({
       const m = event.data;
       if (m.type === "hello") ch.postMessage(stateRef.current);
       else if (m.type === "goto") goTo(m.index);
+      else if (m.type === "band") setSettings((s) => ({ ...s, band: m.band }));
       else if (m.type === "cmd") {
         if (m.cmd === "next") go(1);
         else if (m.cmd === "prev") go(-1);
@@ -214,18 +249,18 @@ export function PresentMode({
   }, [devotionalId, go, goTo, slides.length]);
   useEffect(() => {
     stateRef.current = slide
-      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, simple: settings.simple, blank }
+      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, band: settings.band, writtenBands, blank, stage: stageSize }
       : { type: "empty" };
     channel.current?.postMessage(stateRef.current);
-  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.simple, blank]);
+  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.band, writtenBands, blank, stageSize]);
 
   const printNow = useCallback(() => {
     setPanel("none");
     window.setTimeout(() => window.print(), 50);
   }, []);
 
-  const bar = `pointer-events-auto flex items-center gap-2 px-3 py-2 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
-  const btn = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
+  const bar = `pointer-events-auto flex items-center gap-2 px-3 py-1.5 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
+  const btn = "inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
   const hasPassageText = Boolean(content.scripture.text);
 
   return (
@@ -248,20 +283,25 @@ export function PresentMode({
         <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2">
           <div className={bar}>
             <Link href={exitHref} onClick={(e) => { e.preventDefault(); leave(); }} className={btn}>← Exit</Link>
-            <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={settings.simple} onClick={() => setSettings((s) => ({ ...s, simple: !s.simple }))}>Younger students</button>
+            {/* The reading level is chosen once, in settings or the presenter window; this only shows it. */}
+            <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("settings")} aria-label={settings.band ? `Reading level: grades ${BAND_SHORT[settings.band]}. Change in settings.` : "Choose a reading level in settings"}>
+              {settings.band ? `Grades ${BAND_SHORT[settings.band]}` : "Choose reading level"}
+            </button>
           </div>
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Larger text" onClick={() => changeSize(1)} disabled={settings.size === SIZE_SCALES.length - 1}>A+</button>
+            {tools && settings.comments ? <button type="button" className={btn} onClick={() => setComposing(true)}>Comment</button> : null}
+            {tools ? <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("edit")}>Edit</button> : null}
             {notesSlot ? <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={panel === "notes"} onClick={() => setPanel((p) => (p === "notes" ? "none" : "notes"))}>Notes</button> : null}
             <button type="button" className={btn} onClick={() => setPanel("settings")}>Settings</button>
             <button type="button" className={`${btn} max-sm:hidden`} onClick={toggleFullscreen} aria-pressed={fullscreen}>{fullscreen ? "Exit full screen" : "Full screen"}</button>
           </div>
         </header>
 
-        <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] pb-20 pt-16" aria-label={slide ? slide.label : "Presentation"}>
+        <main id="main" ref={stage} className={`min-h-0 flex-1 px-[5vw] py-14 ${slideComments.length ? "pr-[31vw]" : ""}`} aria-label={slide ? slide.label : "Presentation"}>
           {slide ? (
-            <SlideView slide={slide} size={settings.size} simple={settings.simple} />
+            <SlideView slide={slide} size={settings.size} band={settings.band} />
           ) : (
             <div className="grid h-full place-items-center text-center">
               <div>
@@ -272,6 +312,19 @@ export function PresentMode({
             </div>
           )}
         </main>
+        {slideComments.length ? (
+          <CommentRail comments={slideComments} onRemove={(id) => slide && setComments((c) => ({ ...c, [slide.key]: (c[slide.key] ?? []).filter((x) => x.id !== id) }))} />
+        ) : null}
+        {composing && settings.comments ? (
+          <CommentComposer
+            onClose={() => setComposing(false)}
+            onPost={(text, emoji) => {
+              if (!slide) return;
+              const id = ++commentId.current;
+              setComments((c) => ({ ...c, [slide.key]: [...(c[slide.key] ?? []), { id, text, emoji }] }));
+            }}
+          />
+        ) : null}
         <p className="sr-only" aria-live="polite">{slide ? `Slide ${safeIndex + 1} of ${total}: ${slide.label}` : ""}</p>
 
         <footer className="absolute inset-x-0 bottom-0 z-20">
@@ -315,6 +368,22 @@ export function PresentMode({
           </aside>
         ) : null}
 
+        {panel === "edit" && tools ? (
+          <EditPanel
+            band={settings.band}
+            current={currentText}
+            saved={savedKeys.has(versionKey)}
+            tools={tools}
+            onApply={(v) => setOverrides((o) => ({ ...o, [versionKey]: v }))}
+            onSaved={(v) => { setOverrides((o) => ({ ...o, [versionKey]: v })); setSavedKeys((k) => new Set(k).add(versionKey)); }}
+            onReset={() => {
+              setOverrides((o) => { const next = { ...o }; delete next[versionKey]; return next; });
+              setSavedKeys((k) => { const next = new Set(k); next.delete(versionKey); return next; });
+            }}
+            onClose={() => setPanel("none")}
+          />
+        ) : null}
+
         {panel === "settings" ? (
           <SettingsPanel
             settings={settings}
@@ -323,6 +392,8 @@ export function PresentMode({
             onPrint={printNow}
             hasTheme={Boolean(content.theme)}
             hasPassageText={hasPassageText}
+            writtenBands={writtenBands}
+            allowComments={Boolean(tools)}
             onOpenPresenter={openPresenter}
           />
         ) : null}

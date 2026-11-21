@@ -10,6 +10,12 @@ import { getDevotional, getThemeInfo, getTranslation, getUserState } from "@/lib
 import { scriptureDisplay } from "@/lib/content/scripture";
 import { getSiteTimeZone } from "@/lib/env";
 import { recordUsage } from "@/lib/governance/queries";
+import { aiQuota } from "@/app/actions/ai";
+import { isAiConfigured } from "@/lib/ai/devotional-ai";
+import { canUse } from "@/lib/billing/queries";
+import { isBand, toLevels, type LevelVersion } from "@/lib/content/levels";
+import { EMPTY_DOC } from "@/lib/content/richtext";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Present to class", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -44,7 +50,24 @@ export default async function PresentPage({
     discussion: d.discussion_question,
     practice: d.practical_application,
     prayer: d.prayer,
+    levels: d.levels,
   };
+
+  // The teacher's own saved versions of this devotional, one per reading level.
+  const { data: versions } = await (await createClient()).from("presentation_versions").select("band, content").eq("devotional_id", id);
+  const savedVersions: Partial<Record<string, Required<LevelVersion>>> = {};
+  for (const v of versions ?? []) {
+    // A field the teacher left empty stays empty (it is their version), so missing fields become empty documents.
+    const parsed = toLevels({ k2: v.content }).k2 ?? {};
+    savedVersions[isBand(v.band) ? v.band : "standard"] = {
+      reflection: parsed.reflection ?? EMPTY_DOC,
+      discussion_question: parsed.discussion_question ?? EMPTY_DOC,
+      practical_application: parsed.practical_application ?? EMPTY_DOC,
+      prayer: parsed.prayer ?? EMPTY_DOC,
+    };
+  }
+  const allowed = await canUse("ai_tools");
+  const tools = { allowed, configured: isAiConfigured(), devotionalId: id, quota: allowed ? await aiQuota() : null };
 
   // The notes are the teacher's own private note on this devotional, never part of the slides.
   const notes = <NotesEditor devotionalId={id} initial={state?.note ?? ""} />;
@@ -58,6 +81,8 @@ export default async function PresentPage({
       exitHref={`/devotional/${id}`}
       presenterHref={`/devotional/${id}/present?view=presenter`}
       notesSlot={notes}
+      tools={tools}
+      savedVersions={savedVersions}
     />
   );
 }

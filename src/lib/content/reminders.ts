@@ -71,7 +71,7 @@ export function buildReminderIcs(opts: {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Christian Educator Daily//Daily reminder//EN",
+    "PRODID:-//Everyday Devotional//Daily reminder//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

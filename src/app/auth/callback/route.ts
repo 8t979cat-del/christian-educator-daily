@@ -29,5 +29,18 @@ export async function GET(request: NextRequest) {
     ({ error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash }));
   }
 
-  return error ? failure : NextResponse.redirect(new URL(next, origin));
+  if (error) return failure;
+
+  // Verifying a new address: confirm it, then send the person to sign in, where the page
+  // says "Email verified." Signing out first means the sign-in page shows instead of
+  // skipping straight into the app; after signing in, onboarding continues where it was.
+  const verifying = searchParams.get("flow") === "verify" || type === "signup" || type === "email";
+  if (verifying) {
+    await supabase.auth.signOut();
+    const login = new URL("/login", origin);
+    login.searchParams.set("verified", "1");
+    if (next !== "/today") login.searchParams.set("next", next);
+    return NextResponse.redirect(login);
+  }
+  return NextResponse.redirect(new URL(next, origin));
 }

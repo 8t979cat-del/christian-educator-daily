@@ -8,7 +8,6 @@ import {
   ReminderForm,
 } from "@/components/forms/profile-forms";
 import { SharingForm } from "@/components/billing/forms";
-import { ShowDiscussionsToggle } from "@/components/community/show-discussions-toggle";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
@@ -68,11 +67,6 @@ export default async function SettingsPage() {
 
         <Section id="notifications" title="Notifications">
           <NotificationsForm profile={profile} />
-        </Section>
-
-        <Section id="community" title="Community" description="Participation is always optional.">
-          <ShowDiscussionsToggle initial={profile.show_discussions} />
-          <Text size="sm" className="mt-3"><a className="text-brand underline" href="/community/notices">Community notices and blocked people</a></Text>
         </Section>
 
         <Section id="plan" title="Plan and billing" description="Your plan, payment method and receipts.">

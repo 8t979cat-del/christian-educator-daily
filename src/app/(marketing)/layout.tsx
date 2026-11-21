@@ -4,10 +4,11 @@ import { SiteHeader } from "@/components/layout/site-header";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    // A column the height of the screen, so the footer sits at the bottom of short pages.
+    <div className="flex min-h-dvh flex-col">
       <SiteHeader />
-      <main id="main">{children}</main>
+      <main id="main" className="flex-1">{children}</main>
       <SiteFooter />
-    </>
+    </div>
   );
 }
