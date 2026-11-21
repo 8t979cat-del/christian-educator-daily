@@ -76,5 +76,15 @@ describe("AI tools", () => {
     expect(left).toBeGreaterThan(1_000_000_000);
     expect((await q<{ daily_limit: number }>(root, `select daily_limit from ai_remaining()`))[0]!.daily_limit).toBe(2147483647);
   });
-});
 
+  it("let administrators and content editors without a plan save AI work, and still refuse the free plan", async () => {
+    const boss = await h.createUser("boss@ai.test");
+    await admin(`insert into platform_roles (user_id, role) values ($1, 'platform_admin')`, [boss]);
+    const save = (u: string) => q(u, `insert into presentation_versions (devotional_id, band, source, content) values ($1, null, 'edited', $2::jsonb) returning id`, [devotionalId, content]);
+    await expect(save(boss)).resolves.toHaveLength(1);
+    await expect(save(editor)).resolves.toHaveLength(1);
+    await expect(save(free)).rejects.toThrow(/row-level security/);
+    expect((await q<{ can_use_ai: boolean }>(boss, `select can_use_ai()`))[0]!.can_use_ai).toBe(true);
+    expect((await q<{ can_use_ai: boolean }>(free, `select can_use_ai()`))[0]!.can_use_ai).toBe(false);
+  });
+});

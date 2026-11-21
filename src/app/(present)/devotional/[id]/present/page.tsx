@@ -12,7 +12,6 @@ import { getSiteTimeZone } from "@/lib/env";
 import { recordUsage } from "@/lib/governance/queries";
 import { aiQuota } from "@/app/actions/ai";
 import { isAiConfigured } from "@/lib/ai/devotional-ai";
-import { canUse } from "@/lib/billing/queries";
 import { isBand, toLevels, type LevelVersion } from "@/lib/content/levels";
 import { EMPTY_DOC } from "@/lib/content/richtext";
 import { createClient } from "@/lib/supabase/server";
@@ -66,8 +65,9 @@ export default async function PresentPage({
       prayer: parsed.prayer ?? EMPTY_DOC,
     };
   }
-  const allowed = await canUse("ai_tools");
-  const tools = { allowed, configured: isAiConfigured(), devotionalId: id, quota: allowed ? await aiQuota() : null };
+  const quota = await aiQuota();
+  const allowed = (quota?.limit ?? 0) > 0;
+  const tools = { allowed, configured: isAiConfigured(), devotionalId: id, quota: allowed ? quota : null };
 
   // The notes are the teacher's own private note on this devotional, never part of the slides.
   const notes = <NotesEditor devotionalId={id} initial={state?.note ?? ""} />;
