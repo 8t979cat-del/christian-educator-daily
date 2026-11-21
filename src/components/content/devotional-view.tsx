@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { SITE } from "@/lib/site";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
@@ -22,12 +22,15 @@ export function DevotionalView({
   translation,
   theme,
   actions,
+  credited = false,
 }: {
   devotional: DevotionalRecord;
   translation: TranslationLicense | null;
   theme?: ThemeInfo | null;
   /** Rendered under the title (present, complete, bookmark, share, print). */
   actions?: ReactNode;
+  /** The page lists contributor credits itself, so the colophon leaves out the byline. */
+  credited?: boolean;
 }) {
   const display = scriptureDisplay(d.scripture_text, translation);
   const translationLabel = translation ? `${translation.name} (${translation.code.toUpperCase()})` : null;
@@ -39,20 +42,22 @@ export function DevotionalView({
   const meter = [theme?.title, theme?.day ? `Day ${theme.day} of 5` : null].filter(Boolean) as string[];
   const kinds = [d.category_slug ? categoryName(d.category_slug) : null, d.educational_category ? label(EDUCATIONAL_CATEGORIES, d.educational_category) : null].filter(Boolean);
   const colophon = [
-    d.author_name ? `Written by ${d.author_name}` : null,
+    !credited && d.author_name ? `Written by ${d.author_name}` : null,
     d.audience ? `For ${label(AUDIENCES, d.audience).toLowerCase()}` : null,
     grades || null,
   ].filter(Boolean);
 
   return (
-    <article className="mx-auto w-full max-w-3xl print:max-w-none">
+    <article className="mx-auto w-full max-w-3xl lg:max-w-5xl print:max-w-none">
       {/* Running head: the passage on the left, the date on the right, over a double rule. */}
       <div className="flex items-baseline justify-between gap-4 border-b-4 border-double border-ink/70 pb-2 font-serif text-sm text-muted">
         <span className="truncate">{d.scripture_reference || SITE.wordmark}</span>
         <span className="shrink-0 italic">{weekday}</span>
       </div>
 
-      <header className="mt-6 flex items-start gap-5 md:gap-7">
+      {/* The day's page: the text column, and on wide screens a hairline-ruled margin for the tune and meter notes. */}
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-12 print:block">
+      <header className="mt-6 flex items-start gap-5 md:gap-7 lg:col-start-1">
         <p aria-hidden="true" className="grid shrink-0 justify-items-center font-serif text-rubric print:text-black">
           <span className="text-[4.5rem] leading-[0.8] tabular-nums md:text-[6rem]">{day}</span>
           <span className="mt-2 text-sm uppercase tracking-[0.2em]">{month}</span>
@@ -62,10 +67,10 @@ export function DevotionalView({
           {meter.length ? (
             <p className="mt-2 font-serif italic text-muted">
               {meter.map((part, i) => (
-                <span key={part}>
+                <Fragment key={part}>
                   {i > 0 ? " · " : ""}
                   <span className="whitespace-nowrap">{part}</span>
-                </span>
+                </Fragment>
               ))}
             </p>
           ) : null}
@@ -73,15 +78,16 @@ export function DevotionalView({
       </header>
 
       {d.daily_topic || theme?.summary || kinds.length ? (
-        <div className="mt-6 max-w-2xl font-serif">
+        <aside aria-label="About this day" className="mt-6 max-w-[36rem] font-serif lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-6 lg:self-start lg:border-l lg:border-line lg:pl-6">
           {d.daily_topic ? <p className="text-xl leading-snug">{d.daily_topic}</p> : null}
           {theme?.summary ? <p className="mt-2 text-muted">{theme.summary}</p> : null}
           {kinds.length ? <p className="mt-2 text-sm italic text-muted">{kinds.join(" · ")}</p> : null}
-        </div>
+        </aside>
       ) : null}
 
-      {actions ? <div className="mt-6 print:hidden">{actions}</div> : null}
+      {actions ? <div className="mt-6 print:hidden lg:col-start-1">{actions}</div> : null}
 
+      <div className="lg:col-start-1">
       <ol className="mt-10 border-t-4 border-double border-ink/70 print:mt-6">
         <Part n={0} id="scripture" title="Scripture" rubric="Read it aloud together. Announce the reference first.">
           {display.mode === "text" ? (
@@ -112,7 +118,7 @@ export function DevotionalView({
               <p className="text-2xl md:text-3xl">{d.scripture_reference || "No passage chosen"}</p>
               {translationLabel ? <p className="mt-1 text-sm italic text-muted">{translationLabel}</p> : null}
               {d.scripture_reference ? (
-                <p className="mt-4 text-muted">
+                <p className="mt-4 max-w-[36rem] text-muted">
                   This translation’s text is not reproduced here. Read the passage in your own Bible
                   <span className="print:hidden">
                     , or{" "}
@@ -148,6 +154,8 @@ export function DevotionalView({
       {colophon.length ? (
         <p className="mt-8 font-serif text-sm italic text-muted">{colophon.join(" · ")}</p>
       ) : null}
+      </div>
+      </div>
       <p className="mt-6 hidden font-serif print:block">{SITE.name}</p>
     </article>
   );
@@ -156,8 +164,8 @@ export function DevotionalView({
 /** One part of the day: a red numeral, its title, a red italic rubric, then the text. Closed by a hairline. */
 function Part({ n, id, title, rubric, children }: { n: number; id: string; title: string; rubric: string; children: ReactNode }) {
   return (
-    <li id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 break-inside-avoid border-b border-line py-7 md:grid-cols-[3.5rem_minmax(0,1fr)] print:py-4">
-      <span aria-hidden="true" className="pt-0.5 font-serif text-xl text-rubric md:text-2xl print:text-black">{ROMAN[n]}</span>
+    <li id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-3 break-inside-avoid border-b border-line py-7 md:grid-cols-[3.5rem_minmax(0,1fr)] print:py-4">
+      <span aria-hidden="true" className="font-serif text-xl text-rubric md:text-2xl print:text-black">{ROMAN[n]}</span>
       <section className="min-w-0">
         <h2 id={`${id}-title`} className="font-serif text-xl md:text-2xl">{title}</h2>
         <p className="mt-1 font-serif italic text-rubric print:hidden">{rubric}</p>
@@ -169,5 +177,5 @@ function Part({ n, id, title, rubric, children }: { n: number; id: string; title
 
 function Rich({ doc, large = false }: { doc: DevotionalRecord["reflection"]; large?: boolean }) {
   if (doc.content.length === 0) return <p className="font-serif italic text-muted">Not written yet.</p>;
-  return <RichTextView doc={doc} className={`font-serif ${large ? "text-2xl leading-snug text-balance" : "text-lg"}`} />;
+  return <RichTextView doc={doc} className={`max-w-[36rem] font-serif ${large ? "text-2xl leading-snug text-balance" : "text-lg"}`} />;
 }
