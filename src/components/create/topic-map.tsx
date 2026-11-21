@@ -44,7 +44,7 @@ export function TopicMap({
         <div className="absolute left-1/2 top-1/2 w-[34%] -translate-x-1/2 -translate-y-1/2 text-center">
           {focus ? (
             <div className="grid justify-items-center gap-1">
-              <span className="rounded-control bg-brand px-4 py-3 font-serif text-lg font-semibold leading-tight text-white sm:text-xl">
+              <span className="rounded-control bg-brand px-4 py-3 font-serif text-lg font-normal leading-tight text-white sm:text-xl">
                 {focus}
               </span>
               <button type="button" onClick={() => onFocus(null)} className="min-h-11 px-2 text-sm font-semibold text-brand underline">
@@ -52,7 +52,7 @@ export function TopicMap({
               </button>
             </div>
           ) : (
-            <p className="font-serif text-lg font-semibold leading-snug text-ink">Choose a topic to begin</p>
+            <p className="font-serif text-lg font-normal leading-snug text-ink">Choose a topic to begin</p>
           )}
         </div>
 

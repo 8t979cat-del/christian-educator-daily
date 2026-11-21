@@ -78,7 +78,7 @@ export default async function SchoolBillingPage({
             <Text className="mt-2" muted>{describeSubscription(current).detail}</Text>
             <dl className="mt-4 grid grid-cols-3 gap-4 text-center">
               {[["Licensed seats", String(license?.seats ?? current.seats)], ["Seats in use", String(used)], ["Active members", String(members)]].map(([k, v]) => (
-                <div key={k} className="rounded-control bg-brand-soft p-3"><dt className="text-xs text-muted">{k}</dt><dd className="font-serif text-2xl font-semibold">{v}</dd></div>
+                <div key={k} className="rounded-control bg-brand-soft p-3"><dt className="text-xs text-muted">{k}</dt><dd className="font-serif text-2xl font-normal">{v}</dd></div>
               ))}
             </dl>
             <div className="mt-6 grid gap-6">

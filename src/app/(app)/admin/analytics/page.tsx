@@ -19,7 +19,7 @@ function Stat({ label, value, note }: { label: string; value: string | number; n
   return (
     <div className="rounded-control border border-line p-4">
       <dt className="text-sm text-muted">{label}</dt>
-      <dd className="mt-1 font-serif text-3xl font-semibold">{value}</dd>
+      <dd className="mt-1 font-serif text-3xl font-normal">{value}</dd>
       {note ? <p className="mt-1 text-xs text-muted">{note}</p> : null}
     </div>
   );

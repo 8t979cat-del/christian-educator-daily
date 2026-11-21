@@ -57,7 +57,7 @@ export default async function UpgradePage({ searchParams }: { searchParams: Prom
             <div className="grid gap-6">
               {adminSchools.map((school) => (
                 <Card key={school.schoolId} padding="lg">
-                  <h2 className="mb-4 font-serif text-xl font-semibold">{school.schoolName}</h2>
+                  <h2 className="mb-4 font-serif text-xl font-normal">{school.schoolName}</h2>
                   <CheckoutForm plan="school" owner={{ owner: "school", schoolId: school.schoolId }} intervals={intervals} perSeat={perSeat} trialDays={plan?.trial_days ?? 0} submitLabel="Continue to secure checkout" />
                 </Card>
               ))}

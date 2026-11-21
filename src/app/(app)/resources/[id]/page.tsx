@@ -24,7 +24,7 @@ export default async function ResourcePage({ params }: { params: Promise<{ id: s
   return (
     <article className="mx-auto max-w-3xl">
       <Badge>{kindLabel(data.kind)}</Badge>
-      <h1 className="mt-3 font-serif text-3xl font-semibold md:text-4xl">{data.title}</h1>
+      <h1 className="mt-3 font-serif text-3xl font-normal md:text-4xl">{data.title}</h1>
       {data.summary ? <p className="mt-2 text-lg text-muted">{data.summary}</p> : null}
       <div className="mt-6">{body ? <RichTextView doc={body} /> : null}</div>
       <p className="mt-10 text-sm print:hidden"><Link href="/resources" className="text-brand underline">All resources</Link></p>

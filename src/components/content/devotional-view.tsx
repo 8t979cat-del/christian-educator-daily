@@ -35,7 +35,7 @@ export function DevotionalView({
     <article className="mx-auto max-w-3xl print:max-w-none">
       <header>
         <p className="text-sm font-semibold uppercase tracking-wider text-brand">{formatDate(d.devotional_date)}</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+        <h1 className="mt-2 font-serif text-4xl font-normal leading-[1.12] md:text-5xl">
           {d.title || "Untitled devotional"}
         </h1>
       </header>

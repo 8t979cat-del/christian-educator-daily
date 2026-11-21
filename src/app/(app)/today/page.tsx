@@ -49,7 +49,7 @@ export default async function TodayPage() {
     <div className="mx-auto grid max-w-3xl gap-6">
       <header>
         <p className="text-sm font-semibold uppercase tracking-wider text-brand">{formatDate(today)}</p>
-        <h1 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">{greeting}</h1>
+        <h1 className="mt-1 font-serif text-3xl font-normal md:text-4xl">{greeting}</h1>
       </header>
 
       <form action="/archive" method="get" role="search" className="flex gap-2">
@@ -74,7 +74,7 @@ export default async function TodayPage() {
             {theme.day ? ` · Day ${theme.day} of 5` : ""}
           </p>
         ) : null}
-        <h2 id="today-title" className="mt-2 font-serif text-3xl font-semibold leading-tight md:text-4xl">{d.title}</h2>
+        <h2 id="today-title" className="mt-2 font-serif text-3xl font-normal leading-tight md:text-4xl">{d.title}</h2>
         {d.scripture_reference ? <p className="mt-2 text-lg font-semibold text-brand">{d.scripture_reference}</p> : null}
         {reflection ? <p className="mt-4 text-lg text-ink/80">{reflection}</p> : null}
         <div className="mt-6 flex flex-wrap gap-3">
@@ -86,11 +86,11 @@ export default async function TodayPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <section aria-labelledby="prayer-h" className="rounded-card bg-brand-soft p-6">
-          <h2 id="prayer-h" className="font-serif text-xl font-semibold">Prayer prompt</h2>
+          <h2 id="prayer-h" className="font-serif text-xl font-normal">Prayer prompt</h2>
           <RichTextView doc={d.prayer} className="mt-3" />
         </section>
         <section aria-labelledby="think-h" className="rounded-card border-2 border-brand bg-surface p-6">
-          <h2 id="think-h" className="font-serif text-xl font-semibold">Discussion question</h2>
+          <h2 id="think-h" className="font-serif text-xl font-normal">Discussion question</h2>
           <RichTextView doc={d.discussion_question} className="mt-3" />
         </section>
       </div>

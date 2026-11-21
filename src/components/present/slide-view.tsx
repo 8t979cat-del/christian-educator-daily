@@ -31,7 +31,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
       return (
         <FitText fitKey={fitKey} scale={scale} ratio={1.3}>
           <div className="mx-auto max-w-[22em] text-center">
-            <h1 className="font-serif font-semibold leading-[1.1] [text-wrap:balance]">{b.heading}</h1>
+            <h1 className="font-serif font-normal leading-[1.1] [text-wrap:balance]">{b.heading}</h1>
             {b.text ? <p className="mt-[0.6em] text-[0.55em] leading-snug [text-wrap:balance]" style={muted}>{b.text}</p> : null}
             {b.theme || b.dayLabel ? (
               <p className="mt-[1.4em] text-[0.42em] italic" style={accent}>
@@ -50,7 +50,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
             {/* The reference leads: it is what the teacher says aloud before reading. */}
             {label || continues ? (
               <figcaption className="mb-[0.4em] flex items-baseline justify-between gap-[1em]">
-                <span className="font-serif text-[0.75em] font-semibold leading-tight" style={accent}>{label}</span>
+                <span className="font-serif text-[0.75em] font-normal leading-tight" style={accent}>{label}</span>
                 {continues ? <ContinuesNote /> : null}
               </figcaption>
             ) : null}
@@ -84,7 +84,7 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
       return (
         <FitText fitKey={fitKey} scale={scale} ratio={1.2}>
           <div className="mx-auto max-w-[22em] text-center">
-            <h1 className="font-serif font-semibold leading-[1.1]">{b.reference}</h1>
+            <h1 className="font-serif font-normal leading-[1.1]">{b.reference}</h1>
             {b.translation ? <p className="mt-[0.4em] text-[0.5em]" style={muted}>{b.translation}</p> : null}
             <p className="mt-[1em] text-[0.55em] leading-snug" style={accent}>
               {simple ? "Let’s open our Bibles and read it together." : "Open your Bible and read this passage together."}

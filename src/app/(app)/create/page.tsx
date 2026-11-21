@@ -30,7 +30,7 @@ export default async function CreatePage() {
       <CreateStudio allowed={allowed} configured={isAiConfigured()} quota={allowed ? await aiQuota() : null} />
       {mine.length ? (
         <section aria-labelledby="mine-h" className="mt-14">
-          <h2 id="mine-h" className="font-serif text-2xl font-semibold">Your devotionals</h2>
+          <h2 id="mine-h" className="font-serif text-2xl font-normal">Your devotionals</h2>
           <ul className="mt-4 divide-y divide-line border-y border-line">
             {mine.map((d) => (
               <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
