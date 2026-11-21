@@ -2,33 +2,40 @@
 
 /* Design tokens from the approved design system. */
 @theme {
-  --color-parchment: #f7f5f0;
+  /* The hymnal: bright thin Bible paper, ink, red rubrics, bookcloth navy with gilt stamping. */
+  --color-parchment: #fbfaf6; /* paper */
   --color-surface: #ffffff;
-  --color-ink: #1f2a37;
-  --color-muted: #4a5663;
-  --color-line: #e2ded3;
-  --color-line-strong: #6b7480;
-  --color-brand: #1f5a55;
-  --color-brand-hover: #174642;
-  --color-brand-soft: #e3efec;
-  --color-night: #14202b;
-  --color-night-raised: #22364a;
-  --color-mint: #8fd0c6;
+  --color-ink: #1b1a17;
+  --color-muted: #55524b;
+  --color-line: #d9d4c7;
+  --color-line-strong: #6b665c;
+  --color-brand: #1c2a47; /* bookcloth navy: primary actions, cover fields */
+  --color-brand-hover: #121c31;
+  --color-brand-soft: #e7e9ef;
+  --color-rubric: #a31d16; /* red-letter rubrics: numbers, instructions, verse figures */
+  --color-night: #1c2a47; /* cloth fields */
+  --color-night-raised: #2a3a5e;
+  --color-mint: #d4b25e; /* gilt stamping on cloth */
+  --color-gilt: #d4b25e;
   --color-danger: #b3261e;
   --color-danger-soft: #fbeae8;
   --color-gold: #b7791f;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-source-serif), "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-serif: var(--font-caslon), "Libre Caslon Text", "Big Caslon", "Iowan Old Style", Georgia, serif;
 
-  --radius-control: 0.625rem;
-  --radius-card: 1rem;
+  /* Printed matter: square-cut corners. */
+  --radius-control: 0.1875rem;
+  --radius-card: 0.25rem;
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
   }
+
+  /* Set text like a book: no lone last words in paragraphs and list items. */
+  p, li, dd, figcaption { text-wrap: pretty; }
 
   body {
     background: var(--color-parchment);

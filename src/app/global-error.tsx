@@ -7,7 +7,7 @@
 export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html lang="en">
-      <body style={{ fontFamily: "system-ui, sans-serif", background: "#f7f5f0", color: "#1f2a37", margin: 0 }}>
+      <body style={{ fontFamily: "system-ui, sans-serif", background: "#fbfaf6", color: "#1b1a17", margin: 0 }}>
         <main id="main" style={{ maxWidth: 480, margin: "0 auto", padding: "96px 16px", textAlign: "center" }}>
           <h1 style={{ fontFamily: "Georgia, serif" }}>Something went wrong</h1>
           <p>The application hit an unexpected error. Please try again.</p>
@@ -20,7 +20,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
               fontSize: 16,
               fontWeight: 600,
               color: "#fff",
-              background: "#1f5a55",
+              background: "#1c2a47",
               border: 0,
               borderRadius: 10,
               cursor: "pointer",

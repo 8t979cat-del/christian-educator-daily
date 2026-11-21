@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ButtonLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Container } from "./container";
 import { Logo } from "./logo";
@@ -13,29 +12,29 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-parchment/95 backdrop-blur">
+    <header className="on-dark sticky top-0 z-40 border-b-4 border-double border-gilt/60 bg-brand text-[#e9e3d2]">
       <Container className="flex min-h-16 items-center justify-between gap-4 py-1">
-        <Logo />
+        <Logo onCloth />
 
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
           {MARKETING_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="grid min-h-11 place-items-center rounded-control px-3 font-medium text-muted hover:bg-brand-soft hover:text-ink"
+              className="grid min-h-11 place-items-center rounded-control px-3 font-serif text-[0.95rem] text-[#e9e3d2] underline-offset-[6px] hover:text-gilt hover:underline"
             >
               {item.label}
             </Link>
           ))}
           {/* Teachers join by invitation, so there is no public sign-up here. */}
-          <ButtonLink href="/login" variant="secondary" className="ml-2">
+          <Link href="/login" className="ml-2 inline-flex min-h-11 items-center rounded-control border border-gilt/70 px-5 font-serif text-gilt hover:bg-white/10">
             Sign in
-          </ButtonLink>
+          </Link>
         </nav>
 
         <button
           type="button"
-          className="grid size-11 shrink-0 place-items-center rounded-control hover:bg-brand-soft md:hidden"
+          className="grid size-11 shrink-0 place-items-center rounded-control text-gilt hover:bg-white/10 md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((value) => !value)}
@@ -46,21 +45,21 @@ export function SiteHeader() {
       </Container>
 
       {open ? (
-        <nav id="mobile-menu" aria-label="Main" className="border-t border-line bg-parchment md:hidden">
+        <nav id="mobile-menu" aria-label="Main" className="border-t border-gilt/40 bg-brand md:hidden">
           <Container className="flex flex-col gap-1 py-3">
             {MARKETING_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="flex min-h-11 items-center rounded-control px-3 font-medium hover:bg-brand-soft"
+                className="flex min-h-11 items-center rounded-control px-3 font-serif text-[#e9e3d2] hover:bg-white/10 hover:text-gilt"
               >
                 {item.label}
               </Link>
             ))}
-            <ButtonLink href="/login" variant="secondary" fullWidth className="mt-2" onClick={() => setOpen(false)}>
+            <Link href="/login" onClick={() => setOpen(false)} className="mt-2 flex min-h-11 items-center justify-center rounded-control border border-gilt/70 font-serif text-gilt">
               Sign in
-            </ButtonLink>
+            </Link>
           </Container>
         </nav>
       ) : null}

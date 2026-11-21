@@ -71,12 +71,12 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
     else if (e.key === "f" || e.key === "F") toggleFullscreen();
   };
 
-  const base = "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border px-3 font-semibold disabled:opacity-40";
+  const base = "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border px-3 font-serif disabled:opacity-40";
   const btn = `${base} border-line-strong/50 bg-surface text-ink hover:bg-brand-soft`;
   const primary = `${base} border-brand bg-brand text-white hover:bg-brand-hover`;
 
   return (
-    <section aria-label="Today’s devotional" className="grid gap-3">
+    <section aria-label="Today’s devotional" className="grid gap-4">
       <div
         ref={box}
         tabIndex={0}
@@ -84,7 +84,7 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         aria-roledescription="presentation"
         aria-label={slide ? `Slide ${safe + 1} of ${slides.length}: ${slide.label}. Use the arrow keys to move.` : "Today’s devotional"}
         className={`present-stage relative flex flex-col overflow-hidden focus-visible:outline-4 focus-visible:outline-offset-2 ${
-          fullscreen ? "h-dvh w-dvw" : "aspect-video w-full rounded-card border border-line-strong/40 shadow-[0_18px_40px_-24px_rgb(20_32_43/0.45)]"
+          fullscreen ? "h-dvh w-dvw" : "aspect-video w-full border border-ink/70 outline outline-1 outline-offset-[5px] outline-line-strong/50"
         }`}
         style={themeVars("white")}
       >
@@ -111,18 +111,17 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>← Back</button>
         <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next →</button>
         <span className="px-1 text-sm font-semibold text-muted tabular-nums">Slide {safe + 1} of {slides.length}</span>
-        <span className="ml-auto flex gap-2">
+        <span className="flex w-full gap-2 sm:ml-auto sm:w-auto">
           <button type="button" className={btn} aria-label="Smaller text" onClick={() => setSize((s) => Math.max(0, s - 1))} disabled={size === 0}>A−</button>
           <button type="button" className={btn} aria-label="Larger text" onClick={() => setSize((s) => Math.min(SIZE_SCALES.length - 1, s + 1))} disabled={size === SIZE_SCALES.length - 1}>A+</button>
-          <button type="button" className={primary} onClick={toggleFullscreen}>
+          <button type="button" className={`${primary} max-sm:flex-1`} onClick={toggleFullscreen}>
             <Icon name="expand" size={18} /> Present full screen
           </button>
         </span>
       </div>
-      <p className="text-sm text-muted">
-        <Icon name="shield" size={14} className="mr-1 inline align-[-2px]" />
+      <p className="font-serif text-sm italic text-rubric">
         Reading levels for K–2 to 9–12, presenter notes and editing are for signed-in teachers.{" "}
-        <Link href="/login" className="font-semibold text-brand underline">Sign in</Link>
+        <Link href="/login" className="not-italic underline underline-offset-4">Sign in</Link>
       </p>
     </section>
   );

@@ -14,3 +14,6 @@ present-shots/
 
 .env.staging
 .env.production
+
+# Impeccable local cache
+.impeccable/hook.cache.json

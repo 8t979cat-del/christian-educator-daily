@@ -3,11 +3,12 @@ import { cn } from "@/lib/cn";
 
 type Level = 1 | 2 | 3 | 4;
 
+// Caslon: regular weight at display sizes (as a hymnal sets its titles), bold only for small headings.
 const HEADING_SIZES: Record<Level, string> = {
-  1: "text-4xl md:text-5xl leading-tight",
-  2: "text-3xl md:text-4xl leading-tight",
-  3: "text-2xl leading-snug",
-  4: "text-lg leading-snug",
+  1: "text-4xl md:text-5xl leading-[1.12] font-normal",
+  2: "text-3xl md:text-[2.5rem] leading-[1.15] font-normal",
+  3: "text-2xl leading-snug font-normal",
+  4: "text-lg leading-snug font-bold",
 };
 
 type HeadingProps = ComponentProps<"h1"> & {
@@ -20,7 +21,7 @@ type HeadingProps = ComponentProps<"h1"> & {
 /** Serif heading. Choose `level` for document structure and `size` for looks. */
 export function Heading({ level = 2, size, className, ...props }: HeadingProps) {
   const Tag = `h${level}` as const;
-  return <Tag className={cn("font-serif font-semibold tracking-tight text-balance", HEADING_SIZES[size ?? level], className)} {...props} />;
+  return <Tag className={cn("font-serif text-balance", HEADING_SIZES[size ?? level], className)} {...props} />;
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {

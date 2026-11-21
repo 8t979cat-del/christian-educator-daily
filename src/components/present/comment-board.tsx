@@ -94,13 +94,13 @@ export function CommentComposer({ onPost, onClose }: { onPost: (text: string, em
               aria-checked={emoji === e.emoji}
               aria-label={e.label}
               onClick={() => setEmoji((cur) => (cur === e.emoji ? null : e.emoji))}
-              className={`grid size-11 place-items-center rounded-md border-2 text-xl ${emoji === e.emoji ? "border-[#0b4f49] bg-[#e3efec]" : "border-transparent hover:border-[#ccc]"}`}
+              className={`grid size-11 place-items-center rounded-md border-2 text-xl ${emoji === e.emoji ? "border-[#1c2a47] bg-[#e7e9ef]" : "border-transparent hover:border-[#ccc]"}`}
             >
               {e.emoji}
             </button>
           ))}
         </div>
-        <button type="submit" className="min-h-11 rounded-md border border-[#0b4f49] bg-[#0b4f49] px-4 font-semibold text-white">Post</button>
+        <button type="submit" className="min-h-11 rounded-md border border-[#1c2a47] bg-[#1c2a47] px-4 font-semibold text-white">Post</button>
         <button type="button" onClick={onClose} className="min-h-11 rounded-md border border-[#777] px-3 font-semibold">Done</button>
       </div>
       {problem ? <p role="alert" className="mx-auto mt-2 max-w-5xl text-sm font-semibold text-[#8a1c14]">{problem}</p> : null}
