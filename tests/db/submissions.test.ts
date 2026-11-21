@@ -65,4 +65,15 @@ describe("devotional submissions", () => {
     const [row] = await q<{ status: string; devotional_id: string }>(teacher, `select status, devotional_id from devotional_submissions where id = $1`, [id]);
     expect(row).toEqual({ status: "accepted", devotional_id: devotional });
   });
+
+  it("let any signed-in user write a devotional from a blank page and submit it, but not save AI work without a plan", async () => {
+    const free = await h.createUser("free@sub.test");
+    const content = JSON.stringify({ reflection: doc("My own words."), prayer: doc("Amen.") });
+    const [{ id }] = (await q<{ id: string }>(free, `insert into presentation_versions (source, title, content, scripture) values ('written', 'My first devotional', $1::jsonb, '{"reference":"Psalm 23","translation_code":"asv"}'::jsonb) returning id`, [content])) as [{ id: string }];
+    await q(free, `update presentation_versions set title = 'Retitled' where id = $1`, [id]);
+    await expect(q(free, `insert into presentation_versions (source, title, content, scripture) values ('ai_generated', 'x', $1::jsonb, '{}'::jsonb)`, [content])).rejects.toThrow(/row-level security/);
+    await expect(q(free, `update presentation_versions set source = 'ai_generated' where id = $1`, [id])).rejects.toThrow(/row-level security/);
+    await expect(q(free, `insert into presentation_versions (source, title, content, devotional_id) values ('written', 'x', $1::jsonb, $2)`, [content, (await admin<{ id: string }>(`select id from devotionals limit 1`))[0]!.id])).rejects.toThrow(/written_is_standalone/);
+    expect((await q<{ submit_devotional: string }>(free, `select submit_devotional($1)`, [id]))[0]!.submit_devotional).toBeTruthy();
+  });
 });

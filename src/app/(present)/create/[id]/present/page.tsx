@@ -15,14 +15,14 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = { title: "Present to class", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-/** Presents a devotional the teacher wrote with AI. Only its owner can open it (row-level security). */
+/** Presents a devotional the teacher wrote (from a blank page or with AI). Only its owner can open it (row-level security). */
 export default async function PresentGeneratedPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ view?: string }> }) {
   await requireAccess();
   const { id } = await params;
   const { view } = await searchParams;
   if (!uuidSchema.safeParse(id).success) notFound();
   const { data } = await (await createClient()).from("presentation_versions")
-    .select("id, title, topic, content, scripture").eq("id", id).eq("source", "ai_generated").maybeSingle();
+    .select("id, title, topic, content, scripture").eq("id", id).in("source", ["ai_generated", "written"]).maybeSingle();
   if (!data) notFound();
 
   const text = toLevels({ k2: data.content }).k2 ?? {};

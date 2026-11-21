@@ -1,5 +1,7 @@
--- Teachers submit a devotional they wrote (on the Write tab) for publishing.
+-- Teachers write their own devotionals and submit them (on the Write tab) for publishing.
 --
+--   * Any signed-in user may write a devotional from a blank page (source 'written').
+--     AI-written ones still need an AI allowance (Plus, School, editors, administrators).
 --   * A submission is a snapshot of the saved devotional at the moment it was sent,
 --     so later edits to the teacher's copy do not change what editors review.
 --   * The teacher sees their own submissions; content editors and administrators see all.
@@ -7,7 +9,30 @@
 --     the functions below, which check who is asking and what state the row is in.
 --   * Accepting never publishes. The editor starts an ordinary draft devotional from the
 --     submission, and it goes through the usual review, scheduling and publishing.
--- Self-contained: safe to run once 0012 has been run.
+-- Self-contained: safe to run once 0012 and 0015 have been run.
+
+-- Same as 0016, repeated so this file works whether or not 0016 has been run.
+create or replace function can_use_ai() returns boolean
+language sql stable security definer set search_path = public as $$
+  select auth.uid() is not null and ai_daily_limit(auth.uid()) > 0
+$$;
+revoke all on function can_use_ai() from public, anon;
+grant execute on function can_use_ai() to authenticated;
+
+-- Devotionals written from a blank page: owned by the teacher, tied to no published devotional.
+alter table presentation_versions drop constraint if exists presentation_versions_source_check;
+alter table presentation_versions add constraint presentation_versions_source_check
+  check (source in ('edited', 'ai_leveled', 'ai_generated', 'written'));
+alter table presentation_versions drop constraint if exists written_is_standalone;
+alter table presentation_versions add constraint written_is_standalone
+  check (source <> 'written' or devotional_id is null);
+
+drop policy if exists presentation_versions_insert on presentation_versions;
+drop policy if exists presentation_versions_update on presentation_versions;
+create policy presentation_versions_insert on presentation_versions for insert to authenticated
+  with check (user_id = auth.uid() and (source = 'written' or can_use_ai()));
+create policy presentation_versions_update on presentation_versions for update to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid() and (source = 'written' or can_use_ai()));
 
 create table if not exists devotional_submissions (
   id uuid primary key default gen_random_uuid(),
@@ -57,7 +82,7 @@ declare
   new_id uuid;
 begin
   if uid is null then raise exception 'Sign in to submit a devotional.' using errcode = '42501'; end if;
-  select * into v from presentation_versions where id = p_version and user_id = uid and source = 'ai_generated';
+  select * into v from presentation_versions where id = p_version and user_id = uid and source in ('ai_generated', 'written');
   if not found then raise exception 'That devotional could not be found.' using errcode = 'P0001'; end if;
   if exists (select 1 from devotional_submissions where version_id = p_version and status = 'pending') then
     raise exception 'This devotional is already waiting for review.' using errcode = 'P0001';
