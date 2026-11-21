@@ -10,8 +10,12 @@ import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
  * prevent (and which the classroom tests check for).
  */
 export function FitText({
-  children, fitKey, scale, ratio = 1, className = "", align = "center",
+  children, fitKey, scale, ratio = 1, className = "", align = "center", maxPx, onFit,
 }: {
+  /** A hard ceiling on the size, in px (for example, to stay close to the slide before). */
+  maxPx?: number;
+  /** Told the size chosen, in px, after each fit. */
+  onFit?: (px: number) => void;
   children: ReactNode;
   /** Re-fit when this changes (the content, basically). */
   fitKey: string;
@@ -31,7 +35,7 @@ export function FitText({
     const w = o.clientWidth;
     const h = o.clientHeight;
     if (!w || !h) return;
-    const max = Math.min(w * 0.065, h * 0.14) * scale * ratio;
+    const max = Math.min(Math.min(w * 0.065, h * 0.14) * scale * ratio, maxPx ?? Infinity);
     const min = Math.max(16, Math.min(w, h) * 0.03);
     const fits = (px: number) => {
       i.style.fontSize = `${px}px`;
@@ -52,7 +56,8 @@ export function FitText({
     o.dataset.overflow = ok ? "false" : "true";
     o.style.overflowY = ok ? "hidden" : "auto";
     o.dataset.fontPx = String(Math.round(lo));
-  }, [scale, ratio]);
+    onFit?.(lo);
+  }, [scale, ratio, maxPx, onFit]);
 
   useLayoutEffect(() => {
     fit();

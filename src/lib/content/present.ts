@@ -316,7 +316,15 @@ export type SlideBody =
   | { kind: "opener"; heading: string; text: string; theme: string | null; dayLabel: string | null }
   | { kind: "scripture"; reference: string | null; translation: string | null; text: string; notice: string | null }
   | { kind: "reference"; reference: string; translation: string | null }
-  | { kind: "rich"; parts: SlidePart[]; emphasis: boolean };
+  | {
+      kind: "rich"; parts: SlidePart[]; emphasis: boolean;
+      /**
+       * Emphasis slides (the discussion question): the ordinary text slide just before it. The
+       * question is set only a little larger than that slide's text, instead of filling the
+       * screen, so the jump in size from one slide to the next stays gentle.
+       */
+      sizeFrom?: Slide;
+    };
 
 export type Slide = {
   key: string;
@@ -484,6 +492,12 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
     }]);
   } else {
     for (const [id, doc, heading] of respond) richSection(id, doc, heading, false);
+  }
+  // Tie each question slide's size to the text slide before it (usually the reflection).
+  for (let i = 1; i < slides.length; i++) {
+    const body = slides[i]!.body;
+    const before = slides[i - 1]!;
+    if (body.kind === "rich" && body.emphasis && before.body.kind === "rich" && !before.body.emphasis) body.sizeFrom = before;
   }
   return slides;
 }
