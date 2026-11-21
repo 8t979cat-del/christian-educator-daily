@@ -26,11 +26,12 @@ beforeEach(() => {
 });
 
 describe("AI teaching tools", () => {
-  it("re-levels with the current model, a structured answer and refusal fallback, and returns rich text", async () => {
+  it("re-levels with Claude Sonnet 5.5 at low effort, a structured answer and refusal fallback, and returns rich text", async () => {
     parse.mockResolvedValue({ stop_reason: "end_turn", parsed_output: { reflection: ["Short one.", "Short two."], discussion_question: "Who waited for you?", practical_application: "Wait kindly.", prayer: "Thank you, God. Amen." } });
     const v = await relevelDevotional({ title: "T", topic: "Patience", reference: "Psalm 23", scriptureText: "1 The LORD is my shepherd", standard }, "k2");
     const req = parse.mock.calls[0]![0];
-    expect(req.model).toBe("claude-opus-5-5");
+    expect(req.model).toBe("claude-sonnet-5-5");
+    expect(req.output_config.effort).toBe("low");
     expect(req.fallbacks).toBe("default");
     expect(req.betas).toContain("server-side-fallback-2026-07-01");
     expect(req.output_config.format).toBeTruthy();

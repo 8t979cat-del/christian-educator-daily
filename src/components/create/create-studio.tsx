@@ -9,6 +9,8 @@ import { Icon } from "@/components/ui/icon";
 import { docToText, textToDoc } from "@/lib/content/editable";
 import { BANDS, BAND_LONG, type GradeBand, type LevelField } from "@/lib/content/levels";
 import { TopicMap } from "./topic-map";
+import { AiCounter, OUT_OF_REQUESTS } from "@/components/present/ai-counter";
+import type { AiQuota } from "@/lib/ai/devotional-ai";
 
 const FIELDS: Array<{ key: LevelField; label: string; rows: number }> = [
   { key: "reflection", label: "Reflection", rows: 7 },
@@ -19,7 +21,7 @@ const FIELDS: Array<{ key: LevelField; label: string; rows: number }> = [
 
 const field = "w-full rounded-control border border-line-strong/60 bg-surface px-3 py-2 leading-snug focus-visible:outline-2 focus-visible:outline-brand";
 
-export function CreateStudio({ allowed, configured }: { allowed: boolean; configured: boolean }) {
+export function CreateStudio({ allowed, configured, quota: initialQuota = null }: { allowed: boolean; configured: boolean; quota?: AiQuota | null }) {
   const router = useRouter();
   const [focus, setFocus] = useState<string | null>(null);
   const [topics, setTopics] = useState<string[]>([]);
@@ -30,6 +32,8 @@ export function CreateStudio({ allowed, configured }: { allowed: boolean; config
   const [tried, setTried] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [quota, setQuota] = useState<AiQuota | null>(initialQuota);
+  const outOfRequests = quota !== null && quota.remaining <= 0;
 
   const toggle = (t: string) => setTopics((list) => (list.includes(t) ? list.filter((x) => x !== t) : [...list, t]));
 
@@ -37,7 +41,12 @@ export function CreateStudio({ allowed, configured }: { allowed: boolean; config
     setError(null);
     start(async () => {
       const result = await writeDevotionalAction({ topics, band });
-      if (!result.ok) { setError(result.error); return; }
+      if (!result.ok) {
+        setError(result.error);
+        if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
+        return;
+      }
+      if (quota) setQuota({ ...quota, remaining: result.remaining });
       setDraft(result.draft);
       setTitle(result.draft.title);
       setText({
@@ -124,13 +133,18 @@ export function CreateStudio({ allowed, configured }: { allowed: boolean; config
         </fieldset>
 
         <div>
-          <Button onClick={() => write(false)} disabled={!configured || topics.length === 0 || pending}>
-            {pending && !draft ? "Writing…" : draft ? "Write a new one with these topics" : "Write a devotional"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={() => write(false)} disabled={!configured || topics.length === 0 || pending || outOfRequests}>
+              {pending && !draft ? "Writing…" : draft ? "Write a new one with these topics" : "Write a devotional"}
+            </Button>
+            {configured && quota ? <AiCounter quota={quota} /> : null}
+          </div>
           <p className="mt-2 text-sm text-muted">
             {!configured
               ? "The AI tools are not set up on this server yet."
-              : "Takes about half a minute and uses one of your 40 daily AI requests. Scripture comes from the King James Version, never from the AI."}
+              : outOfRequests && quota
+                ? OUT_OF_REQUESTS(quota.limit)
+                : "Takes about half a minute and uses one AI request. Scripture comes from the King James Version, never from the AI."}
           </p>
         </div>
 
@@ -159,7 +173,7 @@ export function CreateStudio({ allowed, configured }: { allowed: boolean; config
             ))}
             <div className="flex flex-wrap gap-3">
               <Button onClick={save} disabled={pending || title.trim() === ""}>Save and present</Button>
-              <Button variant="secondary" onClick={() => write(true)} disabled={pending}>Write a different one</Button>
+              <Button variant="secondary" onClick={() => write(true)} disabled={pending || outOfRequests}>Write a different one</Button>
             </div>
             {tried.length > 1 ? <p className="text-xs text-muted">Passages tried: {tried.join(", ")}</p> : null}
           </article>

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { deleteVersionAction, relevelAction, saveVersionAction } from "@/app/actions/ai";
 import { docToText, textToDoc } from "@/lib/content/editable";
+import type { AiQuota } from "@/lib/ai/devotional-ai";
+import { AiCounter, OUT_OF_REQUESTS } from "./ai-counter";
 import { BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type LevelVersion } from "@/lib/content/levels";
 
 export type AiTools = {
@@ -12,6 +14,8 @@ export type AiTools = {
   /** The server has an AI key. */
   configured: boolean;
   devotionalId: string;
+  /** Requests left today; null when it could not be read. */
+  quota: AiQuota | null;
 };
 
 const LABELS: Record<LevelField, { label: string; rows: number }> = {
@@ -48,6 +52,8 @@ export function EditPanel({
   const [aiDraft, setAiDraft] = useState(false);
   const [status, setStatus] = useState<{ tone: "info" | "error"; message: string } | null>(null);
   const [pending, start] = useTransition();
+  const [quota, setQuota] = useState<AiQuota | null>(tools.quota);
+  const outOfRequests = quota !== null && quota.remaining <= 0;
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -68,7 +74,12 @@ export function EditPanel({
     setStatus({ tone: "info", message: `Writing a version for ${BAND_LONG[band].toLowerCase()}. This takes about half a minute.` });
     start(async () => {
       const result = await relevelAction({ devotionalId: tools.devotionalId, band });
-      if (!result.ok) { setStatus({ tone: "error", message: result.error }); return; }
+      if (!result.ok) {
+        setStatus({ tone: "error", message: result.error });
+        if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
+        return;
+      }
+      if (quota) setQuota({ ...quota, remaining: result.remaining });
       setText(toText(result.version));
       setAiDraft(true);
       setStatus({ tone: "info", message: "Here is the AI draft. Read it through and change anything before you show it to your class." });
@@ -125,15 +136,20 @@ export function EditPanel({
             </p>
 
             <div className="mt-4 rounded-md border border-[#ccc] p-3">
-              <button type="button" onClick={relevel} disabled={!band || !tools.configured || pending} className={PRIMARY}>
-                {band ? `Re-level with AI for grades ${BAND_SHORT[band]}` : "Re-level with AI"}
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="button" onClick={relevel} disabled={!band || !tools.configured || pending || outOfRequests} className={PRIMARY}>
+                  {band ? `Re-level with AI for grades ${BAND_SHORT[band]}` : "Re-level with AI"}
+                </button>
+                {tools.configured && quota ? <AiCounter quota={quota} /> : null}
+              </div>
               <p className="mt-2 text-sm text-[#333]">
                 {!tools.configured
                   ? "The AI tools are not set up on this server yet."
-                  : band
-                    ? "Writes a fresh version of the reflection, question, practical step and prayer for this age. Uses one of your 40 daily AI requests."
-                    : "Choose a reading level in Settings first."}
+                  : outOfRequests && quota
+                    ? OUT_OF_REQUESTS(quota.limit)
+                    : band
+                      ? "Writes a fresh version of the reflection, question, practical step and prayer for this age. Uses one AI request."
+                      : "Choose a reading level in Settings first."}
               </p>
             </div>
 

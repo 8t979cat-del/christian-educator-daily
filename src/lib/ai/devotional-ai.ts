@@ -13,7 +13,8 @@ import { richTextToPlain, type RichDoc } from "@/lib/content/richtext";
  * gets its passage text from the bundled public-domain KJV (src/lib/bible/kjv.ts).
  */
 
-const MODEL = "claude-opus-5-5";
+// Claude Sonnet 5.5: about half the price of the Opus model, and ample for short devotionals at a set length.
+const MODEL = "claude-sonnet-5-5";
 
 /** The AI tools are available only when the server has an Anthropic API key. */
 export function isAiConfigured(): boolean {
@@ -70,8 +71,8 @@ async function ask<T extends z.ZodType>(schema: T, prompt: string): Promise<z.in
     const response = await anthropic().beta.messages.parse({
       model: MODEL,
       max_tokens: 16000,
-      // Writing for children at a set length: medium effort is ample and keeps the wait short.
-      output_config: { effort: "medium", format: betaZodOutputFormat(schema) },
+      // Short writing at a set length: low effort keeps thinking (billed as output) and the wait small.
+      output_config: { effort: "low", format: betaZodOutputFormat(schema) },
       // If a safety classifier declines, let the API retry on a suitable model instead of failing outright.
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
@@ -137,3 +138,5 @@ export async function writeDevotional(topics: string[], band: GradeBand, avoidRe
     reference: result.scripture_reference.trim(),
   };
 }
+
+export type AiQuota = { remaining: number; limit: number };

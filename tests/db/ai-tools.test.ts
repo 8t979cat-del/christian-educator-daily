@@ -30,10 +30,15 @@ afterAll(async () => h?.db.close());
 describe("AI tools", () => {
   it("are off on the free plan and on for Plus, with a daily limit", async () => {
     await expect(q(free, `select ai_consume()`)).rejects.toThrow(/Educator Plus/);
+    expect(await q(plus, `select * from ai_remaining()`)).toEqual([{ remaining: 10, daily_limit: 10 }]);
     const [{ ai_consume: left }] = (await q<{ ai_consume: number }>(plus, `select ai_consume()`)) as [{ ai_consume: number }];
-    expect(left).toBe(39);
-    await admin(`update ai_usage set uses = 40 where user_id = $1`, [plus]);
-    await expect(q(plus, `select ai_consume()`)).rejects.toThrow(/today's 40 AI requests/);
+    expect(left).toBe(9);
+    expect(await q(plus, `select * from ai_remaining()`)).toEqual([{ remaining: 9, daily_limit: 10 }]);
+    expect(await q(free, `select * from ai_remaining()`)).toEqual([{ remaining: 0, daily_limit: 0 }]);
+    await admin(`update ai_usage set uses = 10 where user_id = $1`, [plus]);
+    await expect(q(plus, `select ai_consume()`)).rejects.toThrow(/today's 10 AI requests/);
+    expect(await q(plus, `select * from ai_remaining()`)).toEqual([{ remaining: 0, daily_limit: 10 }]);
+    await expect(h.asAnon(async () => (await h.db.query(`select * from ai_remaining()`)).rows)).rejects.toThrow();
     await expect(h.asAnon(async () => (await h.db.query(`select ai_consume()`)).rows)).rejects.toThrow();
   });
 

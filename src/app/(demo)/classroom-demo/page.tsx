@@ -99,10 +99,10 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
   );
   // The home page's built-in presenter, with sample content (for checking it without a database).
   // The "Write a devotional" studio, for checking its layout without an account (the AI is not connected here).
-  if (view === "create") return <main className="mx-auto max-w-6xl p-6"><CreateStudio allowed configured={false} /></main>;
+  if (view === "create") return <main className="mx-auto max-w-6xl p-6"><CreateStudio allowed configured quota={{ remaining: 7, limit: 10 }} /></main>;
   if (view === "inline") return <main className="mx-auto max-w-5xl p-6"><InlinePresenter content={{ ...content, levels: {} }} /></main>;
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
   return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes}
-    // ?tools=plus shows the Plus editing tools (the AI is not connected in the demo, and nothing can be saved).
-    tools={tools === "plus" ? { allowed: true, configured: false, devotionalId: "demo" } : tools === "free" ? { allowed: false, configured: false, devotionalId: "demo" } : undefined} />;
+    // ?tools=plus shows the Plus editing tools with a sample counter. The demo has no account: AI and saving ask you to sign in.
+    tools={tools === "plus" ? { allowed: true, configured: true, devotionalId: "demo", quota: { remaining: 7, limit: 10 } } : tools === "free" ? { allowed: false, configured: false, devotionalId: "demo", quota: null } : undefined} />;
 }

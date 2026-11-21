@@ -10,6 +10,7 @@ import { getDevotional, getThemeInfo, getTranslation, getUserState } from "@/lib
 import { scriptureDisplay } from "@/lib/content/scripture";
 import { getSiteTimeZone } from "@/lib/env";
 import { recordUsage } from "@/lib/governance/queries";
+import { aiQuota } from "@/app/actions/ai";
 import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { canUse } from "@/lib/billing/queries";
 import { isBand, toLevels, type LevelVersion } from "@/lib/content/levels";
@@ -65,7 +66,8 @@ export default async function PresentPage({
       prayer: parsed.prayer ?? EMPTY_DOC,
     };
   }
-  const tools = { allowed: await canUse("ai_tools"), configured: isAiConfigured(), devotionalId: id };
+  const allowed = await canUse("ai_tools");
+  const tools = { allowed, configured: isAiConfigured(), devotionalId: id, quota: allowed ? await aiQuota() : null };
 
   // The notes are the teacher's own private note on this devotional, never part of the slides.
   const notes = <NotesEditor devotionalId={id} initial={state?.note ?? ""} />;
