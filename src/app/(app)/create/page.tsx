@@ -5,7 +5,6 @@ import { CreateStudio } from "@/components/create/create-studio";
 import { PageHeader } from "@/components/layout/container";
 import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { requireAccess } from "@/lib/auth/session";
-import { canUse } from "@/lib/billing/queries";
 import { formatDate } from "@/lib/content/dates";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,7 +13,8 @@ export const dynamic = "force-dynamic";
 
 export default async function CreatePage() {
   await requireAccess();
-  const allowed = await canUse("ai_tools");
+  const quota = await aiQuota();
+  const allowed = (quota?.limit ?? 0) > 0;
   const { data } = allowed
     ? await (await createClient()).from("presentation_versions")
         .select("id, title, topics, scripture, updated_at").eq("source", "ai_generated").order("updated_at", { ascending: false }).limit(20)
@@ -27,7 +27,7 @@ export default async function CreatePage() {
         title="Write a devotional"
         description="Follow a thread of topics and AI writes a new devotional around a Bible passage, at your students’ reading level. You review it before anyone sees it."
       />
-      <CreateStudio allowed={allowed} configured={isAiConfigured()} quota={allowed ? await aiQuota() : null} />
+      <CreateStudio allowed={allowed} configured={isAiConfigured()} quota={allowed ? quota : null} />
       {mine.length ? (
         <section aria-labelledby="mine-h" className="mt-14">
           <h2 id="mine-h" className="font-serif text-2xl font-normal">Your devotionals</h2>
