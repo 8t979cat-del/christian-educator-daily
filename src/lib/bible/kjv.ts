@@ -2,43 +2,50 @@ import "server-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseReference } from "@/lib/content/scripture";
+import { BIBLES, type BibleCode } from "./bibles";
 
 /**
- * The King James Version (1769 text, public domain in the United States),
- * bundled with the site in data/kjv.json. Used when AI writes a devotional:
- * the AI only chooses the reference; the words of Scripture always come from here.
+ * Public-domain Bibles bundled with the site in data/<code>.json: the King James
+ * Version (1769), the World English Bible and the American Standard Version (1901).
+ * Used when AI writes a devotional and when an editor fills in a passage: the AI
+ * only chooses the reference; the words of Scripture always come from here.
  */
-type Kjv = { books: Array<{ name: string; chapters: string[][] }> };
-let cache: Map<string, string[][]> | null = null;
+type BibleData = { books: Array<{ name: string; chapters: string[][] }> };
 
-function books(): Map<string, string[][]> {
-  if (!cache) {
-    const data = JSON.parse(readFileSync(join(process.cwd(), "data", "kjv.json"), "utf8")) as Kjv;
-    cache = new Map(data.books.map((b) => [b.name, b.chapters]));
+export { BIBLES, BIBLE_CODES, isBibleCode, type BibleCode } from "./bibles";
+
+const cache = new Map<BibleCode, Map<string, string[][]>>();
+
+function books(code: BibleCode): Map<string, string[][]> {
+  let found = cache.get(code);
+  if (!found) {
+    const data = JSON.parse(readFileSync(join(process.cwd(), "data", `${code}.json`), "utf8")) as BibleData;
+    found = new Map(data.books.map((b) => [b.name, b.chapters]));
+    cache.set(code, found);
   }
-  return cache;
+  return found;
 }
 
-export const KJV = {
-  code: "kjv",
-  label: "King James Version (KJV)",
-  notice: "King James Version (KJV), public domain in the United States.",
-} as const;
+export const KJV = BIBLES.kjv;
 
 /** Longest passage a generated devotional may use, so it stays on a few slides. */
 export const MAX_VERSES = 20;
 
 export type Passage = { reference: string; text: string; verses: number };
 
+/** The passage in the King James Version (see biblePassage). */
+export const kjvPassage = (reference: string) => biblePassage("kjv", reference);
+
 /**
  * The text of a passage, one verse per line, each starting with its number
- * (the form classroom mode shows). Null when the reference is not valid, not in
- * the KJV, or longer than MAX_VERSES.
+ * (the form classroom mode shows). Verses a translation leaves out (some modern
+ * texts omit a few) are skipped. Null when the reference is not valid, not in the
+ * Bible, or longer than maxVerses.
  */
-export function kjvPassage(reference: string): Passage | null {
+export function biblePassage(code: BibleCode, reference: string, maxVerses: number = MAX_VERSES): Passage | null {
   const parsed = parseReference(reference);
   if (!parsed.ok) return null;
-  const chapters = books().get(parsed.book);
+  const chapters = books(code).get(parsed.book);
   if (!chapters) return null;
   // The parser's normalized form: "Book C", "Book C:V", "Book C:V–V", "Book C–C" or "Book C:V–C:V".
   const m = /\s(\d+)(?::(\d+))?(?:–(\d+)(?::(\d+))?)?$/.exec(parsed.normalized);
@@ -58,8 +65,8 @@ export function kjvPassage(reference: string): Passage | null {
     const from = c === c1 ? v1 : 1;
     const to = c === c2 && v2 !== null ? v2 : verses.length;
     if (to > verses.length || from > to) return null;
-    for (let v = from; v <= to; v++) lines.push(`${v} ${verses[v - 1]}`);
+    for (let v = from; v <= to; v++) if (verses[v - 1]) lines.push(`${v} ${verses[v - 1]}`);
   }
-  if (lines.length === 0 || lines.length > MAX_VERSES) return null;
+  if (lines.length === 0 || lines.length > maxVerses) return null;
   return { reference: parsed.normalized, text: lines.join("\n"), verses: lines.length };
 }

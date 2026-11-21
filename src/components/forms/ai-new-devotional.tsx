@@ -6,6 +6,7 @@ import { AiCounter, OUT_OF_REQUESTS, isUnlimited } from "@/components/present/ai
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
+import { BIBLES, BIBLE_CODES, type BibleCode } from "@/lib/bible/bibles";
 import { BANDS, BAND_LONG, type GradeBand } from "@/lib/content/levels";
 import { CATEGORIES } from "@/lib/content/options";
 import { DevotionalForm, type ThemeOption, type TranslationOption } from "./devotional-form";
@@ -17,7 +18,8 @@ type Initial = Parameters<typeof DevotionalForm>[0]["initial"];
  * The editor's "New devotional" page with an AI first draft on top: choose up to
  * three categories and a reading level, and the AI writes a devotional that fills
  * the normal form below. Nothing is saved until the editor saves the form, and it
- * is saved as a draft like any other. Scripture text comes from the bundled KJV.
+ * is saved as a draft like any other. Scripture text comes from the chosen bundled
+ * public-domain Bible (KJV, WEB or ASV), never from the AI.
  */
 export function NewDevotionalWithAi({
   initial,
@@ -33,6 +35,7 @@ export function NewDevotionalWithAi({
   const [form, setForm] = useState<{ initial: Initial; key: number }>({ initial, key: 0 });
   const [chosen, setChosen] = useState<string[]>([]);
   const [band, setBand] = useState<GradeBand>("g35");
+  const [bible, setBible] = useState<BibleCode>("kjv");
   const [quota, setQuota] = useState<AiQuota | null>(ai.quota);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export function NewDevotionalWithAi({
     setDone(null);
     start(async () => {
       const names = slugs.map((s) => CATEGORIES.find((c) => c.slug === s)?.name ?? s);
-      const result = await writeDevotionalAction({ topics: names, band });
+      const result = await writeDevotionalAction({ topics: names, band, translation: bible });
       if (!result.ok) {
         setError(result.error);
         if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
@@ -65,8 +68,8 @@ export function NewDevotionalWithAi({
           daily_topic: d.topic,
           category_slug: slugs[0] ?? null,
           scripture_reference: d.reference,
-          // The passage text always comes from the bundled King James Version.
-          translation_code: "kjv",
+          // The passage text always comes from the bundled public-domain Bible, not the AI.
+          translation_code: d.translationCode,
           scripture_text: d.scriptureText,
           reflection: d.version.reflection,
           prayer: d.version.prayer,
@@ -95,7 +98,7 @@ export function NewDevotionalWithAi({
           {ai.configured && quota ? <AiCounter quota={quota} /> : null}
         </div>
         <p className="mt-1 max-w-[40rem] font-serif italic text-muted">
-          Choose up to {MAX} categories and a reading level. The AI fills in the form below: title, topic, a KJV passage and
+          Choose up to {MAX} categories and a reading level. The AI fills in the form below: title, topic, a Bible passage in the translation you choose and
           all four parts. You review and edit it before saving. Or skip this and write it yourself.
         </p>
 
@@ -132,6 +135,20 @@ export function NewDevotionalWithAi({
                 <input type="radio" name="ai-band" className="peer sr-only" checked={band === b} onChange={() => setBand(b)} />
                 <span className="grid min-h-11 place-items-center rounded-control border border-line-strong/50 bg-surface px-2 text-center text-sm font-semibold peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
                   {BAND_LONG[b].replace("Kindergarten to grade 2", "K to grade 2")}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="mt-5">
+          <legend className="text-sm font-semibold">Translation</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {BIBLE_CODES.map((code) => (
+              <label key={code} className="relative">
+                <input type="radio" name="ai-bible" className="peer sr-only" checked={bible === code} onChange={() => setBible(code)} />
+                <span className="grid min-h-11 place-items-center rounded-control border border-line-strong/50 bg-surface px-2 text-center text-sm font-semibold peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
+                  {BIBLES[code].label}
                 </span>
               </label>
             ))}

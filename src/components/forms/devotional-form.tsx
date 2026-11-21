@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { saveDevotionalAction } from "@/app/actions/content";
+import { passageTextAction } from "@/app/actions/ai";
+import { BIBLES, isBibleCode } from "@/lib/bible/bibles";
 import { RichTextEditor } from "@/components/content/rich-text-editor";
 import { Alert } from "@/components/ui/feedback";
 import { Card } from "@/components/ui/card";
@@ -46,6 +48,31 @@ export function DevotionalForm({
   const fe = state.fieldErrors ?? {};
   const [translationCode, setTranslationCode] = useState<string>(initial.translation_code ?? "");
   const translation = translations.find((t) => t.code === translationCode) ?? null;
+  const [reference, setReference] = useState<string>(stringValue(state, "scriptureReference", initial.scripture_reference ?? ""));
+  const [scriptureText, setScriptureText] = useState<string>(translation?.text_allowed ? (initial.scripture_text ?? "") : "");
+  const [lookup, setLookup] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const [looking, startLookup] = useTransition();
+
+  /** Fills the Scripture text from a bundled public-domain Bible (KJV, WEB, ASV). */
+  const fillText = (code: string, ref: string = reference) => {
+    if (!isBibleCode(code) || !ref.trim()) return;
+    setLookup(null);
+    startLookup(async () => {
+      const result = await passageTextAction({ reference: ref, translation: code });
+      if (!result.ok) { setLookup({ tone: "error", text: result.error }); return; }
+      setScriptureText(result.text);
+      setLookup({ tone: "ok", text: `Scripture text updated to the ${BIBLES[code].label}.` });
+    });
+  };
+
+  const changeTranslation = (code: string) => {
+    setTranslationCode(code);
+    setLookup(null);
+    const next = translations.find((t) => t.code === code);
+    if (!next?.text_allowed) setScriptureText("");
+    // Switching to a bundled Bible swaps the passage to that translation's words.
+    else if (isBibleCode(code)) fillText(code);
+  };
 
   const rich = (key: string, fallback: RichDoc | undefined): RichDoc => {
     const echoed = state.values?.[key];
@@ -119,7 +146,8 @@ export function DevotionalForm({
               <TextField
                 label="Reference"
                 name="scriptureReference"
-                defaultValue={v("scriptureReference", initial.scripture_reference)}
+                value={reference}
+                onChange={(event) => setReference(event.target.value)}
                 error={fe.scriptureReference}
                 hint="For example Galatians 6:9–10. Checked and tidied when you save."
                 maxLength={120}
@@ -128,7 +156,7 @@ export function DevotionalForm({
                 label="Translation"
                 name="translationCode"
                 value={translationCode}
-                onChange={(event) => setTranslationCode(event.target.value)}
+                onChange={(event) => changeTranslation(event.target.value)}
                 error={fe.translationCode}
                 options={[
                   { value: "", label: "Choose a translation" },
@@ -159,16 +187,34 @@ export function DevotionalForm({
               name="scriptureText"
               rows={5}
               disabled={textDisabled}
-              defaultValue={textDisabled ? "" : v("scriptureText", initial.scripture_text)}
+              value={textDisabled ? "" : scriptureText}
+              onChange={(event) => setScriptureText(event.target.value)}
               error={fe.scriptureText}
               hint={
                 !translation
                   ? "Choose a translation first. Leave empty to show the reference only."
                   : textDisabled
                     ? "Not available for this translation."
-                    : "Paste the passage exactly as it appears in this translation, or leave empty to show the reference only."
+                    : isBibleCode(translationCode)
+                      ? `Filled in from the ${BIBLES[translationCode].label} when you choose it. You can edit it, or leave it empty to show the reference only.`
+                      : "Paste the passage exactly as it appears in this translation, or leave empty to show the reference only."
               }
             />
+            {isBibleCode(translationCode) ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => fillText(translationCode)}
+                  disabled={looking || !reference.trim()}
+                  className="min-h-11 text-sm font-semibold text-brand underline underline-offset-4 disabled:text-muted disabled:no-underline"
+                >
+                  {looking ? "Looking up the passage…" : `Fill in the text from the ${BIBLES[translationCode].short}`}
+                </button>
+                {lookup ? (
+                  <p role={lookup.tone === "error" ? "alert" : "status"} className={`text-sm ${lookup.tone === "error" ? "text-danger" : "text-muted"}`}>{lookup.text}</p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </Card>
 

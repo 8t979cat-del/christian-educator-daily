@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   // The bundled public-domain Bible (read with fs when AI writes a devotional) must ship with the server code.
-  outputFileTracingIncludes: { "/**": ["./data/kjv.json"] },
+  outputFileTracingIncludes: { "/**": ["./data/kjv.json", "./data/web.json", "./data/asv.json"] },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders() }];
   },

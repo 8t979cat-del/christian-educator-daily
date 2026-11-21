@@ -7,6 +7,7 @@ import { saveGeneratedAction, writeDevotionalAction, type GeneratedDraft } from 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { docToText, textToDoc } from "@/lib/content/editable";
+import { BIBLES, BIBLE_CODES, type BibleCode } from "@/lib/bible/bibles";
 import { BANDS, BAND_LONG, type GradeBand, type LevelField } from "@/lib/content/levels";
 import { TopicMap } from "./topic-map";
 import { START_TOPICS, TOPIC_WEB } from "@/lib/content/topic-web";
@@ -27,6 +28,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
   const [focus, setFocus] = useState<string | null>(null);
   const [topics, setTopics] = useState<string[]>([]);
   const [band, setBand] = useState<GradeBand>("g35");
+  const [bible, setBible] = useState<BibleCode>("kjv");
   const [draft, setDraft] = useState<GeneratedDraft | null>(null);
   const [text, setText] = useState<Record<LevelField, string> | null>(null);
   const [title, setTitle] = useState("");
@@ -41,7 +43,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
   const write = (again: boolean, chosen: string[] = topics) => {
     setError(null);
     start(async () => {
-      const result = await writeDevotionalAction({ topics: chosen, band });
+      const result = await writeDevotionalAction({ topics: chosen, band, translation: bible });
       if (!result.ok) {
         setError(result.error);
         if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
@@ -76,7 +78,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
     setError(null);
     start(async () => {
       const result = await saveGeneratedAction({
-        title, topic: draft.topic, reference: draft.reference, topics,
+        title, topic: draft.topic, reference: draft.reference, topics, translation: draft.translationCode,
         version: {
           reflection: textToDoc(text.reflection),
           discussion_question: textToDoc(text.discussion_question),
@@ -144,6 +146,20 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
           </div>
         </fieldset>
 
+        <fieldset>
+          <legend className="text-sm font-semibold">Translation</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {BIBLE_CODES.map((code) => (
+              <label key={code} className="relative">
+                <input type="radio" name="bible" className="peer sr-only" checked={bible === code} onChange={() => setBible(code)} />
+                <span className="grid min-h-11 place-items-center rounded-control border-2 border-line-strong/40 bg-surface px-2 text-center text-sm font-semibold peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
+                  {BIBLES[code].label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <Button onClick={() => write(false)} disabled={!configured || topics.length === 0 || pending || outOfRequests}>
@@ -159,7 +175,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
               ? "The AI tools are not set up on this server yet."
               : outOfRequests && quota
                 ? OUT_OF_REQUESTS(quota.limit)
-                : "Takes about half a minute and uses one AI request. “Surprise me” picks two related topics at random. Scripture comes from the King James Version, never from the AI."}
+                : "Takes about half a minute and uses one AI request. “Surprise me” picks two related topics at random. Scripture comes from the translation you choose, never from the AI."}
           </p>
         </div>
 

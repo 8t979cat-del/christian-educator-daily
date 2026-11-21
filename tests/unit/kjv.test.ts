@@ -22,3 +22,23 @@ describe("bundled KJV", () => {
     for (const name of BOOK_NAMES) expect(kjvPassage(`${name} 1:1`), name).not.toBeNull();
   });
 });
+
+describe("bundled WEB and ASV", async () => {
+  const { biblePassage } = await import("@/lib/bible/kjv");
+  it("give the same passage in each translation's own words", () => {
+    expect(biblePassage("web", "Galatians 6:9")!.text).toBe("9 Let’s not be weary in doing good, for we will reap in due season, if we don’t give up.");
+    expect(biblePassage("asv", "Galatians 6:9")!.text).toBe("9 And let us not be weary in well-doing: for in due season we shall reap, if we faint not.");
+    expect(biblePassage("web", "Psalm 23")!.verses).toBe(6);
+    expect(biblePassage("asv", "Psalm 23")!.verses).toBe(6);
+  });
+  it("cover every book, and skip verses a translation leaves out", () => {
+    for (const code of ["web", "asv"] as const) {
+      for (const name of BOOK_NAMES) expect(biblePassage(code, `${name} 1:1`), `${code} ${name}`).not.toBeNull();
+    }
+    expect(biblePassage("asv", "Matthew 17:20-22")!.text.split("\n").map((l) => l.split(" ")[0])).toEqual(["20", "22"]);
+  });
+  it("allow a longer passage when asked", () => {
+    expect(biblePassage("web", "Psalm 119:1-40")).toBeNull();
+    expect(biblePassage("web", "Psalm 119:1-40", 80)!.verses).toBe(40);
+  });
+});
