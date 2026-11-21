@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-21T17:57:21+00:00",
+  "generatedAt": "2026-11-21T19:30:00+00:00",
   "title": "Design System: Everyday Devotional",
   "extensions": {
     "colorMeta": {
@@ -416,6 +416,22 @@
       "description": "Gilt double rule with inset gilt rule on bookcloth, for the founding section.",
       "html": "<div class=\"ds-cover\"><div class=\"ds-cover-frame\"><div class=\"ds-cover-inner\"><h2>Become a founding school</h2><h3>What we ask</h3><p>Honest feedback, including “not yet” if that is the answer.</p></div></div></div>",
       "css": ".ds-cover { background:#1c2a47; color:#e9e3d2; padding:24px; font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); } .ds-cover-frame { border:4px double rgb(212 178 94 / .7); padding:6px; } .ds-cover-inner { border:1px solid rgb(212 178 94 / .4); padding:40px 24px; } .ds-cover-inner h2 { margin:0; font-size:2.25rem; font-weight:400; color:#d4b25e; } .ds-cover-inner h3 { margin:28px 0 0; font-size:.875rem; font-weight:400; text-transform:uppercase; letter-spacing:.16em; color:#d4b25e; } .ds-cover-inner p { margin:12px 0 0; font-size:1.125rem; line-height:1.6; }"
+    },
+    {
+      "name": "Dialog",
+      "kind": "card",
+      "refersTo": "dialog",
+      "description": "Modal dialog as a ruled frame: ink border, offset hairline keyline, navy backdrop, no shadow.",
+      "html": "<div class=\"ds-dialog\"><h2>Delete this draft?</h2><p>This cannot be undone.</p><div class=\"ds-dialog-actions\"><button class=\"ds-dialog-btn\">Cancel</button></div></div>",
+      "css": ".ds-dialog { max-width: 32rem; margin: 8px; background: var(--color-surface, #fff); color: var(--color-ink, #1b1a17); border: 1px solid rgb(27 26 23 / 0.7); border-radius: var(--radius-card, 0.25rem); outline: 1px solid var(--color-line, #d9d4c7); outline-offset: 4px; padding: 24px; } .ds-dialog h2 { font-family: var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size: 1.5rem; margin: 0; } .ds-dialog p { color: var(--color-muted, #55524b); margin: 8px 0 0; } .ds-dialog-actions { display: flex; justify-content: flex-end; margin-top: 24px; } .ds-dialog-btn { min-height: 44px; padding: 0 12px; border: 1px solid rgb(107 102 92 / 0.6); border-radius: var(--radius-control, 0.1875rem); background: #fff; font: 600 1rem ui-sans-serif, system-ui, sans-serif; } .ds-dialog-btn:hover { background: var(--color-brand-soft, #e7e9ef); } .ds-dialog-btn:focus-visible { outline: 3px solid var(--color-brand, #1c2a47); outline-offset: 2px; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Square-cut badge or chip; no pills.",
+      "html": "<span class=\"ds-badge\">Grades 3–5</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-control, 0.1875rem); background: var(--color-brand-soft, #e7e9ef); color: var(--color-brand, #1c2a47); font: 600 0.75rem ui-sans-serif, system-ui, sans-serif; }"
     }
   ],
   "narrative": {
@@ -472,11 +488,12 @@
       "**Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.",
       "**Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.",
       "**Do** keep every projector theme at 7:1 or better for text, muted and accent colours, and add any new theme to the contrast test.",
-      "**Do** keep controls at least 44px and square-cut (3px)."
+      "**Do** keep controls at least 44px and square-cut (3px), badges and chips included.",
+      "**Do** mark a split slide with \"…, continued\" and a muted italic \"continues on the next slide\", never a page count."
     ],
     "donts": [
       "**Don't** synthesize small capitals with `font-variant: small-caps` or scaled-down capitals.",
-      "**Don't** use cards, icon tiles, pills or shadows on the page; frame with rules and keylines instead.",
+      "**Don't** use cards, icon tiles, pills or shadows anywhere, dialogs included; frame with rules and keylines instead. Only dots and avatars are round.",
       "**Don't** use rubric red for fills, buttons or decorative headings.",
       "**Don't** put gilt on paper.",
       "**Don't** bring back the retired look: cream parchment ground with teal accents, Source Serif, rounded cards.",

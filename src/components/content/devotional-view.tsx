@@ -158,8 +158,9 @@ function Section({
       aria-labelledby={`${id}-title`}
       className={`scroll-mt-24 break-inside-avoid print:rounded-none print:border-0 print:bg-transparent print:p-0 ${TONES[tone]}`}
     >
-      <h2 id={`${id}-title`} className="flex items-center gap-3 font-serif text-xl font-semibold md:text-2xl">
-        <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white print:border print:border-black print:bg-white print:text-black">
+      <h2 id={`${id}-title`} className="flex items-baseline gap-3 font-serif text-xl md:text-2xl">
+        {/* A red figure, as the order of the day numbers its parts. */}
+        <span aria-hidden="true" className="shrink-0 text-rubric tabular-nums print:text-black">
           {n}
         </span>
         {title}

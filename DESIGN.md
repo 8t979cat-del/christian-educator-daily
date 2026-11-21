@@ -171,20 +171,20 @@ A three-ink book: black on bright paper, one red for rubrics, and navy cloth sta
 
 ## Layout
 
-A single centred book column (max 72rem, 16px gutter on phones, 32px from md) with sections stacked vertically at 56px padding, 80px from md. Within a section the grid is asymmetric, like a book spread: a 5:7 split puts the heading on the left and the ruled list on the right; today's page puts the devotional in the main column and a 16rem right margin for "tune and meter" notes, separated by a hairline. Every split collapses to one column on phones, the margin notes falling below.
+A single centred book column (max 72rem, 16px gutter on phones, 32px from md) with sections stacked vertically at 56px padding, 80px from md. Within a section the grid is asymmetric, like a book spread: a 5:7 split puts the heading on the left and the ruled list on the right; today's page puts the devotional in the main column and a 16rem right margin for "tune and meter" notes, separated by a hairline. The tune-and-meter line under the title keeps each part whole ("Day 1 of 5" never breaks); it may wrap only at the centred-dot separator. Every split collapses to one column on phones, the margin notes falling below.
 
 The page opens with a running head: the passage reference on the left, the weekday in italic on the right, over a 4px double rule. The index of the year runs 2, 3 then 4 columns with dotted leaders between the week and its day range. Targets on every control are at least 44px.
 
 ## Elevation & Depth
 
-The page is flat. Depth is printed, not lit: a double rule, an inset keyline, or the change from paper to cloth. Framed blocks (the inline presenter, the empty-state verse block) use a 1px ink border with a second 1px keyline outline offset 5px, and the back cover uses a 4px gilt double rule with a 1px inset gilt rule 6px inside it.
+The page is flat. Depth is printed, not lit: a double rule, an inset keyline, or the change from paper to cloth. Framed blocks (the inline presenter, the empty-state verse block) use a 1px ink border with a second 1px keyline outline offset 5px, and the back cover uses a 4px gilt double rule with a 1px inset gilt rule 6px inside it. Dialogs are ruled frames as well: a 1px ink border at 70% with 4px corners and a 1px Hairline outline offset 4px, laid over a backdrop of bookcloth navy at 60%. Nothing is lifted with a shadow anywhere in the product.
 
 ### Named Rules
 **The Printed-Depth Rule.** No shadows on paper or cloth. Separation comes from rules, keylines and the paper/cloth boundary.
 
 ## Shapes
 
-Square-cut, as a trimmed book block: controls at 3px (`rounded.control`), any remaining containers at 4px (`rounded.card`). Rules are the recurring geometry: 4px double rules (ink at 70% on paper, gilt at 60 to 70% on cloth) open sections and lists, 1px hairlines divide items, dotted rules lead the eye across index entries. There are no pills, circles or icon tiles in this world's vocabulary.
+Square-cut, as a trimmed book block: controls at 3px (`rounded.control`), any remaining containers at 4px (`rounded.card`). Rules are the recurring geometry: 4px double rules (ink at 70% on paper, gilt at 60 to 70% on cloth) open sections and lists, 1px hairlines divide items, dotted rules lead the eye across index entries. There are no pills or icon tiles in this world's vocabulary: badges, status labels, the AI-request counter, topic-map nodes and the create chips are all square-cut at 3px. The only round forms are dots (slide progress dots, the counter's status dot) and avatars.
 
 ## Components
 
@@ -199,6 +199,13 @@ Plain and set like type.
 
 ### Rubric Links
 The default link on marketing pages: Caslon in rubric red with an underline at 40% red, offset 4px, that fills to full red on hover. Used for "Become a founding school" and the classroom-mode link.
+
+### Chips and Badges
+- **Style:** square-cut (3px), Bookcloth Wash ground, navy semibold sans at 0.75rem, 4px by 12px padding; danger states use Danger Soft with a 40% Danger border.
+- **State:** choice chips (topic-map nodes, chosen topics) sit on white with a 40% Strong Hairline border and, when selected, take a navy border on the wash with a check; option chips for a single choice fill navy when checked. 44px minimum, nothing pill-shaped.
+
+### Dialogs
+- **Style:** the printed-depth frame described under Elevation & Depth, Clean Leaf ground, Caslon title, a 44px square-cut close control that takes the wash on hover.
 
 ### Inputs / Fields
 - **Style:** white field, 1px Strong Hairline border at 60%, 3px corners, 44px minimum height, 8px by 12px padding, system sans; label in semibold sans above, hint in muted below it.
@@ -222,7 +229,7 @@ A list opened by a 4px double rule, each entry closed by a hairline: a 3rem colu
 The founding section on bookcloth: a 4px gilt double-rule frame with a 1px inset gilt rule 6px inside, a gilt headline, cloth-text body, gilt tracked-capital sub-heads over two columns, and the gilt button.
 
 ### Classroom Slides
-Slides are set in Caslon (type scales in em with the slide) and take their colours from four projector themes held in `PRESENT_THEMES` (src/lib/content/present.ts): White (ink on white, rubric accent), Paper (ink on Bible paper, rubric accent), Bookcloth (white on a deeper cloth navy, gilt accent) and High contrast (white on black, bright yellow accent). Each exposes `--p-bg`, `--p-fg`, `--p-accent` and `--p-muted`; list markers, blockquote rules and the 4px progress bar use the accent. Every theme's text, muted and accent colour must reach 7:1 on its background, enforced by the unit tests. Printed slides are black on white, one per landscape page.
+Slides are set in Caslon (type scales in em with the slide) and take their colours from four projector themes held in `PRESENT_THEMES` (src/lib/content/present.ts): White (ink on white, rubric accent), Paper (ink on Bible paper, rubric accent), Bookcloth (white on a deeper cloth navy, gilt accent) and High contrast (white on black, bright yellow accent). Each exposes `--p-bg`, `--p-fg`, `--p-accent` and `--p-muted`; list markers, blockquote rules and the 4px progress bar use the accent. Every theme's text, muted and accent colour must reach 7:1 on its background, enforced by the unit tests. When a passage or section is split across slides, later pages are labelled "…, continued" (never "2 of 3"; the controls already count slides), and a page whose text runs on carries "continues on the next slide" in Caslon italic in the theme's muted colour, never smaller than 12px, at the end of the label row. Printed slides are black on white, one per landscape page.
 
 ## Do's and Don'ts
 
@@ -233,11 +240,12 @@ Slides are set in Caslon (type scales in em with the slide) and take their colou
 - **Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.
 - **Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.
 - **Do** keep every projector theme at 7:1 or better for text, muted and accent colours, and add any new theme to the contrast test.
-- **Do** keep controls at least 44px and square-cut (3px).
+- **Do** keep controls at least 44px and square-cut (3px), badges and chips included.
+- **Do** mark a split slide with "…, continued" and a muted italic "continues on the next slide", never a page count.
 
 ### Don't:
 - **Don't** synthesize small capitals with `font-variant: small-caps` or scaled-down capitals.
-- **Don't** use cards, icon tiles, pills or shadows on the page; frame with rules and keylines instead.
+- **Don't** use cards, icon tiles, pills or shadows anywhere, dialogs included; frame with rules and keylines instead. Only dots and avatars are round.
 - **Don't** use rubric red for fills, buttons or decorative headings.
 - **Don't** put gilt on paper.
 - **Don't** bring back the retired look: cream parchment ground with teal accents, Source Serif, rounded cards.
