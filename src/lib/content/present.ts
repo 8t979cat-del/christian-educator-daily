@@ -42,6 +42,8 @@ export type PresentSettings = {
   size: number;
   /** The students' reading level. Null until the teacher chooses: the standard text is shown. */
   band: GradeBand | null;
+  /** The class comment board (a trial feature): off unless the teacher turns it on. */
+  comments: boolean;
   sections: Record<SectionId, boolean>;
   showReference: boolean;
   showTranslation: boolean;
@@ -51,6 +53,7 @@ export const DEFAULT_SETTINGS: PresentSettings = {
   theme: "white",
   size: DEFAULT_SIZE,
   band: null,
+  comments: false,
   sections: { theme: true, title: true, scripture: true, reflection: true, discussion: true, practice: true, prayer: true },
   showReference: true,
   showTranslation: true,
@@ -70,6 +73,7 @@ export function parseSettings(raw: unknown): PresentSettings {
     size,
     // Settings saved before reading levels had a single "younger students" switch.
     band: isBand(r.band) ? r.band : r.simple === true ? "k2" : d.band,
+    comments: r.comments === true,
     sections,
     showReference: typeof r.showReference === "boolean" ? r.showReference : d.showReference,
     showTranslation: typeof r.showTranslation === "boolean" ? r.showTranslation : d.showTranslation,

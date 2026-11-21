@@ -8,6 +8,7 @@ import {
 } from "@/lib/content/present";
 import { BAND_SHORT, bandsWithVersion, textForBand, type LevelVersion } from "@/lib/content/levels";
 import { EditPanel, type AiTools } from "./edit-panel";
+import { CommentComposer, CommentRail, type ClassComment } from "./comment-board";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
 import { PrintSlides } from "./print-slides";
 import { SettingsPanel } from "./settings-panel";
@@ -52,6 +53,10 @@ export function PresentMode({
   const [panel, setPanel] = useState<"none" | "settings" | "notes" | "edit">("none");
   // The teacher's own text per reading level: saved versions, plus edits shown this session.
   const [overrides, setOverrides] = useState<Partial<Record<string, Required<LevelVersion>>>>(() => ({ ...savedVersions }));
+  // Class comments, per slide, for this presentation only: never saved or sent anywhere.
+  const [comments, setComments] = useState<Record<string, ClassComment[]>>({});
+  const [composing, setComposing] = useState(false);
+  const commentId = useRef(0);
   const [savedKeys, setSavedKeys] = useState<Set<string>>(() => new Set(Object.keys(savedVersions ?? {})));
   const [chrome, setChrome] = useState(true);
   const [blank, setBlank] = useState(false);
@@ -117,6 +122,7 @@ export function PresentMode({
 
   const safeIndex = Math.min(index, Math.max(slides.length - 1, 0));
   const slide = slides[safeIndex];
+  const slideComments = (settings.comments && slide ? comments[slide.key] : undefined) ?? [];
   const total = slides.length;
 
   const go = useCallback((delta: number) => setIndex((i) => Math.min(slides.length - 1, Math.max(0, Math.min(i, slides.length - 1) + delta))), [slides.length]);
@@ -208,13 +214,14 @@ export function PresentMode({
         case "b": case "B": case ".": setBlank((v) => !v); break;
         case "n": case "N": if (notesSlot) setPanel((p) => (p === "notes" ? "none" : "notes")); break;
         case "s": case "S": setPanel("settings"); break;
+        case "c": case "C": if (tools && settings.comments) { e.preventDefault(); setComposing(true); } break;
         case "Tab": poke(); return;
         default: return;
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke]);
+  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke, tools, settings.comments]);
 
   // Presenter window: this screen reports its state and obeys commands.
   const stateRef = useRef<ClassMessage>({ type: "empty" });
@@ -284,6 +291,7 @@ export function PresentMode({
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Larger text" onClick={() => changeSize(1)} disabled={settings.size === SIZE_SCALES.length - 1}>A+</button>
+            {tools && settings.comments ? <button type="button" className={btn} onClick={() => setComposing(true)}>Comment</button> : null}
             {tools ? <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("edit")}>Edit</button> : null}
             {notesSlot ? <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={panel === "notes"} onClick={() => setPanel((p) => (p === "notes" ? "none" : "notes"))}>Notes</button> : null}
             <button type="button" className={btn} onClick={() => setPanel("settings")}>Settings</button>
@@ -291,7 +299,7 @@ export function PresentMode({
           </div>
         </header>
 
-        <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] py-14" aria-label={slide ? slide.label : "Presentation"}>
+        <main id="main" ref={stage} className={`min-h-0 flex-1 px-[5vw] py-14 ${slideComments.length ? "pr-[31vw]" : ""}`} aria-label={slide ? slide.label : "Presentation"}>
           {slide ? (
             <SlideView slide={slide} size={settings.size} band={settings.band} />
           ) : (
@@ -304,6 +312,19 @@ export function PresentMode({
             </div>
           )}
         </main>
+        {slideComments.length ? (
+          <CommentRail comments={slideComments} onRemove={(id) => slide && setComments((c) => ({ ...c, [slide.key]: (c[slide.key] ?? []).filter((x) => x.id !== id) }))} />
+        ) : null}
+        {composing && settings.comments ? (
+          <CommentComposer
+            onClose={() => setComposing(false)}
+            onPost={(text, emoji) => {
+              if (!slide) return;
+              const id = ++commentId.current;
+              setComments((c) => ({ ...c, [slide.key]: [...(c[slide.key] ?? []), { id, text, emoji }] }));
+            }}
+          />
+        ) : null}
         <p className="sr-only" aria-live="polite">{slide ? `Slide ${safeIndex + 1} of ${total}: ${slide.label}` : ""}</p>
 
         <footer className="absolute inset-x-0 bottom-0 z-20">
@@ -372,6 +393,7 @@ export function PresentMode({
             hasTheme={Boolean(content.theme)}
             hasPassageText={hasPassageText}
             writtenBands={writtenBands}
+            allowComments={Boolean(tools)}
             onOpenPresenter={openPresenter}
           />
         ) : null}

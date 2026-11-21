@@ -9,9 +9,11 @@ const BTN = "min-h-11 rounded-md border border-current/40 px-3 text-sm font-semi
 
 /** What to show, how it looks, and print. Opens over the slide; Esc closes it. */
 export function SettingsPanel({
-  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter, writtenBands,
+  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter, writtenBands, allowComments = false,
 }: {
   writtenBands: GradeBand[];
+  /** Signed-in teachers can turn on the class comment board. */
+  allowComments?: boolean;
   settings: PresentSettings;
   onChange: (next: PresentSettings) => void;
   onClose: () => void;
@@ -89,6 +91,17 @@ export function SettingsPanel({
           </p>
         </fieldset>
 
+
+        {allowComments ? (
+          <fieldset className="mt-6">
+            <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Class comments (trial)</legend>
+            <label className="flex min-h-11 items-center gap-3"><input type="checkbox" className="size-5" checked={settings.comments} onChange={() => set("comments", !settings.comments)} />Show class comments on the slides</label>
+            <p className="text-sm text-[#333]">
+              Type what students say (press C, or Comment) and it appears beside the slide with an emoji. Comments are never
+              saved and disappear when you leave. Names, links and contact details are refused.
+            </p>
+          </fieldset>
+        ) : null}
 
         <fieldset className="mt-6">
           <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Background</legend>
