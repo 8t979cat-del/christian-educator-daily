@@ -1,3 +1,4 @@
+import { COMMUNITY_ENABLED } from "@/lib/site";
 import Link from "next/link";
 import { getAccessContext } from "@/lib/auth/session";
 import { cn } from "@/lib/cn";
@@ -33,7 +34,7 @@ export async function AdminNav({ current, isAdmin }: { current: string; isAdmin?
   const visible = LINKS.filter((link) => {
     const l = link as NavLink & { adminOnly?: boolean; moderationOnly?: boolean };
     if (l.adminOnly) return admin;
-    if (l.moderationOnly) return moderator;
+    if (l.moderationOnly) return moderator && COMMUNITY_ENABLED;
     return true;
   });
   return (

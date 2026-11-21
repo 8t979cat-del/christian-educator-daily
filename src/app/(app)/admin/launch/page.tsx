@@ -1,3 +1,4 @@
+import { COMMUNITY_ENABLED } from "@/lib/site";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminNav } from "@/components/content/admin-nav";
@@ -131,7 +132,7 @@ export default async function LaunchPage() {
         </Card>
 
         <Text size="sm" muted>
-          Next: <Link className="underline" href="/admin/pilot">founding-school pilot</Link> · <Link className="underline" href="/admin/feedback">feedback</Link> · <Link className="underline" href="/community/moderation">moderation</Link>
+          Next: <Link className="underline" href="/admin/pilot">founding-school pilot</Link> · <Link className="underline" href="/admin/feedback">feedback</Link>{COMMUNITY_ENABLED ? <> · <Link className="underline" href="/community/moderation">moderation</Link></> : null}
         </Text>
       </div>
     </>
