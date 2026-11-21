@@ -92,13 +92,13 @@ export default async function DevotionalPage({
         {prev ? (
           <Link href={`/devotional/${prev.id}`} className="rounded-card border border-line bg-surface p-4 hover:border-brand">
             <span className="text-sm text-muted">← Previous · {formatDate(prev.devotional_date, "short")}</span>
-            <span className="mt-1 block font-serif text-lg font-semibold">{prev.title}</span>
+            <span className="mt-1 block font-serif text-lg font-normal">{prev.title}</span>
           </Link>
         ) : <span />}
         {next ? (
           <Link href={`/devotional/${next.id}`} className="rounded-card border border-line bg-surface p-4 text-right hover:border-brand sm:col-start-2">
             <span className="text-sm text-muted">Next · {formatDate(next.devotional_date, "short")} →</span>
-            <span className="mt-1 block font-serif text-lg font-semibold">{next.title}</span>
+            <span className="mt-1 block font-serif text-lg font-normal">{next.title}</span>
           </Link>
         ) : null}
       </nav>

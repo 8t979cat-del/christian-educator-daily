@@ -23,7 +23,7 @@ export function GroupPostCard({ post, groupId, timeZone, canWrite, isLeader = fa
         </p>
       </header>
       {hidden ? <p role="note" className="rounded-control bg-canvas p-3 text-sm">A group moderator hid this{post.moderation_reason ? `: ${post.moderation_reason}` : "."} Only you and the group's leaders can see it.</p> : null}
-      {post.title ? <h4 id={`gp-${post.id}`} className="font-serif text-lg font-semibold">{post.title}</h4> : <span id={`gp-${post.id}`} className="sr-only">{GROUP_POST_LABELS[post.kind]} by {post.author_name}</span>}
+      {post.title ? <h4 id={`gp-${post.id}`} className="font-serif text-lg font-normal">{post.title}</h4> : <span id={`gp-${post.id}`} className="sr-only">{GROUP_POST_LABELS[post.kind]} by {post.author_name}</span>}
       <p className="whitespace-pre-wrap leading-relaxed">{post.body}</p>
       {post.scripture_reference || post.devotional_title ? (
         <p className="text-sm text-muted">

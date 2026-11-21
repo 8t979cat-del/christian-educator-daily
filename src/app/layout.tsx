@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ToastProvider } from "@/components/ui/toast";
 import { getPublicEnv } from "@/lib/env";
 import { SITE } from "@/lib/site";
-import { sourceSerif } from "./fonts";
+import { caslon } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1f5a55",
+  themeColor: "#1c2a47",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={sourceSerif.variable}>
+    <html lang="en" className={caslon.variable}>
       <body>
         <a
           href="#main"

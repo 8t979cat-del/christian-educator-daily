@@ -44,7 +44,7 @@ export function TopicMap({
         <div className="absolute left-1/2 top-1/2 w-[34%] -translate-x-1/2 -translate-y-1/2 text-center">
           {focus ? (
             <div className="grid justify-items-center gap-1">
-              <span className="rounded-full bg-brand px-4 py-3 font-serif text-lg font-semibold leading-tight text-white shadow-[0_10px_24px_-14px_rgb(20_32_43/0.6)] sm:text-xl">
+              <span className="rounded-control bg-brand px-4 py-3 font-serif text-lg font-normal leading-tight text-white sm:text-xl">
                 {focus}
               </span>
               <button type="button" onClick={() => onFocus(null)} className="min-h-11 px-2 text-sm font-semibold text-brand underline">
@@ -52,7 +52,7 @@ export function TopicMap({
               </button>
             </div>
           ) : (
-            <p className="font-serif text-lg font-semibold leading-snug text-ink">Choose a topic to begin</p>
+            <p className="font-serif text-lg font-normal leading-snug text-ink">Choose a topic to begin</p>
           )}
         </div>
 
@@ -67,7 +67,7 @@ export function TopicMap({
                   aria-pressed={on}
                   disabled={!on && full}
                   onClick={() => choose(topic)}
-                  className={`min-h-11 max-w-[9.5rem] rounded-full border-2 px-3 py-1.5 text-center text-sm font-semibold leading-tight transition-colors disabled:opacity-40 sm:text-base ${
+                  className={`min-h-11 max-w-[9.5rem] rounded-control border-2 px-3 py-1.5 text-center text-sm font-semibold leading-tight transition-colors disabled:opacity-40 sm:text-base ${
                     on ? "border-brand bg-brand-soft text-brand" : "border-line-strong/40 bg-surface text-ink hover:border-brand"
                   }`}
                 >

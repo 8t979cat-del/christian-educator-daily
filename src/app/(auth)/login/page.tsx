@@ -11,6 +11,7 @@ export const metadata: Metadata = { title: "Sign in" };
 
 const ERRORS: Record<string, string> = {
   link_invalid: "That link is invalid or has expired. Request a new one and try again.",
+  link_expired: "That verification link has expired. Sign in with your email and password, and we will offer to send a new one.",
 };
 
 type Props = { searchParams: Promise<{ next?: string; error?: string; verified?: string }> };
@@ -40,7 +41,7 @@ export default async function LoginPage({ searchParams }: Props) {
       {params.verified === "1" ? (
         <p role="status" className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-brand">
           <Icon name="check" size={16} />
-          Email verified.
+          Verification successful.
         </p>
       ) : null}
     </AuthCard>

@@ -15,7 +15,7 @@ export function CommentRail({ comments, onRemove }: { comments: ClassComment[]; 
         {comments.map((c) => (
           <li
             key={c.id}
-            className="group relative rounded-xl border-2 p-[1.4vh] text-[clamp(16px,2.6vh,34px)] leading-snug"
+            className="group relative rounded-control border-2 p-[1.4vh] text-[clamp(16px,2.6vh,34px)] leading-snug"
             style={{ borderColor: "color-mix(in srgb, var(--p-accent) 45%, transparent)", background: "color-mix(in srgb, var(--p-accent) 8%, var(--p-bg))" }}
           >
             {c.emoji ? <span className="mr-[0.3em]" aria-hidden="true">{c.emoji}</span> : null}
@@ -23,7 +23,7 @@ export function CommentRail({ comments, onRemove }: { comments: ClassComment[]; 
             <button
               type="button"
               onClick={() => onRemove(c.id)}
-              className="absolute right-1 top-1 hidden min-h-8 min-w-8 rounded-md text-sm font-semibold opacity-70 group-hover:block group-focus-within:block hover:opacity-100"
+              className="absolute right-1 top-1 hidden min-h-8 min-w-8 rounded-control text-sm font-semibold opacity-70 group-hover:block group-focus-within:block hover:opacity-100"
               aria-label={`Remove comment: ${c.text}`}
             >
               ✕
@@ -61,7 +61,7 @@ export function CommentComposer({ onPost, onClose }: { onPost: (text: string, em
 
   return (
     <form
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-[#ccc] bg-white p-3 text-[#111] shadow-[0_-12px_30px_-20px_rgb(0_0_0/0.5)]"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-[#ccc] bg-white p-3 text-[#111]"
       onSubmit={(e) => { e.preventDefault(); submit(text, emoji); }}
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); onClose(); } }}
       aria-label="Add a class comment"
@@ -82,7 +82,7 @@ export function CommentComposer({ onPost, onClose }: { onPost: (text: string, em
               if (parsed.post && /emoji|face|[.!]$/i.test(e.target.value.trim()) && parsed.text) submit(e.target.value, emoji);
             }}
             placeholder="What did the student say? (or end with “post comment with smiley emoji”)"
-            className="min-h-11 w-full rounded-md border border-[#777] px-3 text-base"
+            className="min-h-11 w-full rounded-control border border-[#777] px-3 text-base"
           />
         </label>
         <div role="radiogroup" aria-label="Emoji" className="flex gap-1">
@@ -94,14 +94,14 @@ export function CommentComposer({ onPost, onClose }: { onPost: (text: string, em
               aria-checked={emoji === e.emoji}
               aria-label={e.label}
               onClick={() => setEmoji((cur) => (cur === e.emoji ? null : e.emoji))}
-              className={`grid size-11 place-items-center rounded-md border-2 text-xl ${emoji === e.emoji ? "border-[#0b4f49] bg-[#e3efec]" : "border-transparent hover:border-[#ccc]"}`}
+              className={`grid size-11 place-items-center rounded-control border-2 text-xl ${emoji === e.emoji ? "border-[#1c2a47] bg-[#e7e9ef]" : "border-transparent hover:border-[#ccc]"}`}
             >
               {e.emoji}
             </button>
           ))}
         </div>
-        <button type="submit" className="min-h-11 rounded-md border border-[#0b4f49] bg-[#0b4f49] px-4 font-semibold text-white">Post</button>
-        <button type="button" onClick={onClose} className="min-h-11 rounded-md border border-[#777] px-3 font-semibold">Done</button>
+        <button type="submit" className="min-h-11 rounded-control border border-[#1c2a47] bg-[#1c2a47] px-4 font-semibold text-white">Post</button>
+        <button type="button" onClick={onClose} className="min-h-11 rounded-control border border-[#777] px-3 font-semibold">Done</button>
       </div>
       {problem ? <p role="alert" className="mx-auto mt-2 max-w-5xl text-sm font-semibold text-[#8a1c14]">{problem}</p> : null}
       <p className="mx-auto mt-1 max-w-5xl text-xs text-[#333]">Comments stay on this screen only and disappear when you leave. Nothing is saved or sent anywhere.</p>

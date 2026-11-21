@@ -92,7 +92,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
   if (!allowed) {
     return (
       <div className="rounded-card border border-brand/30 bg-brand-soft p-6">
-        <p className="font-serif text-xl font-semibold">Part of Educator Plus and school licences</p>
+        <p className="font-serif text-xl font-normal">Part of Educator Plus and school licences</p>
         <p className="mt-2 max-w-2xl">
           Choose topics from the web and AI writes a complete devotional around a passage of Scripture, at your students’
           reading level, for you to review, edit and present.
@@ -105,7 +105,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
       <section aria-labelledby="topics-h">
-        <h2 id="topics-h" className="font-serif text-2xl font-semibold">1. Choose topics</h2>
+        <h2 id="topics-h" className="font-serif text-2xl font-normal">1. Choose topics</h2>
         <div className="mt-4">
           <TopicMap focus={focus} selected={topics} onFocus={setFocus} onToggle={toggle} />
         </div>
@@ -113,13 +113,13 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
 
       <section aria-labelledby="write-h" className="grid gap-6">
         <div>
-          <h2 id="write-h" className="font-serif text-2xl font-semibold">2. Write it</h2>
+          <h2 id="write-h" className="font-serif text-2xl font-normal">2. Write it</h2>
           <p className="mt-2 text-sm font-semibold">Your topics</p>
           {topics.length ? (
             <ul className="mt-2 flex flex-wrap gap-2">
               {topics.map((t) => (
                 <li key={t}>
-                  <button type="button" onClick={() => toggle(t)} className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-brand bg-brand-soft px-3 font-semibold text-brand" aria-label={`Remove ${t}`}>
+                  <button type="button" onClick={() => toggle(t)} className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-brand bg-brand-soft px-3 font-semibold text-brand" aria-label={`Remove ${t}`}>
                     {t} <Icon name="x" size={14} />
                   </button>
                 </li>
@@ -168,7 +168,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
         {draft && text ? (
           <article aria-labelledby="draft-h" className="grid gap-4 rounded-card border border-line bg-surface p-5" aria-busy={pending}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h3 id="draft-h" className="font-serif text-xl font-semibold">3. Review the draft</h3>
+              <h3 id="draft-h" className="font-serif text-xl font-normal">3. Review the draft</h3>
               <span className="text-xs font-semibold uppercase tracking-wide text-brand">AI-written draft</span>
             </div>
             <p className="text-sm text-muted">Read it through and change anything you like before your class sees it.</p>
@@ -177,7 +177,7 @@ export function CreateStudio({ allowed, configured, quota: initialQuota = null }
               <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} className={field} />
             </label>
             <figure className="rounded-control bg-parchment p-4">
-              <figcaption className="font-serif font-semibold text-brand">{draft.reference} · {draft.translationLabel}</figcaption>
+              <figcaption className="font-serif font-normal text-brand">{draft.reference} · {draft.translationLabel}</figcaption>
               <blockquote className="mt-2 max-h-48 overflow-y-auto whitespace-pre-line font-serif leading-relaxed">{draft.scriptureText}</blockquote>
             </figure>
             {FIELDS.map((f) => (

@@ -1,33 +1,27 @@
+import Link from "next/link";
+import { Fragment } from "react";
 import { Container } from "@/components/layout/container";
 import { SameDayEveryAge } from "@/components/marketing/same-day-every-age";
 import { SchoolYear } from "@/components/marketing/school-year";
 import { InlinePresenter } from "@/components/present/inline-presenter";
 import { ButtonLink } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { Heading, Text } from "@/components/ui/typography";
-import { todayIn } from "@/lib/content/dates";
+import { formatDate, todayIn } from "@/lib/content/dates";
 import { getPublicToday } from "@/lib/content/queries";
 import { getFoundingContactEmail, getSiteTimeZone } from "@/lib/env";
 
 // Today's devotional changes daily and comes from the database on each visit.
 export const dynamic = "force-dynamic";
 
-/** The five slides of a typical day, in the order a class sees them. */
-const DAY = [
-  { name: "The day’s title", detail: "With the week’s theme beneath it." },
-  { name: "Scripture", detail: "The whole passage, with the reference first, so you can read it aloud together." },
-  { name: "Reflection", detail: "A short reading, written at your students’ level." },
-  { name: "A question to talk about", detail: "One question, large enough to discuss from anywhere in the room." },
-  { name: "Practice and prayer", detail: "One small thing to try today, and a closing prayer." },
+/** The order of the day, with its rubrics: what the class sees, and what the teacher does. */
+const ORDER = [
+  { name: "The title", rubric: "Read it aloud. The week’s theme sits beneath it." },
+  { name: "Scripture", rubric: "The class reads together. The reference comes first, so you can announce it." },
+  { name: "Reflection", rubric: "Written at your students’ reading level, from kindergarten to grade 12." },
+  { name: "A question", rubric: "Let the room answer before you do." },
+  { name: "Practice and prayer", rubric: "One small thing to try today, and a closing prayer." },
 ] as const;
 
-const CLASSROOM = [
-  "Opens full screen; arrow keys or a presentation clicker move it on.",
-  "Choose your students’ reading level once. It is remembered on that computer.",
-  "Most days fit on five slides, with Scripture large enough to read from the back row.",
-  "A presenter window keeps your notes on your laptop, off the projector.",
-  "Made for projectors, shared laptops and Chromebooks.",
-] as const;
+const ROMAN = ["I", "II", "III", "IV", "V"] as const;
 
 const TRUST = [
   { title: "No student accounts", body: "Students only see what you put on the screen. They never sign up or sign in." },
@@ -35,173 +29,207 @@ const TRUST = [
   { title: "Your school’s information stays yours", body: "Each school’s accounts and records are kept private from every other school." },
 ] as const;
 
+const rubricLink = "font-serif text-rubric underline decoration-rubric/40 underline-offset-4 hover:decoration-rubric";
+
 export default async function LandingPage() {
   const contact = getFoundingContactEmail();
-  const today = await getPublicToday(todayIn(getSiteTimeZone()));
+  const iso = todayIn(getSiteTimeZone());
+  const today = await getPublicToday(iso);
   const contactHref = contact
     ? `mailto:${contact}?subject=${encodeURIComponent("Founding school: Everyday Devotional")}`
     : "#founding";
+  // A red-letter calendar day, as a church calendar prints it: the date, not a hymn number.
+  const dayNumber = Number(iso.slice(8, 10));
+  const month = new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+  const weekday = new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" });
+  const meterParts = today?.theme ? [today.theme.title, today.theme.dayLabel].filter(Boolean) : [];
 
   return (
     <>
-      <section className="border-b border-line">
-        <Container className="py-14 md:py-20">
-          <div className="max-w-3xl">
-            <Heading level={1} className="hyphens-auto">
-              A devotional for every school day, written for every age in your school
-            </Heading>
-            <Text size="lg" muted className="mt-5 max-w-2xl">
-              Everyday Devotional gives each teacher 180 days of classroom devotionals. Every day shares one Scripture
-              passage, written at four reading levels from kindergarten to grade 12, and opens on the classroom screen in
-              about a minute.
-            </Text>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={contactHref} size="lg">
-                Become a founding school
-              </ButtonLink>
-              <ButtonLink href={today ? "#today" : "/classroom-demo"} variant="secondary" size="lg">
-                {today ? "Present today’s devotional" : "Try classroom mode"}
-              </ButtonLink>
-            </div>
-            <Text size="sm" muted className="mt-4">
-              We are inviting a small group of Christian schools to be the first to use it, free, and to help shape it.
-            </Text>
+      {/* The hymnal page for today: number, title, running head, and the devotional itself, ready to present. */}
+      <section aria-labelledby="today-title" className="border-b border-line">
+        <Container className="py-8 md:py-12">
+          {/* Running head: the passage on the left, the day on the right, as a hymnal heads its pages. */}
+          <div className="flex items-baseline justify-between gap-4 border-b-4 border-double border-ink/70 pb-2 font-serif text-sm text-muted">
+            <span className="truncate">{today?.scripture.reference || "Everyday Devotional"}</span>
+            <span className="shrink-0 italic">{today ? weekday : formatDate(iso)}</span>
           </div>
-          <div id="today" className="mt-12 scroll-mt-20 md:mt-16">
-            {today ? (
-              <>
-                <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <Heading level={2} size={3}>Today’s devotional</Heading>
-                  <p className="text-muted">{today.dateLabel}{today.scripture.reference ? ` · ${today.scripture.reference}` : ""}</p>
+
+          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
+            <div className="min-w-0">
+              <div className="flex items-start gap-5 md:gap-7">
+                {today ? (
+                  <p aria-hidden="true" className="grid shrink-0 justify-items-center font-serif text-rubric">
+                    <span className="text-[4.5rem] leading-[0.8] tabular-nums md:text-[6rem]">{dayNumber}</span>
+                    <span className="mt-2 text-sm uppercase tracking-[0.2em]">{month}</span>
+                  </p>
+                ) : null}
+                <div className="min-w-0 pt-1">
+                  <h1 id="today-title" className="font-serif text-3xl leading-[1.12] text-balance md:text-[2.75rem]">
+                    {today ? today.title : "A devotional for every school day, written for every age"}
+                  </h1>
+                  {/* Tune and meter: the week's theme, and which day of it this is. */}
+                  <p className="mt-2 font-serif italic text-muted">
+                    {today
+                      ? meterParts.length
+                        ? meterParts.map((part, i) => (
+                            // Each part stays whole ("Day 1 of 5" never breaks); the line may break at the separator.
+                            <Fragment key={part}>{i > 0 ? " · " : ""}<span className="whitespace-nowrap">{part}</span></Fragment>
+                          ))
+                        : today.scripture.translationLabel ?? ""
+                      : "Everyday Devotional: 180 Days"}
+                  </p>
                 </div>
-                <InlinePresenter content={today} />
-              </>
-            ) : (
-              <div className="rounded-card border border-dashed border-line-strong/50 bg-surface px-6 py-10 text-center">
-                <Heading level={2} size={3}>Today’s devotional appears here each school day</Heading>
-                <Text muted className="mx-auto mt-3 max-w-xl">
-                  Open this page in the morning and present it to your class, no sign-in needed. Until the first
-                  devotionals are published, you can try classroom mode with a sample.
-                </Text>
-                <ButtonLink href="/classroom-demo" variant="secondary" className="mt-6">Try classroom mode</ButtonLink>
               </div>
-            )}
-          </div>
-        </Container>
-      </section>
 
-      <section id="year" className="scroll-mt-20 py-16 md:py-24">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-            <div>
-              <Heading level={2}>180 days, in the order your year runs</Heading>
-              <Text muted className="mt-4 max-w-xl">
-                Thirty-six weeks, Monday to Friday. Each week follows one theme, such as patience or courage, so a
-                class can stay with an idea for five days instead of starting over every morning.
-              </Text>
               <div className="mt-8">
-                <SchoolYear />
+                {today ? (
+                  <InlinePresenter content={today} />
+                ) : (
+                  <div className="border border-ink/70 px-6 py-10 outline outline-1 outline-offset-[5px] outline-line-strong/50 md:px-10">
+                    <p className="font-serif text-2xl leading-snug">Today’s devotional appears here each school day.</p>
+                    <p className="mt-3 max-w-xl font-serif text-muted">
+                      Open this page in the morning and present it to your class, with no sign-in. Until the first devotionals
+                      are published, try classroom mode with a sample.
+                    </p>
+                    <ButtonLink href="/classroom-demo" className="mt-6 font-serif font-normal">Try classroom mode</ButtonLink>
+                  </div>
+                )}
               </div>
             </div>
-            <div>
-              <Heading level={3}>What a day looks like</Heading>
-              <ol className="mt-5 grid gap-0 border-t border-line">
-                {DAY.map((step, i) => (
-                  <li key={step.name} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 border-b border-line py-4">
-                    <span className="font-serif text-2xl font-semibold leading-none text-brand tabular-nums" aria-hidden="true">{i + 1}</span>
-                    <div>
-                      <p className="font-semibold">{step.name}</p>
-                      <p className="mt-1 text-pretty text-muted">{step.detail}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
+
+            {/* Margin notes, as a hymnal prints tune and meter beside the hymn. */}
+            <aside aria-label="About Everyday Devotional" className="grid content-start gap-5 font-serif lg:border-l lg:border-line lg:pl-8">
+              <p className="text-lg leading-snug">
+                One devotional for each of the 180 school days, written at four reading levels from kindergarten to grade 12.
+              </p>
+              <p className="text-sm italic text-rubric">
+                {today
+                  ? "Choose Present full screen, then move on with the arrow keys or a clicker."
+                  : "Each morning, the day’s devotional opens here, ready for the projector."}
+              </p>
+              <div className="border-t border-line pt-4">
+                <p className="text-sm text-muted">For schools</p>
+                <a href={contactHref} className={`mt-1 inline-flex min-h-11 items-center text-lg ${rubricLink}`}>
+                  Become a founding school
+                </a>
+              </div>
+            </aside>
           </div>
         </Container>
       </section>
 
-      <section id="classroom" className="scroll-mt-20 bg-surface py-16 md:py-24">
-        <Container className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section id="year" aria-labelledby="order-title" className="scroll-mt-20 py-14 md:py-20">
+        <Container className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <div>
-            <Heading level={2}>Open the day in about a minute</Heading>
-            <Text muted className="mt-4">
-              Open today’s devotional, choose Present to class, and lead it from the front of the room.
-            </Text>
-            <ul className="mt-6 grid gap-3">
-              {CLASSROOM.map((point) => (
-                <li key={point} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
-                  <Icon name="check" size={20} className="mt-0.5 text-brand" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-            <ButtonLink href="/classroom-demo" variant="secondary" className="mt-8">
-              Try it with a sample devotional
-            </ButtonLink>
+            <h2 id="order-title" className="font-serif text-3xl leading-tight md:text-[2.5rem]">The order of the day</h2>
+            <p className="mt-4 max-w-md font-serif text-muted">
+              Every devotional follows the same order, so a class knows what comes next. The red lines are for the teacher.
+            </p>
           </div>
-          <div>
-            <Heading level={3} size={4} className="mb-4">With an account: the same day, at every age</Heading>
-            <SameDayEveryAge />
-          </div>
-        </Container>
-      </section>
-
-      <section className="py-16 md:py-24">
-        <Container>
-          <Heading level={2} className="max-w-2xl">Made for a school’s trust</Heading>
-          <dl className="mt-8 grid gap-8 md:grid-cols-3">
-            {TRUST.map((item) => (
-              <div key={item.title} className="border-t-2 border-brand pt-4">
-                <dt className="font-serif text-xl font-semibold">{item.title}</dt>
-                <dd className="mt-2 text-pretty text-muted">{item.body}</dd>
-              </div>
+          <ol className="border-t-4 border-double border-ink/70">
+            {ORDER.map((step, i) => (
+              <li key={step.name} className="grid grid-cols-[3rem_minmax(0,1fr)] gap-x-3 border-b border-line py-4">
+                <span aria-hidden="true" className="font-serif text-xl text-rubric">{ROMAN[i]}</span>
+                <div>
+                  <p className="font-serif text-xl">{step.name}</p>
+                  <p className="mt-1 font-serif italic text-rubric">{step.rubric}</p>
+                </div>
+              </li>
             ))}
-          </dl>
+          </ol>
         </Container>
       </section>
 
-      <section id="founding" className="on-dark scroll-mt-20 bg-night py-16 text-parchment md:py-24">
+      <section id="classroom" aria-labelledby="settings-title" className="scroll-mt-20 border-y border-line py-14 md:py-20">
         <Container>
-          <div className="max-w-3xl">
-            <Heading level={2}>Become a founding school</Heading>
-            <Text size="lg" className="mt-4 text-[#c9d3dc]">
-              The first devotionals are being written and theologically reviewed now. Founding schools use them first, in
-              real classrooms, and tell us what works.
-            </Text>
-          </div>
-          <div className="mt-10 grid gap-10 md:grid-cols-2">
-            <div>
-              <Heading level={3} size={4} className="text-mint">What your school receives</Heading>
-              <ul className="mt-4 grid gap-3">
-                <li>A school licence for the pilot dates, free of charge.</li>
-                <li>Teacher accounts, handed out with your own access code.</li>
-                <li>A 30-minute orientation call for your administrators.</li>
-                <li>Each devotional as soon as it has been written and reviewed.</li>
-              </ul>
-            </div>
-            <div>
-              <Heading level={3} size={4} className="text-mint">What we ask</Heading>
-              <ul className="mt-4 grid gap-3">
-                <li>Teachers answer a short survey in the app, about three minutes.</li>
-                <li>One conversation with an administrator, about 30 to 40 minutes.</li>
-                <li>Honest feedback, including “not yet” if that is the answer.</li>
-              </ul>
-            </div>
+          <div className="max-w-xl">
+            <h2 id="settings-title" className="font-serif text-3xl leading-tight md:text-[2.5rem]">One passage, set for every age</h2>
+            <p className="mt-4 font-serif text-muted">
+              A hymnal sets one hymn for many voices. Each day here keeps one Scripture passage and writes it for four rooms:
+              kindergarten to grade 2, 3 to 5, 6 to 8 and 9 to 12. Signed-in teachers choose their students’ level once.
+            </p>
           </div>
           <div className="mt-10">
-            {contact ? (
-              <>
-                <ButtonLink href={contactHref} size="lg" className="bg-mint text-night hover:bg-[#a6dbd2]">
-                  Write to us about your school
-                </ButtonLink>
-                <p className="mt-3 text-sm text-[#c9d3dc]">
-                  Opens an email to <span className="font-semibold text-parchment">{contact}</span>.
-                </p>
-              </>
-            ) : (
-              <p className="text-[#c9d3dc]">Founding places are by invitation. Ask the person who shared this page with you.</p>
-            )}
+            <SameDayEveryAge />
+          </div>
+          <p className="mt-8 font-serif">
+            <Link href="/classroom-demo" className={rubricLink}>Try classroom mode with a sample devotional</Link>
+          </p>
+        </Container>
+      </section>
+
+      <section aria-labelledby="index-title" className="py-14 md:py-20">
+        <Container>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 id="index-title" className="font-serif text-3xl leading-tight md:text-[2.5rem]">Index of the year</h2>
+            <p className="max-w-md font-serif italic text-muted">Thirty-six weeks, Monday to Friday, each week on one theme.</p>
+          </div>
+          <div className="mt-8 border-t-4 border-double border-ink/70 pt-2">
+            <SchoolYear />
+          </div>
+        </Container>
+      </section>
+
+      <section aria-labelledby="trust-title" className="border-t border-line py-14 md:py-20">
+        <Container className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <h2 id="trust-title" className="font-serif text-3xl leading-tight md:text-[2.5rem]">A word to schools</h2>
+          <ul className="border-t-4 border-double border-ink/70">
+            {TRUST.map((item) => (
+              <li key={item.title} className="border-b border-line py-4">
+                <p className="font-serif text-xl">{item.title}</p>
+                <p className="mt-1 font-serif text-muted">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
+
+      {/* The back cover: bookcloth with gilt rules. */}
+      <section id="founding" aria-labelledby="founding-title" className="on-dark scroll-mt-20 bg-brand pb-4 pt-14 text-[#e9e3d2] md:pt-20">
+        <Container>
+          {/* A stamped panel: gilt double rule with an inset rule, square corners. */}
+          <div className="border-4 border-double border-gilt/70 p-1.5">
+            <div className="border border-gilt/40 px-6 py-10 md:px-12 md:py-14">
+            <div className="max-w-3xl">
+              <h2 id="founding-title" className="font-serif text-3xl leading-tight text-gilt md:text-[2.75rem]">Become a founding school</h2>
+              <p className="mt-5 font-serif text-lg leading-relaxed">
+                The first devotionals are being written and theologically reviewed now. Founding schools use them first, in
+                real classrooms, and tell us what works.
+              </p>
+            </div>
+            <div className="mt-10 grid max-w-4xl gap-10 font-serif md:grid-cols-2">
+              <div>
+                <h3 className="text-sm uppercase tracking-[0.16em] text-gilt">What your school receives</h3>
+                <ul className="mt-4 grid gap-3">
+                  <li>A school licence for the pilot dates, free of charge.</li>
+                  <li>Teacher accounts, handed out with your own access code.</li>
+                  <li>A 30-minute orientation call for your administrators.</li>
+                  <li>Each devotional as soon as it has been written and reviewed.</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm uppercase tracking-[0.16em] text-gilt">What we ask</h3>
+                <ul className="mt-4 grid gap-3">
+                  <li>Teachers answer a short survey in the app, about three minutes.</li>
+                  <li>One conversation with an administrator, about 30 to 40 minutes.</li>
+                  <li>Honest feedback, including “not yet” if that is the answer.</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-12 font-serif">
+              {contact ? (
+                <>
+                  <ButtonLink href={contactHref} size="lg" className="border-gilt bg-gilt font-serif font-normal text-brand hover:bg-[#e2c57a]">
+                    Write to us about your school
+                  </ButtonLink>
+                  <p className="mt-3 text-sm italic">Opens an email to {contact}.</p>
+                </>
+              ) : (
+                <p className="italic">Founding places are by invitation. Ask the person who shared this page with you.</p>
+              )}
+            </div>
+            </div>
           </div>
         </Container>
       </section>

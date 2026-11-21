@@ -1,30 +1,24 @@
 /**
- * 180 days drawn as the school year runs: 36 weeks of Monday to Friday. Each
- * week is one theme, so the weeks are grouped. It shows the scale of the
- * sequence, not a schedule or any real content.
+ * The school year as a hymnal's index: thirty-six weeks, five days each, every
+ * day numbered from 1 to 180 the way a hymnal numbers its hymns. It shows the
+ * shape of the sequence, not a schedule or any real content.
  */
 const WEEKS = 36;
 
 export function SchoolYear() {
   return (
     <figure>
-      <div
-        role="img"
-        aria-label="180 school days: 36 weeks of Monday to Friday"
-        className="grid grid-cols-6 gap-x-2.5 gap-y-3 sm:grid-cols-9"
-      >
+      <ol aria-label="180 school days in 36 weeks" className="grid grid-cols-2 gap-x-8 font-serif sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: WEEKS }, (_, w) => (
-          <div key={w} className="grid grid-cols-5 gap-[3px]">
-            {Array.from({ length: 5 }, (_, d) => (
-              <span key={d} className={`block h-5 rounded-[2px] ${w === 0 ? "bg-brand" : "bg-brand/20"}`} />
-            ))}
-          </div>
+          <li key={w} className="flex items-baseline gap-2 border-b border-line py-1.5 text-sm">
+            <span className="w-14 shrink-0 italic text-muted">Week {w + 1}</span>
+            <span aria-hidden="true" className="min-w-2 flex-1 translate-y-[-0.2em] border-b border-dotted border-line-strong/50" />
+            <span className="tabular-nums text-ink [font-variant-numeric:oldstyle-nums_tabular-nums]">
+              {w * 5 + 1}–{w * 5 + 5}
+            </span>
+          </li>
         ))}
-      </div>
-      <figcaption className="mt-3 flex justify-between text-sm text-muted">
-        <span>Week 1</span>
-        <span>Week 36</span>
-      </figcaption>
+      </ol>
     </figure>
   );
 }

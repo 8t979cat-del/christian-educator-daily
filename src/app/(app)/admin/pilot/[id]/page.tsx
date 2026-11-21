@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 const Stat = ({ label, value, note }: { label: string; value: unknown; note?: string }) => (
   <div className="rounded-control border border-line p-4">
     <dt className="text-sm text-muted">{label}</dt>
-    <dd className="mt-1 font-serif text-3xl font-semibold">{value === undefined || value === null ? "—" : String(value)}</dd>
+    <dd className="mt-1 font-serif text-3xl font-normal">{value === undefined || value === null ? "—" : String(value)}</dd>
     {note ? <p className="mt-1 text-xs text-muted">{note}</p> : null}
   </div>
 );

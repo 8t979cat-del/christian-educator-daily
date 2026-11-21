@@ -40,7 +40,7 @@ export default async function ResourcesPage() {
               <Link href={`/resources/${r.id}`} className="block h-full">
                 <Card className="h-full hover:border-brand">
                   <Badge>{kindLabel(r.kind)}</Badge>
-                  <h2 className="mt-3 font-serif text-xl font-semibold">{r.title}</h2>
+                  <h2 className="mt-3 font-serif text-xl font-normal">{r.title}</h2>
                   {r.summary ? <p className="mt-1 text-sm text-muted">{r.summary}</p> : null}
                 </Card>
               </Link>
@@ -50,7 +50,7 @@ export default async function ResourcesPage() {
       ) : null}
       {lockedRows.length > 0 ? (
         <section className="mt-10" aria-labelledby="more">
-          <h2 id="more" className="font-serif text-xl font-semibold">More with Educator Plus</h2>
+          <h2 id="more" className="font-serif text-xl font-normal">More with Educator Plus</h2>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {lockedRows.map((r) => (
               <li key={r.id} className="flex gap-3 rounded-card border border-line bg-surface p-4">

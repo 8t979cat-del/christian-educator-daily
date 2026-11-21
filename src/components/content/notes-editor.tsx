@@ -47,7 +47,7 @@ export function NotesEditor({ devotionalId, initial }: { devotionalId: string; i
 
   return (
     <section aria-labelledby="notes-title" className="rounded-card border border-line bg-surface p-6 print:hidden md:p-8">
-      <h2 id="notes-title" className="font-serif text-xl font-semibold md:text-2xl">
+      <h2 id="notes-title" className="font-serif text-xl font-normal md:text-2xl">
         My notes
       </h2>
       <p className="mt-1 text-sm text-muted">Private to you. Not shown to colleagues, your school or anyone else.</p>

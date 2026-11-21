@@ -25,8 +25,8 @@ const LABELS: Record<LevelField, { label: string; rows: number }> = {
   prayer: { label: "Closing prayer", rows: 3 },
 };
 
-const BTN = "min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold hover:bg-black/5 disabled:opacity-50";
-const PRIMARY = "min-h-11 rounded-md border border-[#0b4f49] bg-[#0b4f49] px-3 text-sm font-semibold text-white hover:bg-[#083b37] disabled:opacity-50";
+const BTN = "min-h-11 rounded-control border border-[#777] px-3 text-sm font-semibold hover:bg-black/5 disabled:opacity-50";
+const PRIMARY = "min-h-11 rounded-control border border-[#1c2a47] bg-[#1c2a47] px-3 text-sm font-semibold text-white hover:bg-[#121c31] disabled:opacity-50";
 
 /**
  * Edit what the class sees, for the reading level in use: by hand, or with an AI
@@ -104,30 +104,30 @@ export function EditPanel({
   });
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-black/50" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-40 flex justify-end bg-brand/60" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-label="Edit this devotional"
-        className="h-full w-full max-w-xl overflow-y-auto bg-white p-5 text-[#111] shadow-2xl"
+        className="h-full w-full max-w-xl overflow-y-auto bg-white p-5 text-[#111]"
         onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); onClose(); } }}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-serif text-2xl font-semibold">Edit this devotional</h2>
+            <h2 className="font-serif text-2xl font-normal">Edit this devotional</h2>
             <p className="text-sm text-[#333]">{level}{saved ? " · your saved version" : ""}</p>
           </div>
           <button type="button" onClick={onClose} className={BTN}>Close</button>
         </div>
 
         {!tools.allowed ? (
-          <div className="mt-6 rounded-md border border-[#0b4f49]/40 bg-[#e3efec] p-4">
+          <div className="mt-6 rounded-control border border-[#1c2a47]/40 bg-[#e7e9ef] p-4">
             <p className="font-semibold">Part of Educator Plus and school licences</p>
             <p className="mt-1 text-sm">
               Edit the text your class sees, re-level any devotional for K–2 to 9–12 with AI, and save your own versions.
             </p>
-            <Link href="/upgrade" className="mt-3 inline-block font-semibold text-[#0b4f49] underline">See what Plus includes</Link>
+            <Link href="/upgrade" className="mt-3 inline-block font-semibold text-[#1c2a47] underline">See what Plus includes</Link>
           </div>
         ) : (
           <>
@@ -135,7 +135,7 @@ export function EditPanel({
               Scripture stays exactly as published. Edit the rest below; your changes reach the class screen only when you choose to show them.
             </p>
 
-            <div className="mt-4 rounded-md border border-[#ccc] p-3">
+            <div className="mt-4 rounded-control border border-[#ccc] p-3">
               <div className="flex flex-wrap items-center gap-3">
                 <button type="button" onClick={relevel} disabled={!band || !tools.configured || pending || outOfRequests} className={PRIMARY}>
                   {band ? `Re-level with AI for grades ${BAND_SHORT[band]}` : "Re-level with AI"}
@@ -154,11 +154,11 @@ export function EditPanel({
             </div>
 
             {status ? (
-              <p role={status.tone === "error" ? "alert" : "status"} className={`mt-4 rounded-md p-3 text-sm font-medium ${status.tone === "error" ? "bg-[#fbeae8] text-[#8a1c14]" : "bg-[#fff3cd]"}`}>
+              <p role={status.tone === "error" ? "alert" : "status"} className={`mt-4 rounded-control p-3 text-sm font-medium ${status.tone === "error" ? "bg-[#fbeae8] text-[#8a1c14]" : "bg-[#fff3cd]"}`}>
                 {status.message}
               </p>
             ) : null}
-            {aiDraft ? <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[#0b4f49]">AI-adapted draft</p> : null}
+            {aiDraft ? <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[#1c2a47]">AI-adapted draft</p> : null}
 
             <div className="mt-3 grid gap-4" aria-busy={pending}>
               {LEVEL_FIELDS.map((f) => (
@@ -169,7 +169,7 @@ export function EditPanel({
                     onChange={(e) => setText((t) => ({ ...t, [f]: e.target.value }))}
                     rows={LABELS[f].rows}
                     maxLength={4000}
-                    className="w-full rounded-md border border-[#777] p-2 text-base leading-snug"
+                    className="w-full rounded-control border border-[#777] p-2 text-base leading-snug"
                   />
                 </label>
               ))}

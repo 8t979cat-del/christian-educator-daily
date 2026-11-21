@@ -92,7 +92,7 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     },
   };
   const notes = (
-    <div className="rounded-lg border border-[#e2ded3] bg-white p-4 text-[#111]">
+    <div className="rounded-control border border-[#e2ded3] bg-white p-4 text-[#111]">
       <p className="font-semibold">Demo notes</p>
       <p className="mt-1 text-sm">In the real app this is the teacher’s private notes box. Ask the group about their own experience first.</p>
     </div>

@@ -59,13 +59,13 @@ export function PlanGrid({
               <Text size="sm" muted className="mt-1">{plan.tagline}</Text>
               <div className="mt-5 min-h-16">
                 {plan.key === "free" ? (
-                  <p className="font-serif text-2xl font-semibold">Free</p>
+                  <p className="font-serif text-2xl font-normal">Free</p>
                 ) : monthLabel || yearLabel ? (
                   <>
-                    {monthLabel ? <p className="font-serif text-2xl font-semibold">{monthLabel}</p> : null}
+                    {monthLabel ? <p className="font-serif text-2xl font-normal">{monthLabel}</p> : null}
                     {yearLabel ? (monthLabel
                       ? <p className="text-sm text-muted">or {yearLabel}{savings ? ` (save ${savings}%)` : ""}</p>
-                      : <p className="font-serif text-2xl font-semibold">{yearLabel}</p>) : null}
+                      : <p className="font-serif text-2xl font-normal">{yearLabel}</p>) : null}
                     {month?.display_note ? <p className="text-sm text-muted">{month.display_note}</p> : null}
                   </>
                 ) : (

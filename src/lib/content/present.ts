@@ -25,9 +25,9 @@ export const SECTION_LABELS: Record<SectionId, string> = {
 
 /** Contrast of every pair is checked in tests: all are at least 7:1 (WCAG AAA). */
 export const PRESENT_THEMES = {
-  white: { label: "White", bg: "#ffffff", fg: "#111111", accent: "#0b4f49", muted: "#333333" },
-  cream: { label: "Cream", bg: "#fbf6e9", fg: "#161616", accent: "#0b4f49", muted: "#363636" },
-  dark: { label: "Dark", bg: "#0f1720", fg: "#ffffff", accent: "#8fd0c6", muted: "#d6dde4" },
+  white: { label: "White", bg: "#ffffff", fg: "#111111", accent: "#a31d16", muted: "#333333" },
+  cream: { label: "Paper", bg: "#fbfaf6", fg: "#161616", accent: "#a31d16", muted: "#363636" },
+  dark: { label: "Bookcloth", bg: "#141f36", fg: "#ffffff", accent: "#d4b25e", muted: "#d9dce4" },
   contrast: { label: "High contrast", bg: "#000000", fg: "#ffffff", accent: "#ffe14d", muted: "#e8e8e8" },
 } as const;
 export type ThemeId = keyof typeof PRESENT_THEMES;

@@ -5,7 +5,7 @@ import { channelName, type ClassMessage, type PresenterCommand } from "./channel
 import { BandPicker } from "./band-picker";
 import { SlideThumb } from "./slide-view";
 
-const BTN = "min-h-11 min-w-11 rounded-md border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e3efec] disabled:opacity-40";
+const BTN = "min-h-11 min-w-11 rounded-control border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e7e9ef] disabled:opacity-40";
 
 /**
  * The teacher's window: the current slide, the next one, notes and a timer.
@@ -51,17 +51,17 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
   const live = state?.type === "state" ? state : null;
 
   return (
-    <div className="min-h-dvh bg-[#f7f5f0] p-4 text-[#1f2a37]">
+    <div className="min-h-dvh bg-[#fbfaf6] p-4 text-[#1b1a17]">
       <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl font-semibold">Presenter window</h1>
-          <p className="text-sm text-[#4a5663]">{title}</p>
+          <h1 className="font-serif text-2xl font-normal">Presenter window</h1>
+          <p className="text-sm text-[#55524b]">{title}</p>
         </div>
         <p className="font-mono text-2xl" aria-label={`Elapsed time ${mm} minutes ${ss} seconds`}>{mm}:{ss}</p>
       </header>
 
       {!live ? (
-        <p role="status" className="mx-auto mt-10 max-w-xl rounded-lg border border-[#e2ded3] bg-white p-6 text-center text-lg">
+        <p role="status" className="mx-auto mt-10 max-w-xl rounded-control border border-[#d9d4c7] bg-white p-6 text-center text-lg">
           Waiting for the class screen. Open “Present to class” in another window on this computer, and this window will follow it.
         </p>
       ) : (
@@ -77,20 +77,20 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
           </section>
           <section aria-label="Next slide and class settings" className="grid content-start gap-4">
             <div>
-              <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">Up next</h2>
+              <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1c2a47]">Up next</h2>
               {live.next ? (
                 <div aria-hidden="true">
                   <SlideThumb slide={live.next} size={live.size} band={live.band} theme={live.theme} stage={live.stage} />
                 </div>
               ) : (
-                <p className="rounded-lg border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
+                <p className="rounded-control border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
               )}
             </div>
             <div>
-              <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">Reading level</h2>
+              <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1c2a47]">Reading level</h2>
               <BandPicker compact name="band-presenter" value={live.band} written={live.writtenBands} onChange={(band) => send({ type: "band", band })} />
             </div>
-            {notesSlot ? <div><h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">My notes</h2>{notesSlot}</div> : null}
+            {notesSlot ? <div><h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1c2a47]">My notes</h2>{notesSlot}</div> : null}
           </section>
         </div>
       )}

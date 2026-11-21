@@ -39,11 +39,11 @@ export function Modal({ open, onClose, title, description, children, footer }: M
         // Clicks on the backdrop target the dialog element itself.
         if (event.target === event.currentTarget) onClose();
       }}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-card border border-line bg-surface p-0 text-ink shadow-xl backdrop:bg-night/60"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-card border border-ink/70 bg-surface p-0 text-ink outline outline-1 outline-offset-4 outline-line backdrop:bg-brand/60"
     >
       <div className="p-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 id={titleId} className="font-serif text-2xl font-semibold">
+          <h2 id={titleId} className="font-serif text-2xl font-normal">
             {title}
           </h2>
           <button

@@ -35,7 +35,7 @@ export function Composer({ devotionalId }: { devotionalId: string }) {
 
   return (
     <form ref={formRef} action={action} className="grid gap-4 rounded-card border border-line bg-surface p-5" aria-labelledby="composer-title">
-      <h3 id="composer-title" className="font-serif text-xl font-semibold">Add to the conversation</h3>
+      <h3 id="composer-title" className="font-serif text-xl font-normal">Add to the conversation</h3>
       <input type="hidden" name="devotionalId" value={devotionalId} />
 
       <fieldset>
