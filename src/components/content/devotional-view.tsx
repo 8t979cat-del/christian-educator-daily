@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SITE } from "@/lib/site";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { Badge } from "@/components/ui/feedback";
 import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
@@ -129,7 +130,7 @@ export function DevotionalView({
             </>
           ) : null}
         </dl>
-        <p className="mt-6 hidden print:block">Christian Educator Daily</p>
+        <p className="mt-6 hidden print:block">{SITE.name}</p>
       </footer>
     </article>
   );

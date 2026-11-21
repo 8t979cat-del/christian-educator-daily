@@ -1,10 +1,12 @@
 import type { IconName } from "@/components/ui/icon";
 
 export const SITE = {
-  name: "Christian Educator Daily",
-  shortName: "CED",
+  name: "Everyday Devotional: 180 Days",
+  /** The wordmark and its numeral mark, set together in the logo. */
+  wordmark: "Everyday Devotional",
+  mark: "180",
   description:
-    "A daily devotional and school-ministry platform for Christian teachers, administrators and schools.",
+    "A classroom devotional for every day of the school year, at your students' reading level, ready to present in a minute.",
 } as const;
 
 export type NavItem = { href: string; label: string; icon: IconName };

@@ -12,7 +12,9 @@ import { PrintSlides } from "./print-slides";
 import { SettingsPanel } from "./settings-panel";
 import { SlideView, themeVars } from "./slide-view";
 
-const STORAGE_KEY = "ced-present-v2";
+// Settings saved under the old key carry over once (see loadSettings).
+const STORAGE_KEY = "ed180-present-v3";
+const OLD_STORAGE_KEY = "ced-present-v2";
 const IDLE_MS = 3000;
 /** The size of the printed page's slide area, in CSS pixels (landscape Letter, minus margins). */
 const PRINT_STAGE: Stage = { width: 864, height: 560 };
@@ -21,7 +23,7 @@ const quantize = (n: number) => Math.max(160, Math.round(n / 24) * 24);
 
 function loadSettings(): PresentSettings {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(OLD_STORAGE_KEY);
     if (raw) return parseSettings(JSON.parse(raw));
   } catch { /* storage unavailable or corrupt: use defaults */ }
   return parseSettings(null);
@@ -152,7 +154,7 @@ export function PresentMode({
   const changeSize = useCallback((delta: number) => setSettings((s) => ({ ...s, size: Math.min(SIZE_SCALES.length - 1, Math.max(0, s.size + delta)) })), []);
 
   const openPresenter = useCallback(() => {
-    window.open(presenterHref, "ced-presenter", "popup=yes,width=1100,height=760");
+    window.open(presenterHref, "ed180-presenter", "popup=yes,width=1100,height=760");
   }, [presenterHref]);
 
   const leave = useCallback(() => {

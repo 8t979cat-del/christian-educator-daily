@@ -1,6 +1,6 @@
 # Administration, moderation and governance
 
-This guide is for the people who run Christian Educator Daily: administrators, editors, moderators, and school leaders. It describes what each role can do, how the tools work, and what is **not** done for you. Everything below is enforced in the database (migration `0007_governance.sql` and earlier); hiding a button on a page is a courtesy, never the rule.
+This guide is for the people who run Everyday Devotional: 180 Days: administrators, editors, moderators, and school leaders. It describes what each role can do, how the tools work, and what is **not** done for you. Everything below is enforced in the database (migration `0007_governance.sql` and earlier); hiding a button on a page is a courtesy, never the rule.
 
 ## 1. Roles and permissions
 

@@ -18,4 +18,4 @@ export type PresenterCommand =
   | { type: "goto"; index: number }
   | { type: "band"; band: GradeBand };
 
-export const channelName = (devotionalId: string) => `ced-present:${devotionalId}`;
+export const channelName = (devotionalId: string) => `ed180-present:${devotionalId}`;

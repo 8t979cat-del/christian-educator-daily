@@ -32,7 +32,7 @@ export default async function AccountStatusPage() {
         <Heading level={1} size={2}>{status.status === "terminated" ? "Your account has been closed" : "Your account is paused"}</Heading>
         <Text className="mt-2" muted>
           {status.status === "terminated"
-            ? "A platform administrator closed this account. You cannot use Christian Educator Daily unless the decision is reversed."
+            ? "A platform administrator closed this account. You cannot use Everyday Devotional unless the decision is reversed."
             : `A platform administrator paused this account${status.until ? ` until ${formatWhen(status.until, tz)}` : ""}. It reopens by itself then.`}
         </Text>
       </div>

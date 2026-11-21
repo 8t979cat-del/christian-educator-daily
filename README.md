@@ -1,4 +1,6 @@
-# Christian Educator Daily
+# Everyday Devotional: 180 Days
+
+(Formerly "Christian Educator Daily". The repository and package keep the old name.)
 
 Application foundation for the Christian Educator Daily platform: Next.js (App Router), TypeScript, Tailwind CSS v4 and Supabase.
 
