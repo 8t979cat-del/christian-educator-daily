@@ -72,6 +72,25 @@ export async function proxy(request: NextRequest) {
     return redirect;
   };
 
+  // An email link that landed on the home page instead of /auth/callback (Supabase sends people to the
+  // Site URL when the callback address is not on its redirect allow-list). Finish it properly.
+  const params = request.nextUrl.searchParams;
+  if (path === "/" && (params.has("code") || params.has("token_hash"))) {
+    const callback = request.nextUrl.clone();
+    callback.pathname = "/auth/callback";
+    if (!params.has("next")) callback.searchParams.set("next", "/onboarding");
+    if (!params.has("flow") && params.get("type") !== "recovery") callback.searchParams.set("flow", "verify");
+    return redirectTo(callback);
+  }
+
+  // Signed-in people who open the home page go straight to their dashboard.
+  if (signedIn && path === "/") {
+    const today = request.nextUrl.clone();
+    today.pathname = "/today";
+    today.search = "";
+    return redirectTo(today);
+  }
+
   if (!signedIn && matches(path, PROTECTED_PREFIXES)) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
