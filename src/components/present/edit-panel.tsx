@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { deleteVersionAction, relevelAction, saveVersionAction } from "@/app/actions/ai";
 import { docToText, textToDoc } from "@/lib/content/editable";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
-import { AiCounter, OUT_OF_REQUESTS } from "./ai-counter";
+import { AiCounter, OUT_OF_REQUESTS, isUnlimited } from "./ai-counter";
 import { BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type LevelVersion } from "@/lib/content/levels";
 
 export type AiTools = {
@@ -53,7 +53,7 @@ export function EditPanel({
   const [status, setStatus] = useState<{ tone: "info" | "error"; message: string } | null>(null);
   const [pending, start] = useTransition();
   const [quota, setQuota] = useState<AiQuota | null>(tools.quota);
-  const outOfRequests = quota !== null && quota.remaining <= 0;
+  const outOfRequests = quota !== null && !isUnlimited(quota) && quota.remaining <= 0;
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;

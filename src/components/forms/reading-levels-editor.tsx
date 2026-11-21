@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState, useTransition, type KeyboardEvent } from "react";
 import { draftLevelForEditorAction } from "@/app/actions/ai";
-import { AiCounter, OUT_OF_REQUESTS } from "@/components/present/ai-counter";
+import { AiCounter, OUT_OF_REQUESTS, isUnlimited } from "@/components/present/ai-counter";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
 import { RichTextEditor } from "@/components/content/rich-text-editor";
 import { BANDS, BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type Levels, type LevelVersion } from "@/lib/content/levels";
@@ -40,7 +40,7 @@ export function ReadingLevelsEditor({
   const [status, setStatus] = useState<Partial<Record<GradeBand, { tone: "info" | "error"; message: string }>>>({});
   const [quota, setQuota] = useState<AiQuota | null>(ai?.quota ?? null);
   const [pending, start] = useTransition();
-  const outOfRequests = quota !== null && quota.remaining <= 0;
+  const outOfRequests = quota !== null && !isUnlimited(quota) && quota.remaining <= 0;
 
   /** Reads a field of the surrounding devotional form as it is now (saved or not). */
   const formValue = (name: string): string => {
