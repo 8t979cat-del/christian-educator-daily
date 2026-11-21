@@ -75,18 +75,17 @@ export function requireSupabaseEnv(): { url: string; anonKey: string } {
   return { url: env.NEXT_PUBLIC_SUPABASE_URL, anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY };
 }
 
+/** The site's one time zone: Pacific Time (PST in winter, PDT in summer). */
+export const SITE_TIME_ZONE = "America/Los_Angeles";
+
 /**
- * The time zone that defines "today" for devotionals and when scheduled
- * devotionals go live. Any IANA name; invalid values fall back to the default.
+ * The time zone that defines "today" for devotionals, when scheduled devotionals go
+ * live, and how times are shown. Fixed to Pacific Time: an older
+ * NEXT_PUBLIC_SITE_TIMEZONE setting on the host is ignored, so it can't move the site
+ * back to another zone.
  */
 export function getSiteTimeZone(): string {
-  const zone = blank(process.env.NEXT_PUBLIC_SITE_TIMEZONE) ?? "America/Los_Angeles";
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: zone });
-    return zone;
-  } catch {
-    return "America/Los_Angeles";
-  }
+  return SITE_TIME_ZONE;
 }
 
 /**

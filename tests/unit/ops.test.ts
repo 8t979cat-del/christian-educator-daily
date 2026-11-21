@@ -5,7 +5,7 @@ import { reportError, resetReportLimiter } from "@/lib/ops/report";
 
 const jwt = (role: string) => `h.${Buffer.from(JSON.stringify({ role })).toString("base64url")}.s`;
 const good = {
-  APP_ENV: "production", NEXT_PUBLIC_SITE_URL: "https://www.example.org", NEXT_PUBLIC_SITE_TIMEZONE: "America/Chicago",
+  APP_ENV: "production", NEXT_PUBLIC_SITE_URL: "https://www.example.org", NEXT_PUBLIC_SITE_TIMEZONE: "America/Los_Angeles",
   NEXT_PUBLIC_SUPABASE_URL: "https://abc.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: jwt("anon"), SUPABASE_SERVICE_ROLE_KEY: jwt("service_role"),
   STRIPE_SECRET_KEY: "sk_live_abc", STRIPE_WEBHOOK_SECRET: "whsec_abc", CRON_SECRET: "x".repeat(40), ERROR_REPORT_URL: "https://hooks.example.org/e",
 };
@@ -43,7 +43,7 @@ describe("environment check", () => {
     expect(level({ ...good, CRON_SECRET: undefined }, "CRON_SECRET")).toEqual(["error"]);
     expect(level({ ...good, ERROR_REPORT_URL: undefined }, "ERROR_REPORT_URL")).toEqual(["error"]);
     expect(level({ ...good, SUPABASE_SERVICE_ROLE_KEY: undefined }, "SUPABASE_SERVICE_ROLE_KEY")).toEqual(["error"]);
-    expect(level({ ...good, NEXT_PUBLIC_SITE_TIMEZONE: "Mars/Base" }, "NEXT_PUBLIC_SITE_TIMEZONE")).toEqual(["error"]);
+    expect(level({ ...good, NEXT_PUBLIC_SITE_TIMEZONE: "America/New_York" }, "NEXT_PUBLIC_SITE_TIMEZONE")).toEqual(["warning"]);
     expect(checkEnvironment({ ...good, APP_ENV: undefined }).ok).toBe(false);
   });
   it("is relaxed in development", () => {

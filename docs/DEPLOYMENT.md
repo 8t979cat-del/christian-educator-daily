@@ -29,7 +29,7 @@ Never point staging at the production database. Never put live Stripe keys anywh
 |---|---|---|
 | `APP_ENV` | all | `development`, `staging` or `production` |
 | `NEXT_PUBLIC_SITE_URL` | all | https and not localhost in staging/production |
-| `NEXT_PUBLIC_SITE_TIMEZONE` | all | IANA name; defaults to `America/Los_Angeles` (Pacific Time); decides when "today" changes |
+| `NEXT_PUBLIC_SITE_TIMEZONE` | none | No longer used: the site always runs on Pacific Time (`src/lib/env.ts`). Delete it if set. |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | the anon key is public by design; RLS protects data |
 | `SUPABASE_SERVICE_ROLE_KEY` | server | required in production (webhook, retention) |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | server | **leave blank until live billing is approved** |

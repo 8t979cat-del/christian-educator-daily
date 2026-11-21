@@ -96,12 +96,10 @@ export function checkEnvironment(env: Env): EnvReport {
   else if (!report.startsWith("https://")) add("ERROR_REPORT_URL", "error", "Must be an https URL.");
   else add("ERROR_REPORT_URL", "ok", "Set.");
 
-  // Time zone
+  // Time zone: fixed to Pacific Time in code (src/lib/env.ts); a host setting no longer applies.
   const tz = env.NEXT_PUBLIC_SITE_TIMEZONE?.trim();
-  if (has(tz)) {
-    try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); add("NEXT_PUBLIC_SITE_TIMEZONE", "ok", "Valid."); }
-    catch { add("NEXT_PUBLIC_SITE_TIMEZONE", "error", "Not a valid IANA time zone, so devotionals would go live at the wrong hour."); }
-  } else add("NEXT_PUBLIC_SITE_TIMEZONE", "warning", "Not set; defaults to America/Los_Angeles (Pacific Time).");
+  if (has(tz) && tz !== "America/Los_Angeles") add("NEXT_PUBLIC_SITE_TIMEZONE", "warning", `Set to ${tz}, but the site always uses Pacific Time (America/Los_Angeles). You can delete this setting.`);
+  else add("NEXT_PUBLIC_SITE_TIMEZONE", "ok", "The site uses Pacific Time (America/Los_Angeles).");
 
   const errors = checks.filter((c) => c.level === "error").length;
   const warnings = checks.filter((c) => c.level === "warning").length;
