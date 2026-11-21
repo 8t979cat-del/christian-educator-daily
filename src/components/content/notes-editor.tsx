@@ -46,11 +46,11 @@ export function NotesEditor({ devotionalId, initial }: { devotionalId: string; i
     status === "saving" ? "Saving…" : status === "dirty" ? "Unsaved changes" : status === "error" ? error : text ? "Saved" : "";
 
   return (
-    <section aria-labelledby="notes-title" className="rounded-card border border-line bg-surface p-6 print:hidden md:p-8">
+    <section aria-labelledby="notes-title" className="border-t-4 border-double border-ink/70 pt-6 print:hidden">
       <h2 id="notes-title" className="font-serif text-xl font-normal md:text-2xl">
         My notes
       </h2>
-      <p className="mt-1 text-sm text-muted">Private to you. Not shown to colleagues, your school or anyone else.</p>
+      <p className="mt-1 font-serif text-sm italic text-muted">Private to you. Not shown to colleagues, your school or anyone else.</p>
       <label htmlFor="note-box" className="sr-only">
         My notes for this devotional
       </label>
