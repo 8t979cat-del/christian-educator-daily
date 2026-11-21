@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { docToText, textToDoc } from "@/lib/content/editable";
 import { bandsWithVersion, textForBand, toLevels } from "@/lib/content/levels";
 import { richTextToPlain } from "@/lib/content/richtext";
 import { devotionalSchema, levelFieldName } from "@/lib/content/schemas";
@@ -52,5 +53,14 @@ describe("devotional form: reading levels", () => {
   it("rejects a band's text that is not valid rich text", () => {
     const result = devotionalSchema.safeParse({ ...base, [levelFieldName("g912", "reflection")]: "{not json" });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("plain-text editing of presentation text", () => {
+  it("round-trips paragraphs and flattens lists to paragraphs", () => {
+    expect(docToText(textToDoc("First paragraph.\n\nSecond one.\n\n\n"))).toBe("First paragraph.\n\nSecond one.");
+    const list = { type: "doc" as const, content: [{ type: "bulletList" as const, content: [{ type: "listItem" as const, content: [doc("One")["content"][0]!] }] }] };
+    expect(docToText(list as never)).toBe("One");
+    expect(textToDoc("   ").content).toHaveLength(0);
   });
 });

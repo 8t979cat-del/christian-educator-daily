@@ -6,7 +6,8 @@ import {
   DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
   type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
-import { BAND_SHORT, bandsWithVersion } from "@/lib/content/levels";
+import { BAND_SHORT, bandsWithVersion, textForBand, type LevelVersion } from "@/lib/content/levels";
+import { EditPanel, type AiTools } from "./edit-panel";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
 import { PrintSlides } from "./print-slides";
 import { SettingsPanel } from "./settings-panel";
@@ -30,8 +31,12 @@ function loadSettings(): PresentSettings {
 }
 
 export function PresentMode({
-  content, exitHref, devotionalId, notesSlot, title, presenterHref,
+  content, exitHref, devotionalId, notesSlot, title, presenterHref, tools, savedVersions,
 }: {
+  /** Signed-in teachers: editing, saving and AI re-leveling (enabled by plan). */
+  tools?: AiTools;
+  /** The teacher's saved versions, keyed by reading level ("standard" for the standard text). */
+  savedVersions?: Partial<Record<string, Required<LevelVersion>>>;
   content: PresentContent;
   exitHref: string;
   devotionalId: string;
@@ -44,7 +49,10 @@ export function PresentMode({
   const [ready, setReady] = useState(false);
   const [stageSize, setStageSize] = useState<Stage>({ width: 1152, height: 648 });
   const [index, setIndex] = useState(0);
-  const [panel, setPanel] = useState<"none" | "settings" | "notes">("none");
+  const [panel, setPanel] = useState<"none" | "settings" | "notes" | "edit">("none");
+  // The teacher's own text per reading level: saved versions, plus edits shown this session.
+  const [overrides, setOverrides] = useState<Partial<Record<string, Required<LevelVersion>>>>(() => ({ ...savedVersions }));
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(() => new Set(Object.keys(savedVersions ?? {})));
   const [chrome, setChrome] = useState(true);
   const [blank, setBlank] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -80,9 +88,21 @@ export function PresentMode({
     return () => observer.disconnect();
   }, []);
 
-  const slides = useMemo(() => buildSlides(content, settings, stageSize), [content, settings, stageSize]);
+  const versionKey = settings.band ?? "standard";
+  const effective = useMemo<PresentContent>(() => {
+    const o = overrides[versionKey];
+    if (!o) return content;
+    if (settings.band) return { ...content, levels: { ...content.levels, [settings.band]: o } };
+    return { ...content, reflection: o.reflection, discussion: o.discussion_question, practice: o.practical_application, prayer: o.prayer };
+  }, [content, overrides, versionKey, settings.band]);
+  const slides = useMemo(() => buildSlides(effective, settings, stageSize), [effective, settings, stageSize]);
   const writtenBands = useMemo(() => bandsWithVersion(content.levels), [content.levels]);
-  const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, PRINT_STAGE), [content, settings]);
+  const printSlides = useMemo(() => buildSlides(effective, { ...settings, size: 1 }, PRINT_STAGE), [effective, settings]);
+  const currentText = useMemo(() => {
+    const standard = { reflection: effective.reflection, discussion_question: effective.discussion, practical_application: effective.practice, prayer: effective.prayer };
+    const t = settings.band ? textForBand(standard, effective.levels, settings.band) : standard;
+    return { reflection: t.reflection, discussion_question: t.discussion_question, practical_application: t.practical_application, prayer: t.prayer };
+  }, [effective, settings.band]);
 
   // When the slide list is rebuilt, stay on the same part of the lesson.
   const lastSlides = useRef(slides);
@@ -169,7 +189,7 @@ export function PresentMode({
       const target = e.target as HTMLElement | null;
       const typing = target?.matches("input[type=text],input[type=search],textarea,select,[contenteditable=true]");
       if (typing) return;
-      if (panel === "settings") return; // the panel handles its own Escape
+      if (panel === "settings" || panel === "edit") return; // the panel handles its own Escape
       if (e.key === "Escape") {
         if (panel === "notes") setPanel("none");
         else if (!document.fullscreenElement) leave();
@@ -264,6 +284,7 @@ export function PresentMode({
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Larger text" onClick={() => changeSize(1)} disabled={settings.size === SIZE_SCALES.length - 1}>A+</button>
+            {tools ? <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("edit")}>Edit</button> : null}
             {notesSlot ? <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={panel === "notes"} onClick={() => setPanel((p) => (p === "notes" ? "none" : "notes"))}>Notes</button> : null}
             <button type="button" className={btn} onClick={() => setPanel("settings")}>Settings</button>
             <button type="button" className={`${btn} max-sm:hidden`} onClick={toggleFullscreen} aria-pressed={fullscreen}>{fullscreen ? "Exit full screen" : "Full screen"}</button>
@@ -324,6 +345,22 @@ export function PresentMode({
             <button type="button" onClick={openPresenter} className="mt-3 min-h-11 rounded-md border border-[#777] px-3 text-sm font-semibold">Open presenter window</button>
             <div className="mt-4">{notesSlot}</div>
           </aside>
+        ) : null}
+
+        {panel === "edit" && tools ? (
+          <EditPanel
+            band={settings.band}
+            current={currentText}
+            saved={savedKeys.has(versionKey)}
+            tools={tools}
+            onApply={(v) => setOverrides((o) => ({ ...o, [versionKey]: v }))}
+            onSaved={(v) => { setOverrides((o) => ({ ...o, [versionKey]: v })); setSavedKeys((k) => new Set(k).add(versionKey)); }}
+            onReset={() => {
+              setOverrides((o) => { const next = { ...o }; delete next[versionKey]; return next; });
+              setSavedKeys((k) => { const next = new Set(k); next.delete(versionKey); return next; });
+            }}
+            onClose={() => setPanel("none")}
+          />
         ) : null}
 
         {panel === "settings" ? (

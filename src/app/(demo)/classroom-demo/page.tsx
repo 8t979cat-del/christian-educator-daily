@@ -45,8 +45,8 @@ const PASSAGES: Record<string, { reference: string; text: string }> = {
   },
 };
 
-export default async function PresentDemo({ searchParams }: { searchParams: Promise<{ p?: string; view?: string; text?: string }> }) {
-  const { p, view, text } = await searchParams;
+export default async function PresentDemo({ searchParams }: { searchParams: Promise<{ p?: string; view?: string; text?: string; tools?: string }> }) {
+  const { p, view, text, tools } = await searchParams;
   const passage = PASSAGES[p ?? "psalm23"] ?? PASSAGES.psalm23!;
   const referenceOnly = text === "no";
   const content: PresentContent = {
@@ -99,5 +99,7 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
   // The home page's built-in presenter, with sample content (for checking it without a database).
   if (view === "inline") return <main className="mx-auto max-w-5xl p-6"><InlinePresenter content={{ ...content, levels: {} }} /></main>;
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
-  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes} />;
+  return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes}
+    // ?tools=plus shows the Plus editing tools (the AI is not connected in the demo, and nothing can be saved).
+    tools={tools === "plus" ? { allowed: true, configured: false, devotionalId: "demo" } : tools === "free" ? { allowed: false, configured: false, devotionalId: "demo" } : undefined} />;
 }

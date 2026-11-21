@@ -49,6 +49,8 @@ const securityHeaders = (): { key: string; value: string }[] => [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The bundled public-domain Bible (read with fs when AI writes a devotional) must ship with the server code.
+  outputFileTracingIncludes: { "/**": ["./data/kjv.json"] },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders() }];
   },
