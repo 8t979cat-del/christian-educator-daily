@@ -12,6 +12,7 @@ import { idleState } from "@/lib/auth/form-state";
 import { AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORIES, GRADE_BANDS } from "@/lib/content/options";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import type { DevotionalRecord } from "@/lib/content/types";
+import { ReadingLevelsEditor } from "./reading-levels-editor";
 import { FormMessage, listValue, stringValue, SubmitButton } from "./shared";
 
 export type TranslationOption = {
@@ -171,6 +172,7 @@ export function DevotionalForm({
           <Heading level={2} size={4}>
             Devotional text
           </Heading>
+          <p className="mt-2 text-sm text-muted">The standard version. Every reading level uses it unless you write that level its own version below.</p>
           <div className="mt-5 grid gap-8">
             <RichTextEditor name="reflection" label="Reflection" initial={rich("reflection", initial.reflection)} error={fe.reflection} minHeight={14} />
             <RichTextEditor name="prayer" label="Prayer" initial={rich("prayer", initial.prayer)} error={fe.prayer} minHeight={7} />
@@ -188,6 +190,18 @@ export function DevotionalForm({
               error={fe.practicalApplication}
               minHeight={7}
             />
+          </div>
+        </Card>
+
+        <Card padding="lg">
+          <Heading level={2} size={4}>
+            Reading levels
+          </Heading>
+          <p className="mt-2 text-sm text-muted">
+            The same Scripture, written for each age. Teachers choose their students&apos; level when they present.
+          </p>
+          <div className="mt-5">
+            <ReadingLevelsEditor initial={initial.levels ?? {}} echoed={state.values} errors={fe} />
           </div>
         </Card>
 

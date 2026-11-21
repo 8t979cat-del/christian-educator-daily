@@ -6,6 +6,7 @@ import {
   DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
   type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
+import { BAND_SHORT, bandsWithVersion } from "@/lib/content/levels";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
 import { PrintSlides } from "./print-slides";
 import { SettingsPanel } from "./settings-panel";
@@ -78,6 +79,7 @@ export function PresentMode({
   }, []);
 
   const slides = useMemo(() => buildSlides(content, settings, stageSize), [content, settings, stageSize]);
+  const writtenBands = useMemo(() => bandsWithVersion(content.levels), [content.levels]);
   const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, PRINT_STAGE), [content, settings]);
 
   // When the slide list is rebuilt, stay on the same part of the lesson.
@@ -202,6 +204,7 @@ export function PresentMode({
       const m = event.data;
       if (m.type === "hello") ch.postMessage(stateRef.current);
       else if (m.type === "goto") goTo(m.index);
+      else if (m.type === "band") setSettings((s) => ({ ...s, band: m.band }));
       else if (m.type === "cmd") {
         if (m.cmd === "next") go(1);
         else if (m.cmd === "prev") go(-1);
@@ -217,10 +220,10 @@ export function PresentMode({
   }, [devotionalId, go, goTo, slides.length]);
   useEffect(() => {
     stateRef.current = slide
-      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, simple: settings.simple, blank, stage: stageSize }
+      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, band: settings.band, writtenBands, blank, stage: stageSize }
       : { type: "empty" };
     channel.current?.postMessage(stateRef.current);
-  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.simple, blank, stageSize]);
+  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.band, writtenBands, blank, stageSize]);
 
   const printNow = useCallback(() => {
     setPanel("none");
@@ -251,7 +254,10 @@ export function PresentMode({
         <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2">
           <div className={bar}>
             <Link href={exitHref} onClick={(e) => { e.preventDefault(); leave(); }} className={btn}>← Exit</Link>
-            <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={settings.simple} onClick={() => setSettings((s) => ({ ...s, simple: !s.simple }))}>Younger students</button>
+            {/* The reading level is chosen once, in settings or the presenter window; this only shows it. */}
+            <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("settings")} aria-label={settings.band ? `Reading level: grades ${BAND_SHORT[settings.band]}. Change in settings.` : "Choose a reading level in settings"}>
+              {settings.band ? `Grades ${BAND_SHORT[settings.band]}` : "Choose reading level"}
+            </button>
           </div>
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
@@ -264,7 +270,7 @@ export function PresentMode({
 
         <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] py-14" aria-label={slide ? slide.label : "Presentation"}>
           {slide ? (
-            <SlideView slide={slide} size={settings.size} simple={settings.simple} />
+            <SlideView slide={slide} size={settings.size} band={settings.band} />
           ) : (
             <div className="grid h-full place-items-center text-center">
               <div>
@@ -326,6 +332,7 @@ export function PresentMode({
             onPrint={printNow}
             hasTheme={Boolean(content.theme)}
             hasPassageText={hasPassageText}
+            writtenBands={writtenBands}
             onOpenPresenter={openPresenter}
           />
         ) : null}

@@ -2,7 +2,8 @@
 
 import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { RichTextView } from "@/components/content/rich-text-view";
-import { PRESENT_THEMES, SIZE_SCALES, type Slide, type Stage, type ThemeId } from "@/lib/content/present";
+import type { GradeBand } from "@/lib/content/levels";
+import { PRESENT_THEMES, SIZE_SCALES, bandScale, isYoungest, type Slide, type Stage, type ThemeId } from "@/lib/content/present";
 import { FitText } from "./fit-text";
 
 export function themeVars(theme: ThemeId): CSSProperties {
@@ -14,10 +15,11 @@ const accent: CSSProperties = { color: "var(--p-accent)" };
 const muted: CSSProperties = { color: "var(--p-muted)" };
 
 /** One slide, filling whatever box it is placed in. Used full screen, in the presenter window, and as the "next slide" preview. */
-export function SlideView({ slide, size, simple }: { slide: Slide; size: number; simple: boolean }) {
-  const scale = (SIZE_SCALES[size] ?? 1) * (simple ? 1.15 : 1);
+export function SlideView({ slide, size, band }: { slide: Slide; size: number; band: GradeBand | null }) {
+  const simple = isYoungest(band);
+  const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
   const b = slide.body;
-  const fitKey = `${slide.key}|${size}|${simple}`;
+  const fitKey = `${slide.key}|${size}|${band}`;
   const eyebrow = "font-semibold uppercase tracking-[0.12em] text-[0.45em]";
 
   switch (b.kind) {
@@ -89,7 +91,7 @@ export function SlideView({ slide, size, simple }: { slide: Slide; size: number;
  * screen's own size, then scaled down, so the preview shows exactly what the
  * room sees instead of re-fitting the text into a small box.
  */
-export function SlideThumb({ slide, size, simple, theme, stage }: { slide: Slide; size: number; simple: boolean; theme: ThemeId; stage: Stage }) {
+export function SlideThumb({ slide, size, band, theme, stage }: { slide: Slide; size: number; band: GradeBand | null; theme: ThemeId; stage: Stage }) {
   const box = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   // The class screen's margin around the slide, so the miniature has the same breathing room.
@@ -108,7 +110,7 @@ export function SlideThumb({ slide, size, simple, theme, stage }: { slide: Slide
   return (
     <div ref={box} className="present-stage relative w-full overflow-hidden rounded-lg border border-[#6b7480]" style={{ ...themeVars(theme), aspectRatio: `${outerW} / ${outerH}` }}>
       <div className="absolute left-0 top-0 origin-top-left" style={{ width: outerW, height: outerH, padding: pad, transform: `scale(${scale})`, visibility: scale ? "visible" : "hidden" }}>
-        <SlideView slide={slide} size={size} simple={simple} />
+        <SlideView slide={slide} size={size} band={band} />
       </div>
     </div>
   );

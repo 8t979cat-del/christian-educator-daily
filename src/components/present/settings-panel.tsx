@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { GradeBand } from "@/lib/content/levels";
+import { BandPicker } from "./band-picker";
 import { PRESENT_THEMES, SECTION_IDS, SECTION_LABELS, SIZE_SCALES, THEME_IDS, type PresentSettings, type SectionId } from "@/lib/content/present";
 
 const BTN = "min-h-11 rounded-md border border-current/40 px-3 text-sm font-semibold hover:bg-black/10";
 
 /** What to show, how it looks, and print. Opens over the slide; Esc closes it. */
 export function SettingsPanel({
-  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter,
+  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter, writtenBands,
 }: {
+  writtenBands: GradeBand[];
   settings: PresentSettings;
   onChange: (next: PresentSettings) => void;
   onClose: () => void;
@@ -49,6 +52,17 @@ export function SettingsPanel({
         </div>
 
         <fieldset className="mt-6">
+          <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Reading level</legend>
+          <div className="mt-2">
+            <BandPicker compact name="band-settings" value={settings.band} written={writtenBands} onChange={(band) => set("band", band)} />
+          </div>
+          <p className="mt-2 text-sm text-[#333]">
+            {settings.band
+              ? "Same Scripture for every age. Younger levels get larger letters, and the youngest get simpler headings."
+              : "Choose your students’ level. Until you do, the standard text is shown."}
+          </p>
+        </fieldset>
+        <fieldset className="mt-6">
           <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Slides to show</legend>
           <ul className="mt-2 grid gap-1">
             {SECTION_IDS.map((id) => (
@@ -75,11 +89,6 @@ export function SettingsPanel({
           </p>
         </fieldset>
 
-        <fieldset className="mt-6">
-          <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Audience</legend>
-          <label className="flex min-h-11 items-center gap-3"><input type="checkbox" className="size-5" checked={settings.simple} onChange={() => set("simple", !settings.simple)} />Younger students</label>
-          <p className="text-sm text-[#333]">Larger type, friendlier headings, and shorter slides with fewer words each.</p>
-        </fieldset>
 
         <fieldset className="mt-6">
           <legend className="text-sm font-bold uppercase tracking-wider text-[#0b4f49]">Background</legend>

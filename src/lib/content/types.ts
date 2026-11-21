@@ -1,5 +1,6 @@
 import { EMPTY_DOC, sanitizeRichDoc, type RichDoc } from "./richtext";
 import type { DevotionalStatus } from "./options";
+import { toLevels, type Levels } from "./levels";
 
 export type DevotionalRecord = {
   id: string;
@@ -15,6 +16,8 @@ export type DevotionalRecord = {
   prayer: RichDoc;
   discussion_question: RichDoc;
   practical_application: RichDoc;
+  /** Versions written for an age band; see levels.ts. */
+  levels: Levels;
   audience: string | null;
   access_level: "free" | "plus";
   grade_levels: string[];
@@ -40,6 +43,7 @@ export function toDevotional(row: Record<string, unknown>): DevotionalRecord {
     prayer: doc(row.prayer),
     discussion_question: doc(row.discussion_question),
     practical_application: doc(row.practical_application),
+    levels: toLevels(row.levels),
     grade_levels: Array.isArray(row.grade_levels) ? (row.grade_levels as string[]) : [],
   };
 }

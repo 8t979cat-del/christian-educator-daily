@@ -4,7 +4,8 @@ import { isMonday, isValidIsoDate } from "./dates";
 import {
   AUDIENCE_VALUES, CATEGORY_SLUGS, EDUCATIONAL_CATEGORY_VALUES, GRADE_BAND_VALUES,
 } from "./options";
-import { parseRichDoc, type RichDoc } from "./richtext";
+import { BANDS, LEVEL_FIELDS, type Levels } from "./levels";
+import { isRichDocEmpty, parseRichDoc, type RichDoc } from "./richtext";
 import { parseReference } from "./scripture";
 
 const blankToNull = <T extends [string, ...string[]]>(values: T) =>
@@ -18,6 +19,24 @@ const richField = z.string().transform((value, ctx): RichDoc => {
   }
   return doc;
 });
+
+/** A rich-text field that may be left out entirely (an unopened reading-level tab). */
+const optionalRich = z.string().optional().transform((value, ctx): RichDoc | null => {
+  if (value === undefined || value.trim() === "") return null;
+  const doc = parseRichDoc(value);
+  if (!doc) {
+    ctx.addIssue({ code: "custom", message: "This text contains formatting that is not allowed, or is too long." });
+    return z.NEVER;
+  }
+  return isRichDocEmpty(doc) ? null : doc;
+});
+
+/** Form field name for one band's version of one field, e.g. "level_k2_reflection". */
+export const levelFieldName = (band: string, field: string) => `level_${band}_${field}`;
+
+const levelShape = Object.fromEntries(
+  BANDS.flatMap((band) => LEVEL_FIELDS.map((field) => [levelFieldName(band, field), optionalRich])),
+) as Record<string, typeof optionalRich>;
 
 const optionalText = (max: number, label: string) =>
   z.string().trim().max(max, `${label} must be ${max} characters or fewer.`);
@@ -66,11 +85,23 @@ export const devotionalSchema = z
     gradeLevels: z.array(z.enum(GRADE_BAND_VALUES)).max(4),
     educationalCategory: blankToNull(EDUCATIONAL_CATEGORY_VALUES),
     authorName: optionalText(120, "The author name"),
+    ...levelShape,
   })
   .superRefine((value, ctx) => {
     if (value.scriptureText && !value.translationCode) {
       ctx.addIssue({ code: "custom", path: ["translationCode"], message: "Choose the translation this text comes from." });
     }
+  })
+  .transform((value) => {
+    const levels: Levels = {};
+    const record = value as Record<string, unknown>;
+    for (const band of BANDS) {
+      for (const field of LEVEL_FIELDS) {
+        const doc = record[levelFieldName(band, field)] as RichDoc | null;
+        if (doc) (levels[band] ??= {})[field] = doc;
+      }
+    }
+    return { ...value, levels };
   });
 export type DevotionalInput = z.output<typeof devotionalSchema>;
 

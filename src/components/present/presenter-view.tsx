@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
+import { BandPicker } from "./band-picker";
 import { SlideThumb } from "./slide-view";
 
 const BTN = "min-h-11 min-w-11 rounded-md border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e3efec] disabled:opacity-40";
@@ -37,6 +38,8 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
       if ((e.target as HTMLElement | null)?.matches("input,textarea,select,[contenteditable=true]")) return;
       if (e.key === "ArrowRight" || e.key === "PageDown" || (e.key === " " && !(e.target as HTMLElement).matches("button"))) { e.preventDefault(); send({ type: "cmd", cmd: "next" }); }
       else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); send({ type: "cmd", cmd: "prev" }); }
+      else if (e.key === "Home") { e.preventDefault(); send({ type: "cmd", cmd: "first" }); }
+      else if (e.key === "End") { e.preventDefault(); send({ type: "cmd", cmd: "last" }); }
       else if (e.key === "b" || e.key === "B") send({ type: "cmd", cmd: "blank" });
     }
     window.addEventListener("keydown", onKey);
@@ -64,7 +67,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
       ) : (
         <div className="mx-auto mt-4 grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section aria-label="Current slide">
-            <SlideThumb slide={live.current} size={live.size} simple={live.simple} theme={live.theme} stage={live.stage} />
+            <SlideThumb slide={live.current} size={live.size} band={live.band} theme={live.theme} stage={live.stage} />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <button type="button" className={BTN} onClick={() => send({ type: "cmd", cmd: "prev" })} disabled={live.index === 0}>← Back</button>
               <button type="button" className={BTN} onClick={() => send({ type: "cmd", cmd: "next" })} disabled={live.index >= live.total - 1}>Next →</button>
@@ -72,16 +75,20 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
               <p className="ml-auto text-sm font-semibold" aria-live="polite">Slide {live.index + 1} of {live.total} · {live.current.label}</p>
             </div>
           </section>
-          <section aria-label="Next slide" className="grid content-start gap-4">
+          <section aria-label="Next slide and class settings" className="grid content-start gap-4">
             <div>
               <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">Up next</h2>
               {live.next ? (
                 <div aria-hidden="true">
-                  <SlideThumb slide={live.next} size={live.size} simple={live.simple} theme={live.theme} stage={live.stage} />
+                  <SlideThumb slide={live.next} size={live.size} band={live.band} theme={live.theme} stage={live.stage} />
                 </div>
               ) : (
                 <p className="rounded-lg border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
               )}
+            </div>
+            <div>
+              <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">Reading level</h2>
+              <BandPicker compact name="band-presenter" value={live.band} written={live.writtenBands} onChange={(band) => send({ type: "band", band })} />
             </div>
             {notesSlot ? <div><h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">My notes</h2>{notesSlot}</div> : null}
           </section>

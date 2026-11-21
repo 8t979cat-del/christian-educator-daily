@@ -141,6 +141,7 @@ const content = (over: Partial<PresentContent> = {}): PresentContent => ({
   discussion: doc("When have you had to wait for something?"),
   practice: doc("Pause for three breaths before you answer."),
   prayer: doc("Lord, give us patience."),
+  levels: {},
   ...over,
 });
 
@@ -243,10 +244,37 @@ describe("buildSlides", () => {
     expect(slides.at(-1)!.sections).toEqual(["prayer"]);
   });
 
-  it("young-students mode: friendlier headings", () => {
-    const simple = buildSlides(content(), { ...DEFAULT_SETTINGS, simple: true }, wide);
-    const headings = simple.flatMap((s) => (s.body.kind === "rich" ? s.body.parts.map((p) => p.heading) : []));
+  it("the youngest reading level gets friendlier headings", () => {
+    const young = buildSlides(content(), { ...DEFAULT_SETTINGS, band: "k2" }, wide);
+    const headings = young.flatMap((s) => (s.body.kind === "rich" ? s.body.parts.map((p) => p.heading) : []));
     expect(headings).toContain("Let’s pray");
+  });
+
+  it("shows the class's own version of the text for its reading level, and the standard text elsewhere", () => {
+    const c = content({ levels: { k2: { reflection: doc("God is patient with us."), prayer: doc("Thank you, God. Amen.") } } });
+    const plain = (slides: ReturnType<typeof buildSlides>) =>
+      slides.flatMap((s) => (s.body.kind === "rich" ? s.body.parts.map((p) => richTextToPlain(p.doc)) : [])).join(" | ");
+    const k2 = plain(buildSlides(c, { ...DEFAULT_SETTINGS, band: "k2" }, wide));
+    expect(k2).toContain("God is patient with us.");
+    expect(k2).toContain("Thank you, God. Amen.");
+    // Not written for K-2: the standard discussion question and practical step.
+    expect(k2).toContain("When have you had to wait for something?");
+    const g912 = plain(buildSlides(c, { ...DEFAULT_SETTINGS, band: "g912" }, wide));
+    expect(g912).toContain("A short reflection.");
+    expect(plain(buildSlides(c, DEFAULT_SETTINGS, wide))).toContain("A short reflection.");
+  });
+
+  it("a short K-2 version stays on as few slides as the standard text, even with its larger letters", () => {
+    const day = typicalDay();
+    const c = { ...day, levels: { k2: {
+      reflection: doc("Sometimes learning takes a long time. That is okay!", "A shepherd walks slowly so every sheep can keep up. God is patient with us like that."),
+      discussion_question: doc("When did someone wait for you?"),
+      practical_application: doc("Today, wait kindly for a friend."),
+      prayer: doc("Dear God, help me be patient with my friends. Amen."),
+    } } };
+    for (const stage of [XGA, HD]) {
+      expect(buildSlides(c, { ...DEFAULT_SETTINGS, band: "k2" }, stage).length).toBeLessThanOrEqual(buildSlides(day, DEFAULT_SETTINGS, stage).length);
+    }
   });
 
   it("gives every slide a unique key", () => {
@@ -257,14 +285,15 @@ describe("buildSlides", () => {
 
 describe("legibility floor and page capacity", () => {
   it("never lets text fall below about 1/22 of the screen height on a projector", () => {
-    expect(floorPx(XGA, { size: 1, simple: false })).toBeGreaterThanOrEqual(31);
-    expect(floorPx(HD, { size: 1, simple: false })).toBeGreaterThanOrEqual(29);
+    expect(floorPx(XGA, { size: 1, band: null })).toBeGreaterThanOrEqual(31);
+    expect(floorPx(HD, { size: 1, band: "g912" })).toBeGreaterThanOrEqual(29);
   });
-  it("raises the floor for larger text and younger students, and holds less text per slide", () => {
-    const base = pageCapacity("rich", HD, { size: 1, simple: false });
-    expect(pageCapacity("rich", HD, { size: 3, simple: false })).toBeLessThan(base);
-    expect(pageCapacity("rich", HD, { size: 1, simple: true })).toBeLessThan(base);
-    expect(pageCapacity("rich", { width: 100, height: 100 }, { size: 4, simple: true })).toBeGreaterThanOrEqual(60);
+  it("raises the floor for larger text and younger readers, and holds less text per slide", () => {
+    const base = pageCapacity("rich", HD, { size: 1, band: "g68" });
+    expect(pageCapacity("rich", HD, { size: 3, band: "g68" })).toBeLessThan(base);
+    expect(pageCapacity("rich", HD, { size: 1, band: "k2" })).toBeLessThan(pageCapacity("rich", HD, { size: 1, band: "g35" }));
+    expect(pageCapacity("rich", HD, { size: 1, band: "g35" })).toBeLessThan(base);
+    expect(pageCapacity("rich", { width: 100, height: 100 }, { size: 4, band: "k2" })).toBeGreaterThanOrEqual(60);
   });
 });
 
@@ -291,10 +320,15 @@ describe("settings", () => {
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings("x")).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings({ theme: "neon", size: 99, sections: { theme: "no" } })).toEqual(DEFAULT_SETTINGS);
-    const parsed = parseSettings({ theme: "dark", size: 3, simple: true, showReference: false, sections: { practice: false } });
-    expect(parsed).toMatchObject({ theme: "dark", size: 3, simple: true, showReference: false });
+    const parsed = parseSettings({ theme: "dark", size: 3, band: "g68", showReference: false, sections: { practice: false } });
+    expect(parsed).toMatchObject({ theme: "dark", size: 3, band: "g68", showReference: false });
     expect(parsed.sections.practice).toBe(false);
     expect(parsed.sections.title).toBe(true);
+  });
+  it("carries a saved 'younger students' switch over as the K-2 reading level", () => {
+    expect(parseSettings({ simple: true }).band).toBe("k2");
+    expect(parseSettings({ simple: false }).band).toBeNull();
+    expect(parseSettings({ band: "g13" }).band).toBeNull();
   });
   it("does not share state with the defaults", () => {
     parseSettings(null).sections.title = false;

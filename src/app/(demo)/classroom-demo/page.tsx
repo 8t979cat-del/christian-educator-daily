@@ -67,6 +67,27 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     discussion: doc("When did someone's patience with you make a real difference, and what did it feel like?"),
     practice: doc("Before you answer the next question today, pause for three slow breaths."),
     prayer: doc("Lord, give us unhurried hearts. Help us to wait well, to listen first, and to love the people in front of us as you have loved us. Amen."),
+    // Sample versions for two age bands, to show reading levels. The other bands use the text above.
+    levels: {
+      k2: {
+        reflection: doc(
+          "Sometimes learning something new takes a long time. That is okay!",
+          "A shepherd takes care of his sheep. He walks slowly so every sheep can keep up. God is patient with us like that.",
+        ),
+        discussion_question: doc("When did someone wait for you to finish something?"),
+        practical_application: doc("Today, when a friend is slow, wait kindly."),
+        prayer: doc("Dear God, thank you for being patient with me. Help me be patient with my friends. Amen."),
+      },
+      g912: {
+        reflection: doc(
+          "Psalm 23 describes a shepherd who sets the pace by the slowest of the flock: green pastures, still waters, paths walked together rather than raced.",
+          "Patience here is not passivity. It is a decision to stay present with someone, or with a problem, while understanding catches up. That applies to the classmate who needs one more explanation, and to the part of yourself that is still learning.",
+        ),
+        discussion_question: doc("Where does our culture reward speed over patience, and what gets lost when it does?"),
+        practical_application: doc("Notice one moment today when you want to rush someone. Ask one more question instead."),
+        prayer: doc("Lord, slow us down enough to see the people around us. Make us patient with others and honest with ourselves. Amen."),
+      },
+    },
   };
   const notes = (
     <div className="rounded-lg border border-[#e2ded3] bg-white p-4 text-[#111]">

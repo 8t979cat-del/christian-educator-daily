@@ -45,6 +45,7 @@ export async function saveDevotionalAction(_previous: FormState, formData: FormD
     prayer: d.prayer,
     discussion_question: d.discussionQuestion,
     practical_application: d.practicalApplication,
+    levels: d.levels,
     audience: d.audience,
     access_level: d.accessLevel,
     grade_levels: d.gradeLevels,

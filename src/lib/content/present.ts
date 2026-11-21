@@ -4,6 +4,7 @@
  * and long text across several slides so everything stays readable from the back of
  * a room, and holds the display settings and colour themes.
  */
+import { isBand, textForBand, type GradeBand, type Levels } from "./levels";
 import { richTextToPlain, type Block, type Inline, type RichDoc } from "./richtext";
 
 // ---------------------------------------------------------------------------
@@ -39,8 +40,8 @@ export const DEFAULT_SIZE = 1;
 export type PresentSettings = {
   theme: ThemeId;
   size: number;
-  /** Younger students: bigger type, friendlier headings, one small idea per slide. */
-  simple: boolean;
+  /** The students' reading level. Null until the teacher chooses: the standard text is shown. */
+  band: GradeBand | null;
   sections: Record<SectionId, boolean>;
   showReference: boolean;
   showTranslation: boolean;
@@ -49,7 +50,7 @@ export type PresentSettings = {
 export const DEFAULT_SETTINGS: PresentSettings = {
   theme: "white",
   size: DEFAULT_SIZE,
-  simple: false,
+  band: null,
   sections: { theme: true, title: true, scripture: true, reflection: true, discussion: true, practice: true, prayer: true },
   showReference: true,
   showTranslation: true,
@@ -67,7 +68,8 @@ export function parseSettings(raw: unknown): PresentSettings {
   return {
     theme: typeof r.theme === "string" && (THEME_IDS as string[]).includes(r.theme) ? (r.theme as ThemeId) : d.theme,
     size,
-    simple: typeof r.simple === "boolean" ? r.simple : d.simple,
+    // Settings saved before reading levels had a single "younger students" switch.
+    band: isBand(r.band) ? r.band : r.simple === true ? "k2" : d.band,
     sections,
     showReference: typeof r.showReference === "boolean" ? r.showReference : d.showReference,
     showTranslation: typeof r.showTranslation === "boolean" ? r.showTranslation : d.showTranslation,
@@ -285,10 +287,13 @@ export type PresentContent = {
     /** Copyright or public-domain notice that goes with the text. */
     notice: string | null;
   };
+  /** The standard version of the text. */
   reflection: RichDoc;
   discussion: RichDoc;
   practice: RichDoc;
   prayer: RichDoc;
+  /** Versions written for an age band, where an editor has written them. */
+  levels: Levels;
 };
 
 export type SlidePart = { section: SectionId; heading: string; doc: RichDoc };
@@ -320,10 +325,16 @@ export type Stage = { width: number; height: number };
  * the size that stays readable from the back of a classroom on a projector.
  * Larger text settings and the young-students mode raise it.
  */
-export function floorPx(stage: Stage, opts: { size: number; simple: boolean }): number {
+/** Younger readers get larger letters: early readers need bigger type, and their versions are shorter. */
+export const BAND_TYPE_SCALE: Record<GradeBand, number> = { k2: 1.25, g35: 1.1, g68: 1, g912: 1 };
+export const bandScale = (band: GradeBand | null): number => (band ? BAND_TYPE_SCALE[band] : 1);
+/** The youngest band gets the friendlier headings. */
+export const isYoungest = (band: GradeBand | null): boolean => band === "k2";
+
+export function floorPx(stage: Stage, opts: { size: number; band: GradeBand | null }): number {
   const scale = SIZE_SCALES[opts.size] ?? 1;
   const base = Math.min(stage.height * 0.045, stage.width * 0.06);
-  return Math.max(16, base * scale * (opts.simple ? 1.25 : 1));
+  return Math.max(16, base * scale * bandScale(opts.band));
 }
 
 /** Measured proportions of the slide typography: average character width and line height, in em. */
@@ -340,7 +351,7 @@ const FILL = 0.85;
  * Slides are split only when the text would otherwise have to shrink below that
  * floor, so a short devotional stays on as few slides as possible.
  */
-export function pageCapacity(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; simple: boolean; headings?: number }): number {
+export function pageCapacity(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; band: GradeBand | null; headings?: number }): number {
   const m = METRICS[kind];
   const px = floorPx(stage, opts);
   const lineWidth = Math.min(stage.width, m.maxWidthEm * px);
@@ -371,8 +382,12 @@ const HEADINGS = {
  * only when it cannot fit at a readable size.
  */
 export function buildSlides(content: PresentContent, settings: PresentSettings, stage: Stage): Slide[] {
-  const H = settings.simple ? HEADINGS.simple : HEADINGS.normal;
-  const opts = { size: settings.size, simple: settings.simple };
+  const H = isYoungest(settings.band) ? HEADINGS.simple : HEADINGS.normal;
+  const opts = { size: settings.size, band: settings.band };
+  // The class's own version of the text where one is written, the standard text elsewhere.
+  const text = settings.band
+    ? textForBand({ reflection: content.reflection, discussion_question: content.discussion, practical_application: content.practice, prayer: content.prayer }, content.levels, settings.band)
+    : { reflection: content.reflection, discussion_question: content.discussion, practical_application: content.practice, prayer: content.prayer };
   const slides: Slide[] = [];
   const on = (id: SectionId) => settings.sections[id];
 
@@ -409,7 +424,9 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
     const s = content.scripture;
     const translation = settings.showTranslation ? s.translationLabel : null;
     if (s.text) {
-      const pages = splitPassage(s.text, pageCapacity("scripture", stage, opts));
+      // Scripture is the one passage every age shares, usually read aloud together, so it keeps the
+      // standard floor rather than splitting further for younger readers. It still grows when it fits.
+      const pages = splitPassage(s.text, pageCapacity("scripture", stage, { ...opts, band: null }));
       add(["scripture"], SECTION_LABELS.scripture, pages.map((text) => ({
         kind: "scripture" as const,
         reference: settings.showReference ? s.reference || null : null,
@@ -429,11 +446,11 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
     if (pages.length === 0) return;
     add([id], SECTION_LABELS[id], pages.map((page) => ({ kind: "rich" as const, parts: [{ section: id, heading, doc: page }], emphasis })));
   };
-  richSection("reflection", content.reflection, H.reflection, false);
-  richSection("discussion", content.discussion, H.discussion, true);
+  richSection("reflection", text.reflection, H.reflection, false);
+  richSection("discussion", text.discussion_question, H.discussion, true);
 
   // Respond: the practical step and the prayer share one closing slide when they fit together.
-  const respond = ([["practice", content.practice, H.practice], ["prayer", content.prayer, H.prayer]] as const)
+  const respond = ([["practice", text.practical_application, H.practice], ["prayer", text.prayer, H.prayer]] as const)
     .filter(([id, doc]) => on(id) && richTextToPlain(doc).trim() !== "");
   const together = respond.reduce((n, [, doc]) => n + richTextToPlain(doc).length, 0);
   if (respond.length === 2 && together <= pageCapacity("rich", stage, { ...opts, headings: 2 })) {

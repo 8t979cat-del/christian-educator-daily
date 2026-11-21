@@ -645,3 +645,37 @@ describe("sample content (supabase/seed/001_patience_week.sql)", () => {
     for (const id of ids) expect(["scheduled", "published"]).toContain(await statusOf(id));
   });
 });
+
+describe("reading levels", () => {
+  const level = (text: string) => JSON.stringify({ k2: { reflection: JSON.parse(doc(text)), prayer: JSON.parse(doc("Thank you, God.")) } });
+
+  it("an editor saves a version for an age band, and it is searchable", async () => {
+    const id = await create(editorA);
+    await q(editorA, `update devotionals set levels = $2::jsonb where id = $1`, [id, level("Being patient means waiting kindly for a friend.")]);
+    const [row] = await admin<{ levels: Record<string, unknown> }>(`select levels from devotionals where id = $1`, [id]);
+    expect(Object.keys(row!.levels)).toEqual(["k2"]);
+    const hits = await admin(`select id from devotionals where id = $1 and search @@ plainto_tsquery('english', 'friend kindly')`, [id]);
+    expect(hits).toHaveLength(1);
+    expect(toDevotional({ ...(await admin(`select * from devotionals where id = $1`, [id]))[0]! }).levels.k2?.reflection).toBeTruthy();
+  });
+
+  it("refuses unknown bands, unknown fields and text that is not a rich-text document", async () => {
+    const id = await create(editorA);
+    for (const bad of [{ g13: {} }, { k2: { sermon: JSON.parse(doc("x")) } }, { k2: { reflection: "plain string" } }, { k2: { reflection: { type: "nope" } } }, []]) {
+      await expect(q(editorA, `update devotionals set levels = $2::jsonb where id = $1`, [id, JSON.stringify(bad)]), JSON.stringify(bad)).rejects.toThrow(/levels_valid|check constraint/i);
+    }
+  });
+
+  it("changing a band's version after approval sends it back for re-approval and keeps a revision", async () => {
+    const id = await create(editorA);
+    await approve(id);
+    await q(editorA, `update devotionals set levels = $2::jsonb where id = $1`, [id, level("A new K-2 reflection.")]);
+    expect(await statusOf(id)).toBe("draft");
+    expect(await admin(`select 1 from devotional_revisions where devotional_id = $1`, [id])).toHaveLength(1);
+  });
+
+  it("readers cannot write levels", async () => {
+    const id = await create(editorA);
+    await expect(q(teacher, `update devotionals set levels = '{}' where id = $1 returning id`, [id]).then((r) => { if (r.length === 0) throw new Error("permission denied (no rows)"); })).rejects.toThrow(DENIED);
+  });
+});

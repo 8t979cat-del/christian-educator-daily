@@ -44,6 +44,7 @@ export default async function PresentPage({
     discussion: d.discussion_question,
     practice: d.practical_application,
     prayer: d.prayer,
+    levels: d.levels,
   };
 
   // The notes are the teacher's own private note on this devotional, never part of the slides.
