@@ -84,6 +84,9 @@ export function DevotionalForm({
   const v = (key: string, fallback: string | null | undefined) => stringValue(state, key, fallback ?? "");
 
   const textDisabled = !translation || !translation.text_allowed;
+  // Note: the dropdowns below are keyed by their value. After a save, React resets the form to each
+  // field's first default; without the key a dropdown would show its old value (often blank) and the
+  // next save would write that back.
 
   return (
     <form action={action} className="grid gap-6" noValidate>
@@ -114,6 +117,7 @@ export function DevotionalForm({
               <SelectField
                 label="Weekly theme"
                 name="themeId"
+                key={`themeId:${v("themeId", initial.theme_id)}`}
                 defaultValue={v("themeId", initial.theme_id)}
                 error={fe.themeId}
                 hint="Optional. Themes cover Monday to Friday."
@@ -134,6 +138,7 @@ export function DevotionalForm({
             <SelectField
               label="Category"
               name="categorySlug"
+              key={`categorySlug:${v("categorySlug", initial.category_slug)}`}
               defaultValue={v("categorySlug", initial.category_slug)}
               error={fe.categorySlug}
               options={[{ value: "", label: "Choose a category" }, ...CATEGORIES.map((c) => ({ value: c.slug, label: c.name }))]}
@@ -268,6 +273,7 @@ export function DevotionalForm({
               <SelectField
                 label="Who can read it"
                 name="accessLevel"
+                key={`accessLevel:${v("accessLevel", initial.access_level ?? "free")}`}
                 defaultValue={v("accessLevel", initial.access_level ?? "free")}
                 error={fe.accessLevel}
                 hint="Free devotionals are the daily devotional every educator receives. Plus devotionals are extra content for Educator Plus and school members; they never replace the free daily."
@@ -276,6 +282,7 @@ export function DevotionalForm({
               <SelectField
                 label="Intended audience"
                 name="audience"
+                key={`audience:${v("audience", initial.audience)}`}
                 defaultValue={v("audience", initial.audience)}
                 error={fe.audience}
                 options={[{ value: "", label: "Choose an audience" }, ...AUDIENCES]}
@@ -283,6 +290,7 @@ export function DevotionalForm({
               <SelectField
                 label="Educational category"
                 name="educationalCategory"
+                key={`educationalCategory:${v("educationalCategory", initial.educational_category)}`}
                 defaultValue={v("educationalCategory", initial.educational_category)}
                 error={fe.educationalCategory}
                 options={[{ value: "", label: "Choose a category" }, ...EDUCATIONAL_CATEGORIES]}
@@ -301,7 +309,7 @@ export function DevotionalForm({
               name="authorName"
               defaultValue={v("authorName", initial.author_name)}
               error={fe.authorName}
-              hint="Shown to readers. Leave blank on a new devotional to use your own name."
+              hint="Shown to readers."
               maxLength={120}
             />
           </div>
