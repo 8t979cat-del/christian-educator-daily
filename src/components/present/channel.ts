@@ -1,4 +1,4 @@
-import type { Slide, ThemeId } from "@/lib/content/present";
+import type { Slide, Stage, ThemeId } from "@/lib/content/present";
 
 /**
  * Messages between the class screen (the projector window) and the presenter
@@ -8,7 +8,7 @@ import type { Slide, ThemeId } from "@/lib/content/present";
  * never leaves the browser.
  */
 export type ClassMessage =
-  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; simple: boolean; blank: boolean }
+  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; simple: boolean; blank: boolean; stage: Stage }
   | { type: "empty" };
 
 export type PresenterCommand =

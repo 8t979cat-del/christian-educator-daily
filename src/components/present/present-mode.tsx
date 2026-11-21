@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  DEFAULT_SETTINGS, SIZE_SCALES, WIDTH_BUCKETS, buildSlides, equivalentIndex, parseSettings,
-  type PresentContent, type PresentSettings,
+  DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
+  type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
 import { PrintSlides } from "./print-slides";
@@ -13,8 +13,10 @@ import { SlideView, themeVars } from "./slide-view";
 
 const STORAGE_KEY = "ced-present-v2";
 const IDLE_MS = 3000;
-/** A representative width for each size bucket, so the slides are only rebuilt when the bucket changes. */
-const BUCKET_WIDTH = [400, 800, 1200, 1700];
+/** The size of the printed page's slide area, in CSS pixels (landscape Letter, minus margins). */
+const PRINT_STAGE: Stage = { width: 864, height: 560 };
+/** Rounds the measured slide box so tiny resizes do not rebuild the slides. */
+const quantize = (n: number) => Math.max(160, Math.round(n / 24) * 24);
 
 function loadSettings(): PresentSettings {
   try {
@@ -37,7 +39,7 @@ export function PresentMode({
 }) {
   const [settings, setSettings] = useState<PresentSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
-  const [bucket, setBucket] = useState(2);
+  const [stageSize, setStageSize] = useState<Stage>({ width: 1152, height: 648 });
   const [index, setIndex] = useState(0);
   const [panel, setPanel] = useState<"none" | "settings" | "notes">("none");
   const [chrome, setChrome] = useState(true);
@@ -59,14 +61,15 @@ export function PresentMode({
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* ignore */ }
   }, [settings, ready]);
 
-  // Which size bucket the screen is in decides how much text a slide holds.
+  // The size of the slide box decides how much text fits on a slide at a readable size.
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
     const measure = () => {
-      const w = el.clientWidth;
-      const k = WIDTH_BUCKETS.findIndex((b) => w < b.below);
-      setBucket(k === -1 ? WIDTH_BUCKETS.length - 1 : k);
+      const cs = getComputedStyle(el);
+      const width = quantize(el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+      const height = quantize(el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom));
+      setStageSize((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -74,8 +77,8 @@ export function PresentMode({
     return () => observer.disconnect();
   }, []);
 
-  const slides = useMemo(() => buildSlides(content, settings, BUCKET_WIDTH[bucket] ?? 1200), [content, settings, bucket]);
-  const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, 1280), [content, settings]);
+  const slides = useMemo(() => buildSlides(content, settings, stageSize), [content, settings, stageSize]);
+  const printSlides = useMemo(() => buildSlides(content, { ...settings, size: 1 }, PRINT_STAGE), [content, settings]);
 
   // When the slide list is rebuilt, stay on the same part of the lesson.
   const lastSlides = useRef(slides);
@@ -214,18 +217,18 @@ export function PresentMode({
   }, [devotionalId, go, goTo, slides.length]);
   useEffect(() => {
     stateRef.current = slide
-      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, simple: settings.simple, blank }
+      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, simple: settings.simple, blank, stage: stageSize }
       : { type: "empty" };
     channel.current?.postMessage(stateRef.current);
-  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.simple, blank]);
+  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.simple, blank, stageSize]);
 
   const printNow = useCallback(() => {
     setPanel("none");
     window.setTimeout(() => window.print(), 50);
   }, []);
 
-  const bar = `pointer-events-auto flex items-center gap-2 px-3 py-2 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
-  const btn = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
+  const bar = `pointer-events-auto flex items-center gap-2 px-3 py-1.5 transition-opacity duration-200 focus-within:opacity-100 ${chrome || panel !== "none" ? "opacity-100" : "pointer-events-none opacity-0"}`;
+  const btn = "inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border border-current/40 px-3 text-base font-semibold hover:bg-current/10 disabled:opacity-40";
   const hasPassageText = Boolean(content.scripture.text);
 
   return (
@@ -259,7 +262,7 @@ export function PresentMode({
           </div>
         </header>
 
-        <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] pb-20 pt-16" aria-label={slide ? slide.label : "Presentation"}>
+        <main id="main" ref={stage} className="min-h-0 flex-1 px-[5vw] py-14" aria-label={slide ? slide.label : "Presentation"}>
           {slide ? (
             <SlideView slide={slide} size={settings.size} simple={settings.simple} />
           ) : (

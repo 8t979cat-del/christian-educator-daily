@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_SETTINGS, PRESENT_THEMES, SECTION_IDS, buildSlides, charBudget, contrastRatio, cutPoints, equivalentIndex,
-  paginateDoc, parseSettings, splitPassage, type PresentContent,
+  DEFAULT_SETTINGS, PRESENT_THEMES, SECTION_IDS, buildSlides, contrastRatio, cutPoints, equivalentIndex, floorPx, pageCapacity,
+  paginateDoc, parseSettings, splitPassage, type PresentContent, type Stage,
 } from "@/lib/content/present";
 import { richTextToPlain, type RichDoc } from "@/lib/content/richtext";
 
@@ -144,12 +144,46 @@ const content = (over: Partial<PresentContent> = {}): PresentContent => ({
   ...over,
 });
 
+// Slide boxes as measured on real screens (the full screen, less the slide margins).
+const XGA: Stage = { width: 920, height: 700 };
+const HD: Stage = { width: 1152, height: 648 };
+const FULL_HD: Stage = { width: 1728, height: 1000 };
+const PHONE: Stage = { width: 350, height: 780 };
+
+const PSALM_23 = [
+  "1 The LORD is my shepherd; I shall not want.",
+  "2 He maketh me to lie down in green pastures: he leadeth me beside the still waters.",
+  "3 He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.",
+  "4 Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.",
+  "5 Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over.",
+  "6 Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever.",
+].join("\n");
+
+const typicalDay = () => content({
+  scripture: { reference: "Psalm 23", translationLabel: "King James Version (KJV)", text: PSALM_23, notice: "KJV, public domain in the United States." },
+  reflection: doc(
+    "Every teacher knows the moment: you have explained it twice, and the faces in front of you are still blank. The pull is to hurry, to say it louder, to move on.",
+    "The shepherd in this psalm does not hurry the sheep. He leads them beside still waters, at their pace. Patience is not waiting for the lesson to be over; it is staying with the people in front of you.",
+  ),
+  practice: doc("Today, when someone is struggling, slow down and ask one more question before you answer."),
+  prayer: doc("Lord, thank you for leading us gently. Help us to be patient with each other and with ourselves today. Amen."),
+});
+
 describe("buildSlides", () => {
-  const wide = 1280;
-  it("orders the lesson: theme, title, Scripture, reflection, discussion, practice, closing prayer", () => {
+  const wide = HD;
+  it("orders the lesson: opener, Scripture, reflection, discussion, then practice with the closing prayer", () => {
     const slides = buildSlides(content({ scripture: { reference: "Galatians 6:9", translationLabel: null, text: "Short verse.", notice: null } }), DEFAULT_SETTINGS, wide);
-    expect(slides.map((s) => s.section)).toEqual(["theme", "title", "scripture", "reflection", "discussion", "practice", "prayer"]);
-    expect(slides.at(-1)!.body).toMatchObject({ kind: "rich", heading: "Closing prayer" });
+    expect(slides.map((s) => s.sections)).toEqual([["theme", "title"], ["scripture"], ["reflection"], ["discussion"], ["practice", "prayer"]]);
+    const last = slides.at(-1)!.body;
+    expect(last.kind === "rich" && last.parts.map((p) => p.heading)).toEqual(["Put it into practice", "Closing prayer"]);
+  });
+
+  it("fits a typical day on five slides on a projector, a laptop and a large screen", () => {
+    for (const stage of [XGA, HD, FULL_HD]) expect(buildSlides(typicalDay(), DEFAULT_SETTINGS, stage)).toHaveLength(5);
+  });
+
+  it("keeps a whole psalm on one slide on a 1024x768 projector", () => {
+    expect(buildSlides(typicalDay(), DEFAULT_SETTINGS, XGA).filter((s) => s.section === "scripture")).toHaveLength(1);
   });
 
   it("puts the whole passage on the slides, in order, however long it is", () => {
@@ -161,17 +195,31 @@ describe("buildSlides", () => {
     expect(words(shown)).toEqual(words(CORINTHIANS));
   });
 
-  it("uses more slides when the screen is small or the text is large, so type stays big", () => {
-    const count = (w: number, size: number) => buildSlides(content(), { ...DEFAULT_SETTINGS, size }, w).filter((s) => s.section === "scripture").length;
-    expect(count(390, 1)).toBeGreaterThan(count(1280, 1));
-    expect(count(1280, 3)).toBeGreaterThan(count(1280, 1));
-    expect(count(1920, 1)).toBeLessThanOrEqual(count(1280, 1));
+  it("splits only when text would fall below the readable size: small screens and larger text need more slides", () => {
+    const count = (stage: Stage, size: number) => buildSlides(content(), { ...DEFAULT_SETTINGS, size }, stage).filter((s) => s.section === "scripture").length;
+    expect(count(PHONE, 1)).toBeGreaterThan(count(HD, 1));
+    expect(count(HD, 4)).toBeGreaterThan(count(HD, 1));
+    // A bigger screen of the same shape is seen from the same distance: same slides, larger letters.
+    expect(count({ width: HD.width * 1.5, height: HD.height * 1.5 }, 1)).toBe(count(HD, 1));
+  });
+
+  it("separates practice and prayer when they are too long to share a slide", () => {
+    const long = doc(Array.from({ length: 14 }, (_, i) => `Sentence ${i} of a long prayer for the class.`).join(" "));
+    const slides = buildSlides(content({ prayer: long }), DEFAULT_SETTINGS, XGA);
+    expect(slides.some((s) => s.sections.includes("practice") && s.sections.includes("prayer"))).toBe(false);
+    expect(slides.some((s) => s.section === "prayer")).toBe(true);
   });
 
   it("lets the teacher drop sections", () => {
     const settings = { ...DEFAULT_SETTINGS, sections: { ...DEFAULT_SETTINGS.sections, theme: false, practice: false, reflection: false } };
-    const sections = new Set(buildSlides(content(), settings, wide).map((s) => s.section));
-    expect([...sections]).toEqual(["title", "scripture", "discussion", "prayer"]);
+    const sections = buildSlides(content(), settings, wide).flatMap((s) => s.sections);
+    expect([...new Set(sections)]).toEqual(["title", "scripture", "discussion", "prayer"]);
+  });
+
+  it("shows the theme on its own when the title is switched off", () => {
+    const settings = { ...DEFAULT_SETTINGS, sections: { ...DEFAULT_SETTINGS.sections, title: false } };
+    const [opener] = buildSlides(content(), settings, wide);
+    expect(opener!.body).toMatchObject({ kind: "opener", heading: "Patience in the Classroom", theme: null, dayLabel: "Day 1 of 5" });
   });
 
   it("hides the reference and translation on request but keeps the copyright notice", () => {
@@ -187,51 +235,54 @@ describe("buildSlides", () => {
     expect(s!.body).toEqual({ kind: "reference", reference: "John 3:16", translation: "New International Version (NIV)" });
   });
 
-  it("skips empty sections and a theme slide when there is no theme", () => {
+  it("skips empty sections, and the theme when there is none", () => {
     const slides = buildSlides(content({ theme: null, practice: { type: "doc", content: [] } }), DEFAULT_SETTINGS, wide);
-    expect(slides.map((s) => s.section)).not.toContain("theme");
-    expect(slides.map((s) => s.section)).not.toContain("practice");
+    const sections = slides.flatMap((s) => s.sections);
+    expect(sections).not.toContain("theme");
+    expect(sections).not.toContain("practice");
+    expect(slides.at(-1)!.sections).toEqual(["prayer"]);
   });
 
-  it("young-students mode: friendlier headings and smaller pieces", () => {
-    const long = doc(Array.from({ length: 10 }, (_, i) => `Sentence ${i} is here for the class to read.`).join(" "));
-    const normal = buildSlides(content({ reflection: long }), DEFAULT_SETTINGS, wide);
-    const simple = buildSlides(content({ reflection: long }), { ...DEFAULT_SETTINGS, simple: true }, wide);
-    expect(simple.filter((s) => s.section === "reflection").length).toBeGreaterThan(normal.filter((s) => s.section === "reflection").length);
-    expect(simple.map((s) => s.body).filter((b) => b.kind === "rich").map((b) => (b.kind === "rich" ? b.heading : ""))).toContain("Let’s pray");
+  it("young-students mode: friendlier headings", () => {
+    const simple = buildSlides(content(), { ...DEFAULT_SETTINGS, simple: true }, wide);
+    const headings = simple.flatMap((s) => (s.body.kind === "rich" ? s.body.parts.map((p) => p.heading) : []));
+    expect(headings).toContain("Let’s pray");
   });
 
   it("gives every slide a unique key", () => {
-    const keys = buildSlides(content(), DEFAULT_SETTINGS, 390).map((s) => s.key);
+    const keys = buildSlides(content(), DEFAULT_SETTINGS, PHONE).map((s) => s.key);
     expect(new Set(keys).size).toBe(keys.length);
   });
 });
 
-describe("charBudget", () => {
-  it("shrinks with bigger text, small screens and simple mode", () => {
-    const base = charBudget("scripture", { widthPx: 1280, size: 1, simple: false });
-    expect(charBudget("scripture", { widthPx: 1280, size: 3, simple: false })).toBeLessThan(base);
-    expect(charBudget("scripture", { widthPx: 500, size: 1, simple: false })).toBeLessThan(base);
-    expect(charBudget("scripture", { widthPx: 1280, size: 1, simple: true })).toBeLessThan(base);
-    expect(charBudget("scripture", { widthPx: 100, size: 4, simple: true })).toBeGreaterThanOrEqual(60);
+describe("legibility floor and page capacity", () => {
+  it("never lets text fall below about 1/22 of the screen height on a projector", () => {
+    expect(floorPx(XGA, { size: 1, simple: false })).toBeGreaterThanOrEqual(31);
+    expect(floorPx(HD, { size: 1, simple: false })).toBeGreaterThanOrEqual(29);
+  });
+  it("raises the floor for larger text and younger students, and holds less text per slide", () => {
+    const base = pageCapacity("rich", HD, { size: 1, simple: false });
+    expect(pageCapacity("rich", HD, { size: 3, simple: false })).toBeLessThan(base);
+    expect(pageCapacity("rich", HD, { size: 1, simple: true })).toBeLessThan(base);
+    expect(pageCapacity("rich", { width: 100, height: 100 }, { size: 4, simple: true })).toBeGreaterThanOrEqual(60);
   });
 });
 
 describe("equivalentIndex", () => {
   it("keeps the teacher on the same section when slides are rebuilt", () => {
-    const before = buildSlides(content(), DEFAULT_SETTINGS, 1280);
+    const before = buildSlides(content(), DEFAULT_SETTINGS, HD);
     const at = before.find((s) => s.section === "discussion")!;
-    const after = buildSlides(content(), { ...DEFAULT_SETTINGS, size: 3 }, 1280);
+    const after = buildSlides(content(), { ...DEFAULT_SETTINGS, size: 3 }, HD);
     expect(after[equivalentIndex(at, after)]!.section).toBe("discussion");
   });
   it("moves to the next section when the current one is switched off", () => {
-    const before = buildSlides(content(), DEFAULT_SETTINGS, 1280);
+    const before = buildSlides(content(), DEFAULT_SETTINGS, HD);
     const at = before.find((s) => s.section === "reflection")!;
-    const after = buildSlides(content(), { ...DEFAULT_SETTINGS, sections: { ...DEFAULT_SETTINGS.sections, reflection: false } }, 1280);
+    const after = buildSlides(content(), { ...DEFAULT_SETTINGS, sections: { ...DEFAULT_SETTINGS.sections, reflection: false } }, HD);
     expect(after[equivalentIndex(at, after)]!.section).toBe("discussion");
   });
   it("defaults to the first slide", () => {
-    expect(equivalentIndex(undefined, buildSlides(content(), DEFAULT_SETTINGS, 1280))).toBe(0);
+    expect(equivalentIndex(undefined, buildSlides(content(), DEFAULT_SETTINGS, HD))).toBe(0);
   });
 });
 

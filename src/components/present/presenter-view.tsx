@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
-import { SlideView, themeVars } from "./slide-view";
+import { SlideThumb } from "./slide-view";
 
 const BTN = "min-h-11 min-w-11 rounded-md border border-[#777] bg-white px-4 text-base font-semibold hover:bg-[#e3efec] disabled:opacity-40";
 
@@ -64,9 +64,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
       ) : (
         <div className="mx-auto mt-4 grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section aria-label="Current slide">
-            <div className="present-stage aspect-video overflow-hidden rounded-lg border border-[#6b7480] p-[4%]" style={themeVars(live.theme)}>
-              <SlideView slide={live.current} size={live.size} simple={live.simple} />
-            </div>
+            <SlideThumb slide={live.current} size={live.size} simple={live.simple} theme={live.theme} stage={live.stage} />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <button type="button" className={BTN} onClick={() => send({ type: "cmd", cmd: "prev" })} disabled={live.index === 0}>← Back</button>
               <button type="button" className={BTN} onClick={() => send({ type: "cmd", cmd: "next" })} disabled={live.index >= live.total - 1}>Next →</button>
@@ -78,8 +76,8 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
             <div>
               <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1f5a55]">Up next</h2>
               {live.next ? (
-                <div aria-hidden="true" className="present-stage aspect-video overflow-hidden rounded-lg border border-[#6b7480] p-[4%]" style={themeVars(live.theme)}>
-                  <SlideView slide={live.next} size={live.size} simple={live.simple} />
+                <div aria-hidden="true">
+                  <SlideThumb slide={live.next} size={live.size} simple={live.simple} theme={live.theme} stage={live.stage} />
                 </div>
               ) : (
                 <p className="rounded-lg border border-dashed border-[#6b7480] p-6 text-center">This is the last slide.</p>
