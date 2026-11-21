@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { RichTextView } from "@/components/content/rich-text-view";
 import type { GradeBand } from "@/lib/content/levels";
 import { PRESENT_THEMES, SIZE_SCALES, bandScale, isYoungest, type Slide, type Stage, type ThemeId } from "@/lib/content/present";
@@ -15,7 +15,10 @@ const accent: CSSProperties = { color: "var(--p-accent)" };
 const muted: CSSProperties = { color: "var(--p-muted)" };
 
 /** One slide, filling whatever box it is placed in. Used full screen, in the presenter window, and as the "next slide" preview. */
-export function SlideView({ slide, size, band }: { slide: Slide; size: number; band: GradeBand | null }) {
+/** How much larger the discussion question is set than the text slide before it. */
+const QUESTION_STEP = 1.15;
+
+export function SlideView({ slide, size, band, onFit }: { slide: Slide; size: number; band: GradeBand | null; onFit?: (px: number) => void }) {
   const simple = isYoungest(band);
   const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
   const b = slide.body;
@@ -93,8 +96,9 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
         </FitText>
       );
     case "rich":
+      if (b.sizeFrom) return <MatchedSlide slide={slide} size={size} band={band} onFit={onFit} />;
       return (
-        <FitText fitKey={fitKey} scale={scale} ratio={b.emphasis ? 1.15 : 1} align="center">
+        <FitText fitKey={fitKey} scale={scale} ratio={b.emphasis ? 1.15 : 1} align="center" onFit={onFit}>
           <div className={`mx-auto grid gap-[1.3em] ${b.emphasis ? "max-w-[26em] text-center" : "max-w-[34em]"}`}>
             {b.parts.map((part, i) => (
               <section key={part.section}>
@@ -112,6 +116,54 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
         </FitText>
       );
   }
+}
+
+/**
+ * A question slide sized from the slide before it: that slide is laid out unseen in the same
+ * box to learn its text size, and the question is set a little larger than that, never filling
+ * the screen on its own. Until the size is known the slide stays invisible, so it never jumps.
+ */
+function MatchedSlide({ slide, size, band, onFit }: { slide: Slide; size: number; band: GradeBand | null; onFit?: (px: number) => void }) {
+  const b = slide.body;
+  const [cap, setCap] = useState<number | null>(null);
+  const measure = useCallback((px: number) => setCap((c) => (c !== null && Math.abs(c - px) < 0.5 ? c : px)), []);
+  if (b.kind !== "rich" || !b.sizeFrom) return null;
+  const own: Slide = { ...slide, body: { ...b, sizeFrom: undefined } };
+  return (
+    <div className="relative h-full w-full">
+      <div aria-hidden="true" inert className="invisible absolute inset-0">
+        <SlideView slide={b.sizeFrom} size={size} band={band} onFit={measure} />
+      </div>
+      <div className={`h-full w-full ${cap === null ? "invisible" : ""}`}>
+        <MaxedSlide slide={own} size={size} band={band} maxPx={cap === null ? undefined : cap * QUESTION_STEP} onFit={onFit} />
+      </div>
+    </div>
+  );
+}
+
+/** A rich slide with a ceiling on its text size. */
+function MaxedSlide({ slide, size, band, maxPx, onFit }: { slide: Slide; size: number; band: GradeBand | null; maxPx?: number; onFit?: (px: number) => void }) {
+  const b = slide.body;
+  if (b.kind !== "rich") return null;
+  const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
+  const continues = slide.page < slide.pageCount - 1;
+  return (
+    <FitText fitKey={`${slide.key}|${size}|${band}|${Math.round(maxPx ?? 0)}`} scale={scale} ratio={1.15} align="center" maxPx={maxPx} onFit={onFit}>
+      <div className="mx-auto grid max-w-[26em] gap-[1.3em] text-center">
+        {b.parts.map((part, i) => (
+          <section key={part.section}>
+            <div className="mb-[0.6em] flex items-baseline justify-between gap-[1em]">
+              <h2 className="font-serif italic text-[0.58em] leading-tight" style={accent}>
+                {part.heading}{i === 0 && slide.page > 0 ? ", continued" : ""}
+              </h2>
+              {i === 0 && continues ? <ContinuesNote /> : null}
+            </div>
+            <RichTextView doc={part.doc} className="font-serif font-semibold [text-wrap:balance]" />
+          </section>
+        ))}
+      </div>
+    </FitText>
+  );
 }
 
 /** The note on a page whose text runs on to the next slide. */
