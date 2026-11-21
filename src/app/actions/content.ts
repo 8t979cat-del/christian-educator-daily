@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { errorState, parseForm, successState, type FormState } from "@/lib/auth/form-state";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requirePlatformRole } from "@/lib/auth/session";
-import { zonedTimeToIso } from "@/lib/content/dates";
+import { formatDate, zonedTimeToIso } from "@/lib/content/dates";
 import { getSiteTimeZone } from "@/lib/env";
 import { devotionalSchema, themeSchema, transitionSchema, translationSchema } from "@/lib/content/schemas";
 import { createClient } from "@/lib/supabase/server";
@@ -97,6 +97,23 @@ export async function saveDevotionalAction(_previous: FormState, formData: FormD
   );
 }
 
+/**
+ * Explains a scheduling clash. Only one devotional can be scheduled or live for each devotional
+ * date (the Date under Basics; Publish at only sets the hour it goes live), and a weekly theme
+ * can hold one devotional per day. Names the devotional already using that date.
+ */
+async function sameDayConflict(supabase: Awaited<ReturnType<typeof createClient>>, id: string): Promise<string> {
+  const { data: me } = await supabase.from("devotionals").select("devotional_date, theme_id").eq("id", id).maybeSingle();
+  if (!me) return "Another devotional already uses this date.";
+  const when = formatDate(me.devotional_date as string);
+  const { data: other } = await supabase.from("devotionals").select("title, status")
+    .eq("devotional_date", me.devotional_date).neq("id", id).in("status", ["scheduled", "published"]).limit(1).maybeSingle();
+  if (other) {
+    return `“${other.title || "Untitled"}” is already ${other.status === "published" ? "live" : "scheduled"} for ${when}. Each day has one devotional: change the Date under Basics (not Publish at) and click Save changes, or unschedule the other one first.`;
+  }
+  return `This devotional’s weekly theme already has another devotional on ${when}. Change the Date or the Weekly theme under Basics and click Save changes, then schedule again.`;
+}
+
 /** Moves a devotional along the editorial workflow. The database function checks the role, the step, completeness and licensing. */
 export async function transitionDevotionalAction(_previous: FormState, formData: FormData): Promise<FormState> {
   await requirePlatformRole([...EDITORS]);
@@ -126,6 +143,7 @@ export async function transitionDevotionalAction(_previous: FormState, formData:
     // The workflow checks the saved devotional, not what is typed in the form but not yet saved.
     const missing = /^missing required fields: (.+)$/.exec(error.message)?.[1];
     if (missing) return errorState(`These are still empty in the saved devotional: ${missing}. Fill them in, click Save changes, then try this step again.`);
+    if (error.code === "23505") return errorState(await sameDayConflict(supabase, id));
     return errorState(describe(error, "That step could not be completed."));
   }
 

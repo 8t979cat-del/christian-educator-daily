@@ -92,7 +92,7 @@ Saving never publishes. Every rule below is enforced in Postgres, not just in th
 - One devotional can be scheduled or live per calendar day.
 - Archived content is read-only until restored to draft. Archived means withdrawn from readers; the archive page lists published devotionals only.
 - Readers see only live content (published, or scheduled and past its time). This does not depend on a background job: `publish_due_devotionals()` only keeps the recorded status accurate, and runs whenever an editor opens the devotionals list. Call it from a scheduled job as well if you want exact `published_at` values without anyone visiting.
-- "Today" and scheduled times use `NEXT_PUBLIC_SITE_TIMEZONE` (default `America/Los_Angeles`, Pacific Time).
+- "Today" and scheduled times are in Pacific Time (`America/Los_Angeles`), fixed in `src/lib/env.ts`.
 
 **Weekly themes.** A theme has a Monday start date and holds one devotional per weekday. "Publish the week" needs exactly five approved devotionals and then publishes them together: days that have already started go live now, later days are scheduled for midnight on their own date. It can be undone for upcoming days.
 
