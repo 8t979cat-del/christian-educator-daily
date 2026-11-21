@@ -35,7 +35,10 @@ export function DevotionalForm({
   themes,
   locked,
   ai,
+  submissionId,
 }: {
+  /** Started from a teacher's submission: saving accepts it. */
+  submissionId?: string;
   /** AI drafting of reading levels (editors). */
   ai?: { configured: boolean; quota: AiQuota | null };
   initial: Initial;
@@ -85,6 +88,7 @@ export function DevotionalForm({
   return (
     <form action={action} className="grid gap-6" noValidate>
       <input type="hidden" name="id" value={initial.id ?? ""} />
+      {submissionId ? <input type="hidden" name="submissionId" value={submissionId} /> : null}
       <FormMessage state={state} />
       {locked ? (
         <Alert tone="info">This devotional is archived and read-only. Restore it to draft to edit it.</Alert>
