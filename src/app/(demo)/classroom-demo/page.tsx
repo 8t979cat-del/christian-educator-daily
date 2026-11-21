@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PresentMode } from "@/components/present/present-mode";
 import { PresenterView } from "@/components/present/presenter-view";
 import { InlinePresenter } from "@/components/present/inline-presenter";
+import { CreateStudio } from "@/components/create/create-studio";
 import type { PresentContent } from "@/lib/content/present";
 
 export const metadata: Metadata = { title: "Classroom mode demo", robots: { index: false } };
@@ -97,6 +98,8 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     </div>
   );
   // The home page's built-in presenter, with sample content (for checking it without a database).
+  // The "Write a devotional" studio, for checking its layout without an account (the AI is not connected here).
+  if (view === "create") return <main className="mx-auto max-w-6xl p-6"><CreateStudio allowed configured={false} /></main>;
   if (view === "inline") return <main className="mx-auto max-w-5xl p-6"><InlinePresenter content={{ ...content, levels: {} }} /></main>;
   if (view === "presenter") return <PresenterView devotionalId="demo" title={content.title} notesSlot={notes} />;
   return <PresentMode content={content} devotionalId="demo" title={content.title} exitHref="/" presenterHref={`/classroom-demo?view=presenter&p=${p ?? "psalm23"}`} notesSlot={notes}

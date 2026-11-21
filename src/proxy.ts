@@ -13,6 +13,7 @@ import { getPublicEnv } from "@/lib/env";
 
 const PROTECTED_PREFIXES = [
   "/today",
+  "/create",
   "/archive",
   "/devotional",
   "/themes",
