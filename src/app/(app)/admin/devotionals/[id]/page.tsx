@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { AdminNav } from "@/components/content/admin-nav";
 import { StatusBadge } from "@/components/content/status-badge";
 import { DevotionalForm } from "@/components/forms/devotional-form";
+import { aiQuota } from "@/app/actions/ai";
+import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { WorkflowPanel } from "@/components/forms/workflow-panel";
 import { PageHeader } from "@/components/layout/container";
 import { NoticeBanner } from "@/components/layout/notice-banner";
@@ -65,6 +67,7 @@ export default async function EditDevotionalPage({
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <DevotionalForm
+          ai={{ configured: isAiConfigured(), quota: await aiQuota() }}
           initial={d}
           translations={translations}
           themes={themes}

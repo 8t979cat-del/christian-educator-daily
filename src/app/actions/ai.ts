@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { AiError, isAiConfigured, relevelDevotional, writeDevotional, type AiQuota } from "@/lib/ai/devotional-ai";
-import { requireAccess } from "@/lib/auth/session";
+import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { KJV, kjvPassage } from "@/lib/bible/kjv";
 import { BANDS, LEVEL_FIELDS, type LevelVersion } from "@/lib/content/levels";
@@ -169,4 +169,43 @@ export async function saveGeneratedAction(input: { title: string; topic: string;
     return fail(/row-level security/.test(error?.message ?? "") ? "Saving is part of Educator Plus and school licences." : "This devotional could not be saved. Please try again.");
   }
   return { ok: true, id: data.id as string };
+}
+
+/**
+ * Editors: a first AI draft of one reading level, from the devotional as it is in the
+ * editor now (saved or not). Returns the draft for the editor to review; nothing is saved.
+ */
+export async function draftLevelForEditorAction(input: {
+  band: string;
+  title: string;
+  topic: string;
+  reference: string;
+  scriptureText: string;
+  standard: unknown;
+}): Promise<Result<{ version: Required<LevelVersion>; remaining: number }>> {
+  await requirePlatformRole(["content_editor", "platform_admin"]);
+  const parsed = z.object({
+    band,
+    title: z.string().max(140),
+    topic: z.string().max(140),
+    reference: z.string().max(120),
+    scriptureText: z.string().max(6000),
+  }).safeParse(input);
+  const standard = cleanVersion(input.standard);
+  if (!parsed.success || !standard) return fail("Fill in the standard text above first.");
+  if (LEVEL_FIELDS.every((f) => standard[f].content.length === 0)) return fail("Write the standard text above first: the AI adapts it for this age.");
+  const spent = await consume();
+  if (spent.error !== null) return fail(spent.error);
+  try {
+    const version = await relevelDevotional({
+      title: parsed.data.title,
+      topic: parsed.data.topic,
+      reference: parsed.data.reference,
+      scriptureText: parsed.data.scriptureText.trim() || null,
+      standard,
+    }, parsed.data.band);
+    return { ok: true, version, remaining: spent.remaining };
+  } catch (error) {
+    return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
+  }
 }

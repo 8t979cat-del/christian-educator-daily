@@ -12,6 +12,7 @@ import { idleState } from "@/lib/auth/form-state";
 import { AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORIES, GRADE_BANDS } from "@/lib/content/options";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import type { DevotionalRecord } from "@/lib/content/types";
+import type { AiQuota } from "@/lib/ai/devotional-ai";
 import { ReadingLevelsEditor } from "./reading-levels-editor";
 import { FormMessage, listValue, stringValue, SubmitButton } from "./shared";
 
@@ -31,7 +32,10 @@ export function DevotionalForm({
   translations,
   themes,
   locked,
+  ai,
 }: {
+  /** AI drafting of reading levels (editors). */
+  ai?: { configured: boolean; quota: AiQuota | null };
   initial: Initial;
   translations: TranslationOption[];
   themes: ThemeOption[];
@@ -201,7 +205,7 @@ export function DevotionalForm({
             The same Scripture, written for each age. Teachers choose their students&apos; level when they present.
           </p>
           <div className="mt-5">
-            <ReadingLevelsEditor initial={initial.levels ?? {}} echoed={state.values} errors={fe} />
+            <ReadingLevelsEditor initial={initial.levels ?? {}} echoed={state.values} errors={fe} ai={ai} />
           </div>
         </Card>
 

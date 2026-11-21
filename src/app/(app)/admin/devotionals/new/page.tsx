@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { AdminNav } from "@/components/content/admin-nav";
 import { DevotionalForm } from "@/components/forms/devotional-form";
+import { aiQuota } from "@/app/actions/ai";
+import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { PageHeader } from "@/components/layout/container";
 import { isValidIsoDate, todayIn } from "@/lib/content/dates";
 import { listThemes, listTranslations } from "@/lib/content/queries";
@@ -22,6 +24,7 @@ export default async function NewDevotionalPage({ searchParams }: { searchParams
       <PageHeader title="New devotional" description="Saved as a draft. It is never published from this page." />
       <AdminNav current="/admin/devotionals" />
       <DevotionalForm
+        ai={{ configured: isAiConfigured(), quota: await aiQuota() }}
         initial={{ devotional_date: date, ...(themeId ? { theme_id: themeId } : {}) }}
         translations={translations}
         themes={themes}
