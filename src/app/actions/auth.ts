@@ -40,7 +40,7 @@ export async function signUpAction(_previous: FormState, formData: FormData): Pr
     password,
     options: {
       data: { first_name: firstName, last_name: lastName },
-      // Verifying the address ends on the sign-in page with "Email verified." (see /auth/callback).
+      // Verifying the address ends on the sign-in page with "Verification successful." (see /auth/callback).
       emailRedirectTo: callbackUrl(next, "verify"),
     },
   });

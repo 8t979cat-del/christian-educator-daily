@@ -80,7 +80,8 @@ export async function proxy(request: NextRequest) {
     const callback = request.nextUrl.clone();
     callback.pathname = "/auth/callback";
     if (!params.has("next")) callback.searchParams.set("next", "/onboarding");
-    if (!params.has("flow") && params.get("type") !== "recovery") callback.searchParams.set("flow", "verify");
+    const resetting = params.get("type") === "recovery" || params.get("next") === "/reset-password";
+    if (!params.has("flow") && !resetting) callback.searchParams.set("flow", "verify");
     return redirectTo(callback);
   }
 
