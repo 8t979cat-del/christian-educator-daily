@@ -101,7 +101,7 @@ export function checkEnvironment(env: Env): EnvReport {
   if (has(tz)) {
     try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); add("NEXT_PUBLIC_SITE_TIMEZONE", "ok", "Valid."); }
     catch { add("NEXT_PUBLIC_SITE_TIMEZONE", "error", "Not a valid IANA time zone, so devotionals would go live at the wrong hour."); }
-  } else add("NEXT_PUBLIC_SITE_TIMEZONE", "warning", "Not set; defaults to America/New_York.");
+  } else add("NEXT_PUBLIC_SITE_TIMEZONE", "warning", "Not set; defaults to America/Los_Angeles (Pacific Time).");
 
   const errors = checks.filter((c) => c.level === "error").length;
   const warnings = checks.filter((c) => c.level === "warning").length;

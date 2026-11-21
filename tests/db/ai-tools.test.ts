@@ -87,4 +87,13 @@ describe("AI tools", () => {
     expect((await q<{ can_use_ai: boolean }>(boss, `select can_use_ai()`))[0]!.can_use_ai).toBe(true);
     expect((await q<{ can_use_ai: boolean }>(free, `select can_use_ai()`))[0]!.can_use_ai).toBe(false);
   });
+
+  it("count AI requests by the Pacific Time day (migration 0018)", async () => {
+    const pt = await h.createUser("pt@ai.test");
+    await admin(`insert into entitlement_grants (user_id, plan_key, reason) values ($1, 'plus', 'test')`, [pt]);
+    await q(pt, `select ai_consume()`);
+    const [row] = await admin<{ ok: boolean }>(`select day = (now() at time zone 'America/Los_Angeles')::date as ok from ai_usage where user_id = $1`, [pt]);
+    expect(row).toEqual({ ok: true });
+  });
 });
+

@@ -21,4 +21,4 @@ export function AiCounter({ quota }: { quota: AiQuota }) {
   );
 }
 
-export const OUT_OF_REQUESTS = (limit: number) => `You have used today’s ${limit} AI requests. They reset at midnight UTC (7 or 8 pm US Eastern).`;
+export const OUT_OF_REQUESTS = (limit: number) => `You have used today’s ${limit} AI requests. They reset at midnight Pacific Time.`;

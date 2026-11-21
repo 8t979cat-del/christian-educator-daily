@@ -80,12 +80,12 @@ export function requireSupabaseEnv(): { url: string; anonKey: string } {
  * devotionals go live. Any IANA name; invalid values fall back to the default.
  */
 export function getSiteTimeZone(): string {
-  const zone = blank(process.env.NEXT_PUBLIC_SITE_TIMEZONE) ?? "America/New_York";
+  const zone = blank(process.env.NEXT_PUBLIC_SITE_TIMEZONE) ?? "America/Los_Angeles";
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: zone });
     return zone;
   } catch {
-    return "America/New_York";
+    return "America/Los_Angeles";
   }
 }
 
