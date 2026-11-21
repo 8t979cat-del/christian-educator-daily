@@ -65,6 +65,12 @@ export async function saveDevotionalAction(_previous: FormState, formData: FormD
         ...(licence ? { fieldErrors: { scriptureText: "This translation's licence does not allow its text to be stored." } } : {}),
       });
     }
+    // Started from a teacher's submission: mark it accepted, linked to this draft.
+    const submissionId = formData.get("submissionId");
+    if (typeof submissionId === "string" && uuidSchema.safeParse(submissionId).success) {
+      await supabase.rpc("review_submission", { p_id: submissionId, p_decision: "accepted", p_note: "", p_devotional: data.id });
+      revalidatePath("/admin/submissions");
+    }
     revalidatePath("/admin/devotionals");
     redirect(`/admin/devotionals/${data.id}?notice=devotional_created`);
   }

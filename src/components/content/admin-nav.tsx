@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 
 const LINKS = [
   { href: "/admin/devotionals", label: "Devotionals" },
+  { href: "/admin/submissions", label: "Submissions" },
   { href: "/admin/themes", label: "Weekly themes" },
   { href: "/admin/translations", label: "Translations" },
   { href: "/admin/contributors", label: "Contributors" },
