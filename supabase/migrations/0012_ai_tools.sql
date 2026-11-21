@@ -71,6 +71,7 @@ create table presentation_versions (
 create unique index presentation_versions_one_per_band on presentation_versions (user_id, devotional_id, coalesce(band, 'standard'))
   where devotional_id is not null;
 create index presentation_versions_by_user on presentation_versions (user_id, updated_at desc);
+create index presentation_versions_by_devotional on presentation_versions (devotional_id);
 create trigger presentation_versions_updated before update on presentation_versions
   for each row execute function set_updated_at();
 

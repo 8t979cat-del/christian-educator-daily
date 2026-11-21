@@ -21,6 +21,8 @@ Plain statements of what is not done or not verified. Read before any decision t
 
 - **Devotional content.** Only AI-drafted sample content exists. The pilot needs human-written, theologically reviewed devotionals scheduled 14 days ahead. The Launch page measures the schedule, not the quality.
 - **Reading levels are in classroom mode only.** The personal reading view (`/devotional/[id]`) shows the standard text. Band versions are optional per field; nothing requires every band to be written before publishing.
+- **AI tools are unproven with real teachers.** The AI was never called from the build environment (no key); its request shape and error handling are covered by tests with a stand-in. AI-written text has no theological review beyond the teacher's own; it is labelled as a draft and never replaces published content. Cost depends on use (daily limit: 40 requests per teacher).
+- **Class comments** have no microphone input and are not shared with the presenter window.
 - **Scripture licensing.** Each translation's terms must be confirmed with its publisher by a person; the app only records that someone did.
 - **Moderation is human and manual.** Nothing pages anyone. Urgent reports do not alert. Email notices to people whose content is hidden are not sent.
 - **Sign-offs are attestations.** The software cannot tell whether a rehearsal really happened.

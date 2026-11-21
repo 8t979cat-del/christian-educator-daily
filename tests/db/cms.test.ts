@@ -686,7 +686,8 @@ describe("today's devotional for signed-out visitors", () => {
     h.asAnon(async () => (await h.db.query<{ d: Record<string, unknown> | null }>(`select public_today_devotional($1::date) as d`, [today()])).rows[0]!.d);
 
   it("shows the live free devotional's standard text, never its reading-level versions or anything else", async () => {
-    await admin(`update devotionals set devotional_date = devotional_date - 3650 where devotional_date >= current_date - 7 and devotional_date <= current_date`);
+    // Other tests' recent devotionals would compete for "today": make them Plus content, which the public function never returns.
+    await admin(`update devotionals set access_level = 'plus' where devotional_date > current_date - 7 and devotional_date <= current_date`);
     const id = await create(editorA, { date: today(), translation: "kjv", text: "In the beginning God created the heaven and the earth." });
     await q(editorA, `update devotionals set levels = $2::jsonb where id = $1`, [id, JSON.stringify({ k2: { reflection: JSON.parse(doc("Only for signed-in teachers.")) } })]);
     expect(await anonToday()).toBeNull(); // still a draft
@@ -702,7 +703,8 @@ describe("today's devotional for signed-out visitors", () => {
   });
 
   it("hides Scripture text the translation's licence does not allow, and Plus devotionals entirely", async () => {
-    await admin(`update devotionals set devotional_date = devotional_date - 3650 where devotional_date >= current_date - 7 and devotional_date <= current_date`);
+    // Other tests' recent devotionals would compete for "today": make them Plus content, which the public function never returns.
+    await admin(`update devotionals set access_level = 'plus' where devotional_date > current_date - 7 and devotional_date <= current_date`);
     const id = await create(editorA, { date: today(), translation: "nkjv", text: null });
     await approve(id);
     await move(editorB, id, "published");
