@@ -11,8 +11,15 @@ export const SITE = {
 
 export type NavItem = { href: string; label: string; icon: IconName };
 
+/**
+ * Community (discussions, prayers, groups, moderation) is built but not launched.
+ * While false it is left out of every menu and its pages send people to Today.
+ * Set to true to turn it on.
+ */
+export const COMMUNITY_ENABLED = false;
+
 /** Primary navigation inside the signed-in application shell. */
-export const APP_NAV: NavItem[] = [
+export const APP_NAV: NavItem[] = ([
   { href: "/today", label: "Today", icon: "sun" },
   { href: "/archive", label: "Archive", icon: "calendar" },
   { href: "/library", label: "Library", icon: "book" },
@@ -20,7 +27,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/resources", label: "Resources", icon: "file" },
   { href: "/community", label: "Community", icon: "users" },
   { href: "/school", label: "My School", icon: "building" },
-];
+] satisfies NavItem[]).filter((item) => COMMUNITY_ENABLED || !item.href.startsWith("/community"));
 
 /** Links in the public marketing header. */
 export const MARKETING_NAV = [
