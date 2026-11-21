@@ -8,10 +8,12 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 
+/** Pressed toggles keep the secondary shape: a bookcloth border on the wash, never a fill, so "Present to class" stays the only filled button. */
 const CHIP = (active = false) =>
   cn(
-    buttonStyles({ variant: active ? "primary" : "secondary" }),
+    buttonStyles({ variant: "secondary" }),
     "min-h-11 px-4 text-base",
+    active && "border-brand bg-brand-soft text-brand hover:bg-brand-soft",
   );
 
 /** Toggle that updates at once and rolls back with a message if the save fails. */
