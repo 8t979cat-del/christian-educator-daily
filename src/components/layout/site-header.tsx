@@ -14,7 +14,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-parchment/95 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
+      <Container className="flex min-h-16 items-center justify-between gap-4 py-1">
         <Logo />
 
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
@@ -35,7 +35,7 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="grid size-11 place-items-center rounded-control hover:bg-brand-soft md:hidden"
+          className="grid size-11 shrink-0 place-items-center rounded-control hover:bg-brand-soft md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((value) => !value)}

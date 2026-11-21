@@ -16,8 +16,8 @@ import { SlideView, themeVars } from "./slide-view";
 const STORAGE_KEY = "ed180-present-v3";
 const OLD_STORAGE_KEY = "ced-present-v2";
 const IDLE_MS = 3000;
-/** The size of the printed page's slide area, in CSS pixels (landscape Letter, minus margins). */
-const PRINT_STAGE: Stage = { width: 864, height: 560 };
+/** The printed slide area in CSS pixels (landscape Letter, less margins and footer). Its legibility floor works out to the 19pt print body size. */
+const PRINT_STAGE: Stage = { width: 800, height: 560 };
 /** Rounds the measured slide box so tiny resizes do not rebuild the slides. */
 const quantize = (n: number) => Math.max(160, Math.round(n / 24) * 24);
 

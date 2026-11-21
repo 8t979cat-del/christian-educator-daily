@@ -127,12 +127,22 @@ export function cutPoints(text: string, max: number): number[] {
 
 type Unit = { text: string; sepBefore: string };
 
-function packUnits(units: Unit[], max: number): string[] {
+/**
+ * How much room a page's text takes. With `lineChars`, every verse (line) is
+ * rounded up to whole lines, since each verse starts on a new line and its last
+ * line is rarely full.
+ */
+function pageCost(page: string, lineChars?: number): number {
+  if (!lineChars) return page.length;
+  return page.split("\n").reduce((n, line) => n + Math.max(1, Math.ceil(line.length / lineChars)) * lineChars, 0);
+}
+
+function packUnits(units: Unit[], max: number, lineChars?: number): string[] {
   const pages: string[] = [];
   let cur = "";
   for (const unit of units) {
     const candidate = cur ? cur + unit.sepBefore + unit.text : unit.text;
-    if (cur && candidate.length > max) {
+    if (cur && pageCost(candidate, lineChars) > max) {
       pages.push(cur);
       cur = unit.text;
     } else {
@@ -148,11 +158,11 @@ function packUnits(units: Unit[], max: number): string[] {
  * break between verses (lines), then sentences, then clauses. Never drops or
  * reorders text, and evens out page lengths so the last page is not a stub.
  */
-export function splitPassage(text: string, max: number): string[] {
+export function splitPassage(text: string, max: number, lineChars?: number): string[] {
   const clean = text.replace(/\r\n?/g, "\n").trim();
   if (clean === "") return [];
   const limit = Math.max(40, Math.floor(max));
-  if (clean.length <= limit) return [clean];
+  if (pageCost(clean, lineChars) <= limit) return [clean];
 
   const units: Unit[] = [];
   for (const line of clean.split(/\n+/)) {
@@ -170,11 +180,11 @@ export function splitPassage(text: string, max: number): string[] {
     });
   }
 
-  const pages = packUnits(units, limit);
+  const pages = packUnits(units, limit, lineChars);
   if (pages.length > 1) {
     // Even out: same page count with a smaller budget, if it still fits.
-    const total = units.reduce((n, u) => n + u.text.length + 1, 0);
-    const balanced = packUnits(units, Math.min(limit, Math.ceil((total / pages.length) * 1.15)));
+    const total = pageCost(clean, lineChars);
+    const balanced = packUnits(units, Math.min(limit, Math.ceil((total / pages.length) * 1.15)), lineChars);
     if (balanced.length === pages.length) return balanced;
   }
   return pages;
@@ -339,9 +349,10 @@ export function floorPx(stage: Stage, opts: { size: number; band: GradeBand | nu
 
 /** Measured proportions of the slide typography: average character width and line height, in em. */
 const METRICS = {
-  scripture: { charEm: 0.46, lineEm: 1.5, maxWidthEm: 36, overheadEm: 3.2 },
-  rich: { charEm: 0.5, lineEm: 1.45, maxWidthEm: 34, overheadEm: 1.6 },
-  emphasis: { charEm: 0.5, lineEm: 1.3, maxWidthEm: 26, overheadEm: 1.6 },
+  // overheadPx: fixed-size text that does not scale with the slide, such as the copyright notice (14px minimum, up to two lines).
+  scripture: { charEm: 0.46, lineEm: 1.5, maxWidthEm: 36, overheadEm: 3.2, overheadPx: 0 },
+  rich: { charEm: 0.5, lineEm: 1.45, maxWidthEm: 34, overheadEm: 1.6, overheadPx: 0 },
+  emphasis: { charEm: 0.5, lineEm: 1.3, maxWidthEm: 26, overheadEm: 1.6, overheadPx: 0 },
 } as const;
 /** Word wrap, short last lines and paragraph gaps leave some of every page empty. */
 const FILL = 0.85;
@@ -352,13 +363,18 @@ const FILL = 0.85;
  * floor, so a short devotional stays on as few slides as possible.
  */
 export function pageCapacity(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; band: GradeBand | null; headings?: number }): number {
+  return pageGeometry(kind, stage, opts).capacity;
+}
+
+/** Characters per line and lines per slide at the legibility floor, and the resulting capacity. */
+export function pageGeometry(kind: keyof typeof METRICS, stage: Stage, opts: { size: number; band: GradeBand | null; headings?: number }) {
   const m = METRICS[kind];
   const px = floorPx(stage, opts);
   const lineWidth = Math.min(stage.width, m.maxWidthEm * px);
   const charsPerLine = lineWidth / (m.charEm * px);
   const overhead = m.overheadEm * (opts.headings ?? 1);
-  const lines = Math.floor((stage.height / px - overhead) / m.lineEm);
-  return Math.max(60, Math.round(Math.max(1, lines) * charsPerLine * FILL));
+  const lines = Math.max(1, Math.floor(((stage.height - m.overheadPx) / px - overhead) / m.lineEm));
+  return { charsPerLine, lines, capacity: Math.max(60, Math.round(lines * charsPerLine * FILL)) };
 }
 
 /** Splits a rich document into the fewest pages that fit, then evens them out. */
@@ -426,7 +442,10 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
     if (s.text) {
       // Scripture is the one passage every age shares, usually read aloud together, so it keeps the
       // standard floor rather than splitting further for younger readers. It still grows when it fits.
-      const pages = splitPassage(s.text, pageCapacity("scripture", stage, { ...opts, band: null }));
+      // Counted in whole lines: each verse starts a new line, so short verses take more room than their letters.
+      const g = pageGeometry("scripture", stage, { ...opts, band: null });
+      const lineChars = Math.max(10, Math.floor(g.charsPerLine * 0.97));
+      const pages = splitPassage(s.text, g.lines * lineChars, lineChars);
       add(["scripture"], SECTION_LABELS.scripture, pages.map((text) => ({
         kind: "scripture" as const,
         reference: settings.showReference ? s.reference || null : null,

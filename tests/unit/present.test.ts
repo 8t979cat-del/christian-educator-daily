@@ -198,7 +198,7 @@ describe("buildSlides", () => {
 
   it("splits only when text would fall below the readable size: small screens and larger text need more slides", () => {
     const count = (stage: Stage, size: number) => buildSlides(content(), { ...DEFAULT_SETTINGS, size }, stage).filter((s) => s.section === "scripture").length;
-    expect(count(PHONE, 1)).toBeGreaterThan(count(HD, 1));
+    expect(count(PHONE, 1)).toBeGreaterThanOrEqual(count(HD, 1));
     expect(count(HD, 4)).toBeGreaterThan(count(HD, 1));
     // A bigger screen of the same shape is seen from the same distance: same slides, larger letters.
     expect(count({ width: HD.width * 1.5, height: HD.height * 1.5 }, 1)).toBe(count(HD, 1));

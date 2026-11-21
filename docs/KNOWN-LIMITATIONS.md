@@ -20,6 +20,7 @@ Plain statements of what is not done or not verified. Read before any decision t
 ## Product limits
 
 - **Devotional content.** Only AI-drafted sample content exists. The pilot needs human-written, theologically reviewed devotionals scheduled 14 days ahead. The Launch page measures the schedule, not the quality.
+- **Reading levels are in classroom mode only.** The personal reading view (`/devotional/[id]`) shows the standard text. Band versions are optional per field; nothing requires every band to be written before publishing.
 - **Scripture licensing.** Each translation's terms must be confirmed with its publisher by a person; the app only records that someone did.
 - **Moderation is human and manual.** Nothing pages anyone. Urgent reports do not alert. Email notices to people whose content is hidden are not sent.
 - **Sign-offs are attestations.** The software cannot tell whether a rehearsal really happened.

@@ -41,7 +41,7 @@ export default function LandingPage() {
       <section className="border-b border-line">
         <Container className="py-14 md:py-20">
           <div className="max-w-3xl">
-            <Heading level={1} className="text-balance">
+            <Heading level={1} className="hyphens-auto">
               A devotional for every school day, written for every age in your school
             </Heading>
             <Text size="lg" muted className="mt-5 max-w-2xl">
@@ -88,7 +88,7 @@ export default function LandingPage() {
                     <span className="font-serif text-2xl font-semibold leading-none text-brand tabular-nums" aria-hidden="true">{i + 1}</span>
                     <div>
                       <p className="font-semibold">{step.name}</p>
-                      <p className="mt-1 text-muted">{step.detail}</p>
+                      <p className="mt-1 text-pretty text-muted">{step.detail}</p>
                     </div>
                   </li>
                 ))}
@@ -128,7 +128,7 @@ export default function LandingPage() {
             {TRUST.map((item) => (
               <div key={item.title} className="border-t-2 border-brand pt-4">
                 <dt className="font-serif text-xl font-semibold">{item.title}</dt>
-                <dd className="mt-2 text-muted">{item.body}</dd>
+                <dd className="mt-2 text-pretty text-muted">{item.body}</dd>
               </div>
             ))}
           </dl>

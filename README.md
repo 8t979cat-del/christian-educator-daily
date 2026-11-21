@@ -322,3 +322,12 @@ New environment variables: `APP_ENV`, `ERROR_REPORT_URL`, `ERROR_REPORT_TOKEN`, 
 ### Documents
 
 `docs/LAUNCH-ASSESSMENT.md` (read first) · `docs/DEPLOYMENT.md` · `docs/ADMIN-GUIDE.md` · `docs/ADMINISTRATION.md` · `docs/MODERATION-GUIDE.md` · `docs/EDUCATOR-ONBOARDING.md` · `docs/PILOT-SETUP.md` · `docs/PRIVACY-RETENTION.md` · `docs/TROUBLESHOOTING.md` · `docs/RECOVERY-ROLLBACK.md` · `docs/KNOWN-LIMITATIONS.md` · `docs/BACKLOG.md` · `docs/QA-AUDIT.md`
+
+## Reading levels and classroom slides (migration 0010)
+
+`0010_reading_levels.sql` adds `devotionals.levels`: an optional version of the reflection, discussion question, practical application and prayer for each age band (K–2, 3–5, 6–8, 9–12). The existing text columns are the standard version; a band without its own version, or a field left empty in it, uses the standard text. Every band shares the day's Scripture and theme. Editing a band's text after approval returns the devotional to draft, like any other content change, and keeps a revision.
+
+- **Editor:** the devotional form has a Reading levels section with one tab per band.
+- **Classroom mode:** the teacher chooses the reading level once, in Settings or the presenter window; it is remembered on that computer. Slides are sized by the real screen: a section continues onto another slide only when its text would otherwise fall below a legibility floor (about 1/22 of the screen height). The theme and title share one opening slide, and the practical step and prayer share the closing slide when they fit, so a typical day is five slides on a projector.
+- **Home page:** the "Become a founding school" button emails `FOUNDING_CONTACT_EMAIL` (see `.env.example`). Without it, the page says founding places are by invitation. There is no pricing page during the pilot; `/pricing` redirects to the founding-schools section.
+

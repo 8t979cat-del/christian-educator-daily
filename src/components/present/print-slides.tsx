@@ -12,7 +12,8 @@ export function PrintSlides({ slides, title }: { slides: Slide[]; title: string 
         const b = slide.body;
         return (
           <section key={slide.key} className="print-slide flex min-h-[7in] flex-col justify-between" data-print-slide="">
-            <div className="m-auto w-full max-w-[9in] py-6 text-[24pt] leading-[1.4]">
+            {/* 19pt body: the size the print page-splitting (PRINT_STAGE) assumes, so one slide fills one page. */}
+            <div className="m-auto w-full max-w-[9in] py-6 text-[19pt] leading-[1.4]">
               {b.kind === "opener" ? (
                 <div className="text-center">
                   <h1 className="font-serif text-[40pt] font-semibold leading-tight">{b.heading}</h1>

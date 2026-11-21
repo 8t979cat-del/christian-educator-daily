@@ -52,8 +52,9 @@ export function SlideView({ slide, size, band }: { slide: Slide; size: number; b
                   <span key={i} className={i === 0 ? "block" : "mt-[0.22em] block"}>
                     {verse ? (
                       <>
-                        <sup className="mr-[0.25em] align-[0.5em] font-sans text-[0.5em] font-semibold leading-none" style={accent}>{verse[1]}</sup>
-                        {verse[2]}
+                        <sup className="align-[0.5em] font-sans text-[0.5em] font-semibold leading-none" style={accent}>{verse[1]}</sup>
+                        {/* A real space, so copied text and screen readers get "1 The", not "1The". */}
+                        {" "}{verse[2]}
                       </>
                     ) : line}
                   </span>
