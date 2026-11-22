@@ -71,21 +71,55 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
   const slide = slides[safe];
   const go = useCallback((d: number) => setIndex((i) => Math.max(0, Math.min(slides.length - 1, Math.min(i, slides.length - 1) + d))), [slides.length]);
 
+  // Full screen: the browser's own where it allows it; otherwise (iPhone, and some tablets and
+  // in-app browsers) the presenter fills the screen itself, which looks the same to the class.
+  const [filled, setFilled] = useState(false);
   useEffect(() => {
-    const onChange = () => setFullscreen(document.fullscreenElement === box.current);
+    const onChange = () => {
+      const d = document as Document & { webkitFullscreenElement?: Element | null };
+      setFullscreen((d.fullscreenElement ?? d.webkitFullscreenElement) === box.current);
+    };
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
+  // While filling the screen, the page behind must not scroll.
+  useEffect(() => {
+    if (!filled) return;
+    const root = document.documentElement;
+    const before = root.style.overflow;
+    root.style.overflow = "hidden";
+    box.current?.focus();
+    return () => { root.style.overflow = before; };
+  }, [filled]);
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void box.current?.requestFullscreen?.().catch(() => undefined);
+    const d = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => Promise<void> | void };
+    if (filled) { setFilled(false); return; }
+    if (d.fullscreenElement ?? d.webkitFullscreenElement) {
+      void (d.exitFullscreen ? d.exitFullscreen() : d.webkitExitFullscreen?.());
+      return;
+    }
+    const el = box.current as (HTMLDivElement & { webkitRequestFullscreen?: () => Promise<void> | void }) | null;
+    if (!el) return;
+    const request = el.requestFullscreen ? () => el.requestFullscreen() : el.webkitRequestFullscreen ? () => el.webkitRequestFullscreen!() : null;
+    if (!request) { setFilled(true); return; }
+    try {
+      void Promise.resolve(request()).catch(() => setFilled(true));
+    } catch {
+      setFilled(true);
+    }
   };
+  const showFull = fullscreen || filled;
 
   const onKey = (e: React.KeyboardEvent) => {
     if ((e.target as HTMLElement).matches("button,a") && e.key === " ") return;
     if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); go(1); }
     else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
     else if (e.key === "f" || e.key === "F") toggleFullscreen();
+    else if (e.key === "Escape" && filled) setFilled(false);
   };
 
   const base = "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border px-3 font-semibold transition-colors disabled:opacity-40";
@@ -135,16 +169,16 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         onKeyDown={onKey}
         aria-roledescription="presentation"
         aria-label={slide ? `Slide ${safe + 1} of ${slides.length}: ${slide.label}. Use the arrow keys to move.` : "Today’s devotional"}
-        className={`present-stage relative flex flex-col overflow-hidden focus-visible:outline-4 focus-visible:outline-offset-2 ${
-          fullscreen ? "h-dvh w-dvw" : "aspect-video w-full rounded-card border border-line shadow-card"
+        className={`present-stage flex flex-col overflow-hidden focus-visible:outline-4 focus-visible:outline-offset-2 ${
+          filled ? "fixed inset-0 z-[100] h-dvh w-dvw" : fullscreen ? "relative h-dvh w-dvw" : "relative aspect-video w-full rounded-card border border-line shadow-card"
         }`}
         style={themeVars("white")}
       >
-        <div ref={slideArea} className={`min-h-0 flex-1 ${fullscreen ? "px-[5vw] py-14" : "px-[6%] py-[4%]"}`}>
+        <div ref={slideArea} className={`min-h-0 flex-1 ${showFull ? "px-[5vw] pb-20 pt-[max(1.5rem,env(safe-area-inset-top))] sm:py-14" : "px-[6%] py-[4%]"}`}>
           {slide ? <SlideView slide={slide} size={size} band={null} /> : null}
         </div>
-        {fullscreen ? (
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2">
+        {showFull ? (
+          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
             <span className="font-semibold tabular-nums">{safe + 1} / {slides.length}</span>
             <span className="flex gap-2">
