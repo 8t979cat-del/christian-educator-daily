@@ -6,7 +6,8 @@ import {
   DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
   type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
-import { BAND_SHORT, bandsWithVersion, textForBand, type LevelVersion } from "@/lib/content/levels";
+import { BANDS, BAND_SHORT, bandsWithVersion, textForBand, type GradeBand, type Levels, type LevelVersion } from "@/lib/content/levels";
+import { ensureAiLevelAction } from "@/app/actions/ai";
 import { EditPanel, type AiTools } from "./edit-panel";
 import { CommentComposer, CommentRail, type ClassComment } from "./comment-board";
 import { channelName, type ClassMessage, type PresenterCommand } from "./channel";
@@ -32,8 +33,13 @@ function loadSettings(): PresentSettings {
 }
 
 export function PresentMode({
-  content, exitHref, devotionalId, notesSlot, title, presenterHref, tools, savedVersions,
+  content, exitHref, devotionalId, notesSlot, title, presenterHref, tools, savedVersions, aiLevels,
 }: {
+  /**
+   * Reading levels with no version written by an editor are adapted by AI when chosen and shared
+   * by every teacher. `bands` are the ones already adapted (their text is in content.levels).
+   */
+  aiLevels?: { bands: GradeBand[]; canAdapt: boolean };
   /** Signed-in teachers: editing, saving and AI re-leveling (enabled by plan). */
   tools?: AiTools;
   /** The teacher's saved versions, keyed by reading level ("standard" for the standard text). */
@@ -93,15 +99,52 @@ export function PresentMode({
     return () => observer.disconnect();
   }, []);
 
+  // Reading levels adapted by AI during this visit, and the one being written now.
+  const [adapted, setAdapted] = useState<Levels>({});
+  const [adapting, setAdapting] = useState<GradeBand | null>(null);
+  const [adaptFailed, setAdaptFailed] = useState<Partial<Record<GradeBand, string>>>({});
+  const tried = useRef(new Set<GradeBand>());
+  const withAdapted = useMemo<PresentContent>(
+    () => (Object.keys(adapted).length ? { ...content, levels: { ...adapted, ...content.levels } } : content),
+    [content, adapted],
+  );
+  const adaptedBands = useMemo(() => new Set<GradeBand>([...(aiLevels?.bands ?? []), ...(Object.keys(adapted) as GradeBand[])]), [aiLevels, adapted]);
+
+  // Choosing a level with no text of its own: ask the server to adapt it (about half a minute, once per devotional).
+  useEffect(() => {
+    const band = settings.band;
+    if (!ready || !band || !aiLevels?.canAdapt || withAdapted.levels[band] || tried.current.has(band)) return;
+    tried.current.add(band);
+    setAdapting(band);
+    void ensureAiLevelAction({ devotionalId, band }).then((result) => {
+      setAdapting((b) => (b === band ? null : b));
+      if (result.ok) setAdapted((a) => ({ ...a, [band]: result.version }));
+      else setAdaptFailed((f) => ({ ...f, [band]: result.error }));
+    });
+  }, [ready, settings.band, aiLevels?.canAdapt, withAdapted.levels, devotionalId]);
+
+  const bandLabels = useMemo(() => {
+    const out: Partial<Record<GradeBand, string>> = {};
+    for (const band of BANDS) {
+      if (content.levels[band] && !adaptedBands.has(band)) continue; // written by an editor: default label
+      if (adaptedBands.has(band)) out[band] = "Adapted for this age";
+      else if (adapting === band) out[band] = "Writing this level…";
+      else if (adaptFailed[band]) out[band] = "Standard text (could not adapt)";
+      else if (aiLevels?.canAdapt) out[band] = "Adapted when chosen";
+    }
+    return out;
+  }, [content.levels, adaptedBands, adapting, adaptFailed, aiLevels?.canAdapt]);
+
   const versionKey = settings.band ?? "standard";
   const effective = useMemo<PresentContent>(() => {
+    const content = withAdapted;
     const o = overrides[versionKey];
     if (!o) return content;
     if (settings.band) return { ...content, levels: { ...content.levels, [settings.band]: o } };
     return { ...content, reflection: o.reflection, discussion: o.discussion_question, practice: o.practical_application, prayer: o.prayer };
-  }, [content, overrides, versionKey, settings.band]);
+  }, [withAdapted, overrides, versionKey, settings.band]);
   const slides = useMemo(() => buildSlides(effective, settings, stageSize), [effective, settings, stageSize]);
-  const writtenBands = useMemo(() => bandsWithVersion(content.levels), [content.levels]);
+  const writtenBands = useMemo(() => bandsWithVersion(withAdapted.levels), [withAdapted.levels]);
   const printSlides = useMemo(() => buildSlides(effective, { ...settings, size: 1 }, PRINT_STAGE), [effective, settings]);
   const currentText = useMemo(() => {
     const standard = { reflection: effective.reflection, discussion_question: effective.discussion, practical_application: effective.practice, prayer: effective.prayer };
@@ -249,10 +292,10 @@ export function PresentMode({
   }, [devotionalId, go, goTo, slides.length]);
   useEffect(() => {
     stateRef.current = slide
-      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, band: settings.band, writtenBands, blank, stage: stageSize }
+      ? { type: "state", index: safeIndex, total, current: slide, next: slides[safeIndex + 1] ?? null, theme: settings.theme, size: settings.size, band: settings.band, writtenBands, bandLabels, blank, stage: stageSize }
       : { type: "empty" };
     channel.current?.postMessage(stateRef.current);
-  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.band, writtenBands, blank, stageSize]);
+  }, [slide, slides, safeIndex, total, settings.theme, settings.size, settings.band, writtenBands, bandLabels, blank, stageSize]);
 
   const printNow = useCallback(() => {
     setPanel("none");
@@ -287,6 +330,9 @@ export function PresentMode({
             <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("settings")} aria-label={settings.band ? `Reading level: grades ${BAND_SHORT[settings.band]}. Change in settings.` : "Choose a reading level in settings"}>
               {settings.band ? `Grades ${BAND_SHORT[settings.band]}` : "Choose reading level"}
             </button>
+            <span role="status" className="text-sm font-medium max-sm:hidden">
+              {adapting ? `Writing the ${adapting === "k2" ? "K–2" : `grades ${BAND_SHORT[adapting]}`} version (about half a minute)…` : ""}
+            </span>
           </div>
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
@@ -393,6 +439,7 @@ export function PresentMode({
             hasTheme={Boolean(content.theme)}
             hasPassageText={hasPassageText}
             writtenBands={writtenBands}
+            bandLabels={bandLabels}
             allowComments={Boolean(tools)}
             onOpenPresenter={openPresenter}
           />

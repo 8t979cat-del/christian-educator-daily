@@ -9,7 +9,7 @@ import type { Slide, Stage, ThemeId } from "@/lib/content/present";
  * never leaves the browser.
  */
 export type ClassMessage =
-  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; band: GradeBand | null; writtenBands: GradeBand[]; blank: boolean; stage: Stage }
+  | { type: "state"; index: number; total: number; current: Slide; next: Slide | null; theme: ThemeId; size: number; band: GradeBand | null; writtenBands: GradeBand[]; bandLabels?: Partial<Record<GradeBand, string>>; blank: boolean; stage: Stage }
   | { type: "empty" };
 
 export type PresenterCommand =

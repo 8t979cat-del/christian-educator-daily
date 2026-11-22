@@ -12,7 +12,8 @@ import { getSiteTimeZone } from "@/lib/env";
 import { recordUsage } from "@/lib/governance/queries";
 import { aiQuota } from "@/app/actions/ai";
 import { isAiConfigured } from "@/lib/ai/devotional-ai";
-import { isBand, toLevels, type LevelVersion } from "@/lib/content/levels";
+import { BANDS, isBand, toLevels, type LevelVersion } from "@/lib/content/levels";
+import { loadAiLevels } from "@/lib/content/ai-levels";
 import { EMPTY_DOC } from "@/lib/content/richtext";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,7 +31,9 @@ export default async function PresentPage({
   const d = await getDevotional(id);
   if (!d || !["published", "scheduled"].includes(d.status) || d.devotional_date > todayIn(getSiteTimeZone())) notFound();
   void recordUsage("presentation_open");
-  const [translation, theme, state] = await Promise.all([getTranslation(d.translation_code), getThemeInfo(d), getUserState(id)]);
+  const [translation, theme, state, aiLevels] = await Promise.all([getTranslation(d.translation_code), getThemeInfo(d), getUserState(id), loadAiLevels(d)]);
+  // Editors' versions come first; AI-adapted ones (shared by every teacher) fill the other ages.
+  const aiBands = BANDS.filter((b) => aiLevels[b] && !d.levels[b]);
 
   // Scripture text goes to the browser only when the translation's licence allows it.
   const display = scriptureDisplay(d.scripture_text, translation);
@@ -49,7 +52,7 @@ export default async function PresentPage({
     discussion: d.discussion_question,
     practice: d.practical_application,
     prayer: d.prayer,
-    levels: d.levels,
+    levels: { ...aiLevels, ...d.levels },
   };
 
   // The teacher's own saved versions of this devotional, one per reading level.
@@ -83,6 +86,7 @@ export default async function PresentPage({
       notesSlot={notes}
       tools={tools}
       savedVersions={savedVersions}
+      aiLevels={{ bands: aiBands, canAdapt: isAiConfigured() }}
     />
   );
 }
