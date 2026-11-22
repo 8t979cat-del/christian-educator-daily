@@ -10,6 +10,8 @@ import { getDevotional, getTranslation } from "@/lib/content/queries";
 import { sanitizeRichDoc } from "@/lib/content/richtext";
 import { scriptureDisplay } from "@/lib/content/scripture";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { levelSourceHash, loadAiLevels } from "@/lib/content/ai-levels";
 
 type Result<T> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -225,4 +227,51 @@ export async function passageTextAction(input: { reference: string; translation:
   const passage = biblePassage(parsed.data.translation, parsed.data.reference, 80);
   if (!passage) return fail(`“${parsed.data.reference}” could not be found in the ${BIBLES[parsed.data.translation].label}. Check the reference (at most 80 verses).`);
   return { ok: true, reference: passage.reference, text: passage.text };
+}
+
+/**
+ * A reading level for a devotional that has no version written for that age: adapted by AI
+ * once, kept for every teacher (devotional_ai_levels), and used until the devotional's text
+ * changes. Uses nobody's AI requests when it can be kept; on a server without the
+ * service-role key it falls back to the teacher's own allowance and is not kept.
+ */
+export async function ensureAiLevelAction(input: { devotionalId: string; band: string }): Promise<Result<{ version: LevelVersion; kept: boolean }>> {
+  await requireAccess();
+  const parsed = z.object({ devotionalId: uuidSchema, band }).safeParse(input);
+  if (!parsed.success) return fail("Choose a reading level.");
+  // Read as the teacher: row-level security decides whether they may see this devotional at all.
+  const d = await getDevotional(parsed.data.devotionalId);
+  if (!d || !["published", "scheduled"].includes(d.status)) return fail("That devotional is not available.");
+  const b = parsed.data.band;
+  if (d.levels[b]) return { ok: true, version: d.levels[b]!, kept: true };
+  const kept = (await loadAiLevels(d))[b];
+  if (kept) return { ok: true, version: kept, kept: true };
+  if (!isAiConfigured()) return fail("The AI tools are not set up on this server yet.");
+
+  const admin = createAdminClient();
+  if (!admin) {
+    const spent = await consume();
+    if (spent.error !== null) return fail(spent.error);
+  }
+  const display = scriptureDisplay(d.scripture_text, await getTranslation(d.translation_code));
+  try {
+    const version = await relevelDevotional({
+      title: d.title,
+      topic: d.daily_topic,
+      reference: d.scripture_reference,
+      scriptureText: display.mode === "text" ? display.text : null,
+      standard: { reflection: d.reflection, discussion_question: d.discussion_question, practical_application: d.practical_application, prayer: d.prayer },
+    }, b);
+    if (admin) {
+      // Upsert: if another teacher's request finished first, the newer text simply replaces it.
+      const { error } = await admin.from("devotional_ai_levels").upsert(
+        { devotional_id: d.id, band: b, content: version, source_hash: levelSourceHash(d), created_at: new Date().toISOString() },
+        { onConflict: "devotional_id,band" },
+      );
+      return { ok: true, version, kept: !error };
+    }
+    return { ok: true, version, kept: false };
+  } catch (error) {
+    return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
+  }
 }

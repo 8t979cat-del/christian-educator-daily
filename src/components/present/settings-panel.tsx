@@ -9,9 +9,10 @@ const BTN = "min-h-11 rounded-control border border-current/40 px-3 text-sm font
 
 /** What to show, how it looks, and print. Opens over the slide; Esc closes it. */
 export function SettingsPanel({
-  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter, writtenBands, allowComments = false,
+  settings, onChange, onClose, onPrint, hasTheme, hasPassageText, onOpenPresenter, writtenBands, bandLabels, allowComments = false,
 }: {
   writtenBands: GradeBand[];
+  bandLabels?: Partial<Record<GradeBand, string>>;
   /** Signed-in teachers can turn on the class comment board. */
   allowComments?: boolean;
   settings: PresentSettings;
@@ -56,7 +57,7 @@ export function SettingsPanel({
         <fieldset className="mt-6">
           <legend className="text-sm font-bold uppercase tracking-wider text-[#1c2a47]">Reading level</legend>
           <div className="mt-2">
-            <BandPicker compact name="band-settings" value={settings.band} written={writtenBands} onChange={(band) => set("band", band)} />
+            <BandPicker compact name="band-settings" value={settings.band} written={writtenBands} labels={bandLabels} onChange={(band) => set("band", band)} />
           </div>
           <p className="mt-2 text-sm text-[#333]">
             {settings.band

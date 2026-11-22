@@ -88,7 +88,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
             </div>
             <div>
               <h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1c2a47]">Reading level</h2>
-              <BandPicker compact name="band-presenter" value={live.band} written={live.writtenBands} onChange={(band) => send({ type: "band", band })} />
+              <BandPicker compact name="band-presenter" value={live.band} written={live.writtenBands} labels={live.bandLabels} onChange={(band) => send({ type: "band", band })} />
             </div>
             {notesSlot ? <div><h2 className="mb-1 text-sm font-bold uppercase tracking-wider text-[#1c2a47]">My notes</h2>{notesSlot}</div> : null}
           </section>

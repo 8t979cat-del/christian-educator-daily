@@ -7,8 +7,10 @@ import { BANDS, BAND_SHORT, type GradeBand } from "@/lib/content/levels";
  * whether today's devotional has its own version for that level.
  */
 export function BandPicker({
-  value, written, onChange, name, tone = "light", compact = false,
+  value, written, onChange, name, tone = "light", compact = false, labels,
 }: {
+  /** Per-level notes that replace "Written for this age" / "Standard text" (for example "Adapted by AI"). */
+  labels?: Partial<Record<GradeBand, string>>;
   value: GradeBand | null;
   written: GradeBand[];
   onChange: (band: GradeBand) => void;
@@ -32,7 +34,7 @@ export function BandPicker({
               }`}
             >
               <span className="text-lg font-bold leading-tight">{band === "k2" ? "K–2" : `Grades ${BAND_SHORT[band]}`}</span>
-              <span className={`text-xs font-medium ${value === band ? "text-white" : "text-[#333]"}`}>{own ? "Written for this age" : "Standard text"}</span>
+              <span className={`text-xs font-medium ${value === band ? "text-white" : "text-[#333]"}`}>{labels?.[band] ?? (own ? "Written for this age" : "Standard text")}</span>
             </span>
           </label>
         );
