@@ -174,11 +174,12 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         }`}
         style={themeVars("white")}
       >
-        <div ref={slideArea} className={`min-h-0 flex-1 ${showFull ? "px-[5vw] pb-20 pt-[max(1.5rem,env(safe-area-inset-top))] sm:py-14" : "px-[6%] py-[4%]"}`}>
+        {/* Full screen: the slide gets the space above the controls strip, never the space under it. */}
+        <div ref={slideArea} className={`min-h-0 flex-1 ${showFull ? "pb-3 pl-[max(5vw,env(safe-area-inset-left))] pr-[max(5vw,env(safe-area-inset-right))] pt-[max(1.25rem,env(safe-area-inset-top))] sm:pt-10" : "px-[6%] py-[4%]"}`}>
           {slide ? <SlideView slide={slide} size={size} band={null} /> : null}
         </div>
         {showFull ? (
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <div className="flex shrink-0 items-center justify-between gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pt-1">
             <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
             <span className="font-semibold tabular-nums">{safe + 1} / {slides.length}</span>
             <span className="flex gap-2">
