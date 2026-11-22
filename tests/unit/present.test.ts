@@ -172,15 +172,15 @@ const typicalDay = () => content({
 
 describe("buildSlides", () => {
   const wide = HD;
-  it("orders the lesson: opener, Scripture, reflection, discussion, then practice with the closing prayer", () => {
+  it("orders the lesson: opener, Scripture, reflection, discussion, practice, then the closing prayer on its own slide", () => {
     const slides = buildSlides(content({ scripture: { reference: "Galatians 6:9", translationLabel: null, text: "Short verse.", notice: null } }), DEFAULT_SETTINGS, wide);
-    expect(slides.map((s) => s.sections)).toEqual([["theme", "title"], ["scripture"], ["reflection"], ["discussion"], ["practice", "prayer"]]);
-    const last = slides.at(-1)!.body;
-    expect(last.kind === "rich" && last.parts.map((p) => p.heading)).toEqual(["Put it into practice", "Closing prayer"]);
+    expect(slides.map((s) => s.sections)).toEqual([["theme", "title"], ["scripture"], ["reflection"], ["discussion"], ["practice"], ["prayer"]]);
+    const headings = slides.slice(-2).map((s) => (s.body.kind === "rich" ? s.body.parts.map((p) => p.heading) : []));
+    expect(headings).toEqual([["Put it into practice"], ["Closing prayer"]]);
   });
 
-  it("fits a typical day on five slides on a projector, a laptop and a large screen", () => {
-    for (const stage of [XGA, HD, FULL_HD]) expect(buildSlides(typicalDay(), DEFAULT_SETTINGS, stage)).toHaveLength(5);
+  it("fits a typical day on six slides (one per part) on a projector, a laptop and a large screen", () => {
+    for (const stage of [XGA, HD, FULL_HD]) expect(buildSlides(typicalDay(), DEFAULT_SETTINGS, stage)).toHaveLength(6);
   });
 
   it("keeps a whole psalm on one slide on a 1024x768 projector", () => {
