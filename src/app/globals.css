@@ -87,6 +87,12 @@
     repeating-linear-gradient(to bottom, transparent 0, transparent calc(2rem - 1px), var(--color-ruling) calc(2rem - 1px), var(--color-ruling) 2rem);
   background-position: 0 0, 0 -0.2rem;
 }
+/* Title lines: wider ruling (4rem) for a large heading, each rule just under its baseline. The block
+   is a whole number of 2rem bands tall, so the page's 2rem ruling carries on below it. */
+@utility title-lines {
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(3.05rem - 1px), var(--color-ruling) calc(3.05rem - 1px), var(--color-ruling) 3.05rem, transparent 3.05rem, transparent 4rem);
+}
 /* The margin line alone, for sheets whose text does not keep to the ruling. */
 @utility workbook-margin {
   background-color: var(--color-surface);

@@ -71,7 +71,7 @@ export default async function LandingPage() {
                 ) : null}
               </div>
 
-              <h1 id="today-title" className="font-serif text-[1.75rem] font-semibold leading-8 tracking-[-0.01em] text-balance md:text-[2.5rem] md:leading-[4rem]">
+              <h1 id="today-title" className="font-serif text-[1.75rem] font-semibold leading-8 tracking-[-0.01em] text-balance md:-mr-8 md:pr-8 md:text-[2.75rem] md:leading-[4rem] md:title-lines">
                 {today ? today.title : "A devotional for every school day, written for every age"}
               </h1>
               {today ? (
@@ -82,7 +82,7 @@ export default async function LandingPage() {
             </div>
 
             {/* The presenter is pasted onto the page: its own panel, clear of the ruling. */}
-            <div className="mt-8 bg-surface px-5 pb-6 pt-1 sm:ml-[calc(var(--wb-margin)+1.5px)] sm:pl-[calc(4rem-var(--wb-margin)-1.5px)] sm:pr-8 md:pb-8">
+            <div className="ml-[calc(var(--wb-margin)+1.5px)] mt-8 bg-surface pb-6 pl-[calc(1.25rem-var(--wb-margin)-1.5px)] pr-5 pt-1 sm:pl-[calc(4rem-var(--wb-margin)-1.5px)] sm:pr-8 md:pb-8">
               {today ? (
                 <InlinePresenter content={today} />
               ) : (
@@ -175,17 +175,17 @@ export default async function LandingPage() {
       <section aria-labelledby="week-title" className="border-y border-line bg-surface py-14 md:py-20">
         <Container className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-16">
           <div>
-            <h2 id="week-title" className="font-serif text-3xl font-semibold leading-tight md:text-[2.4rem]">A theme for each week of the school year</h2>
+            <h2 id="week-title" className="font-serif text-3xl font-semibold leading-tight md:text-[2.4rem]">A theme for every week, all year round</h2>
             <p className="mt-4 text-lg text-muted">
               Monday to Friday, every week has one theme, so a class lives with an idea for a few days.
             </p>
-            {/* Why "180 Days": the name counts a school year; the devotionals keep going all year. */}
+            {/* Why "180 Days" in the name: it counts a school year; the devotionals keep going all year. */}
             <p className="mt-4 flex gap-3 rounded-card bg-gold-soft p-4 text-ink">
               <Icon name="calendar" size={20} className="mt-1 shrink-0 text-gold-ink" />
               <span>
-                A devotional for every weekday, whatever your school’s calendar. The name counts a school year of about 180
-                days, but it doesn’t stop there: the devotionals carry on through all 52 weeks, so summer school and
-                year-round schools have one each day too.
+                A devotional for every weekday, whatever your school’s calendar. Our full name, Everyday Devotional:
+                180 Days, counts a school year of about 180 days. But it doesn’t stop there: the devotionals carry on
+                through all 52 weeks, so summer school and year-round schools have one each day too.
               </span>
             </p>
           </div>
@@ -259,6 +259,7 @@ export default async function LandingPage() {
     </>
   );
 }
+
 
 
 

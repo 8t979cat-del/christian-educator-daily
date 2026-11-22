@@ -54,10 +54,13 @@ export function DevotionalView({
             <span className="flex items-center gap-2 text-muted">
               <span>This week: <span className="font-semibold text-ink">{theme.title}</span></span>
               {theme.day ? (
-                <span className="flex items-center gap-1 print:hidden" role="img" aria-label={`Day ${theme.day} of 5`}>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <span key={n} className={`size-2.5 rounded-full ${n < theme.day! ? "bg-gilt" : n === theme.day ? "bg-brand ring-2 ring-brand/25" : "bg-line"}`} />
-                  ))}
+                <span className="flex items-center gap-2">
+                  <span aria-hidden="true" className="flex items-center gap-1 print:hidden">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <span key={n} className={`size-2.5 rounded-full ${n < theme.day! ? "bg-gilt" : n === theme.day ? "bg-brand ring-2 ring-brand/25" : "bg-line"}`} />
+                    ))}
+                  </span>
+                  <span className="whitespace-nowrap">Day {theme.day} of 5</span>
                 </span>
               ) : null}
             </span>
@@ -164,10 +167,13 @@ function Part({ step, icon, id, title, rubric, children }: { n: number; step: st
         <Icon name={icon} size={18} />
       </span>
       <section className="min-w-0">
-        <h2 id={`${id}-title`} className="flex flex-wrap items-center gap-x-3 text-xl font-semibold leading-8">
-          <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand sm:hidden print:hidden"><Icon name={icon} size={16} /></span>
+        {/* The step leads the heading row, so it can never wrap away from the title. */}
+        <h2 id={`${id}-title`} className="text-xl font-semibold leading-8">
+          <span className="mr-2 inline-flex translate-y-[-0.1em] items-center gap-1.5 whitespace-nowrap rounded-full bg-parchment py-0.5 pl-2.5 pr-2.5 align-middle max-sm:pl-1 text-sm font-medium leading-5 text-muted print:hidden">
+            <Icon name={icon} size={14} className="text-brand sm:hidden" />
+            {step}<span className="sr-only">:</span>
+          </span>
           {title}
-          <span className="rounded-full bg-parchment px-2.5 text-sm font-medium leading-6 text-muted print:hidden"><span className="sr-only"> (</span>{step}<span className="sr-only">)</span></span>
         </h2>
         <p className="leading-8 text-muted print:hidden">{rubric}</p>
         <div>{children}</div>
