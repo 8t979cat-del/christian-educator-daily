@@ -82,15 +82,16 @@ export function DevotionalView({
       {actions ? <div className="mt-6 print:hidden lg:col-start-1">{actions}</div> : null}
 
       <div className="lg:col-start-1">
-      <ol className="mt-8 divide-y divide-line rounded-card border border-line bg-surface shadow-card print:mt-6 print:border-0 print:shadow-none">
+      {/* The lesson on workbook paper: every line sits on the 2rem ruling, each step's icon in the margin. */}
+      <ol className="on-rules workbook-paper mt-8 overflow-hidden rounded-card border border-line pb-8 shadow-card print:mt-6 print:border-0 print:bg-none print:shadow-none">
         <Part n={0} step="Read" icon="book" id="scripture" title="Scripture" rubric="Read it aloud together. Announce the reference first.">
           {display.mode === "text" ? (
             <figure>
-              <blockquote className="font-serif text-xl leading-relaxed md:text-2xl">
+              <blockquote className="font-serif text-xl leading-8 md:text-[1.4rem]">
                 {display.text.split("\n").map((line, i) => {
                   const verse = /^(\d{1,3})\s+(.*)$/.exec(line);
                   return (
-                    <span key={i} className={i === 0 ? "block" : "mt-1.5 block"}>
+                    <span key={i} className="block">
                       {verse ? (
                         <>
                           <sup className="align-[0.45em] text-[0.6em] leading-none text-rubric print:text-black">{verse[1]}</sup>{" "}
@@ -101,18 +102,18 @@ export function DevotionalView({
                   );
                 })}
               </blockquote>
-              <figcaption className="mt-4 font-serif text-sm italic text-muted">
+              <figcaption className="font-serif text-sm italic leading-8 text-muted">
                 {/* The attribution usually names the translation already; don't say it twice. */}
                 {[d.scripture_reference, translation && display.attribution?.includes(translation.name) ? null : translationLabel].filter(Boolean).join(" · ")}
-                {display.attribution ? <span className="block">{display.attribution}</span> : null}
+                {display.attribution ? <span className="block leading-8">{display.attribution}</span> : null}
               </figcaption>
             </figure>
           ) : (
-            <div className="font-serif">
-              <p className="text-2xl md:text-3xl">{d.scripture_reference || "No passage chosen"}</p>
-              {translationLabel ? <p className="mt-1 text-sm italic text-muted">{translationLabel}</p> : null}
+            <div className="font-serif leading-8">
+              <p className="text-[1.5rem]">{d.scripture_reference || "No passage chosen"}</p>
+              {translationLabel ? <p className="text-sm italic text-muted">{translationLabel}</p> : null}
               {d.scripture_reference ? (
-                <p className="mt-4 max-w-[36rem] text-muted">
+                <p className="max-w-[36rem] text-muted">
                   This translation’s text is not reproduced here. Read the passage in your own Bible
                   <span className="print:hidden">
                     , or{" "}
@@ -155,24 +156,27 @@ export function DevotionalView({
   );
 }
 
-/** One part of the lesson: its step (Read, Talk, Do, Pray), its title, a short tip for the teacher, then the text. */
+/** One part of the lesson: its icon in the margin, its title with the step (Read, Talk, Do, Pray), a short tip for the teacher, then the text. Every line is 2rem, on the rules. */
 function Part({ step, icon, id, title, rubric, children }: { n: number; step: string; icon: IconName; id: string; title: string; rubric: string; children: ReactNode }) {
   return (
-    <li id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 break-inside-avoid p-5 md:grid-cols-[3rem_minmax(0,1fr)] md:p-8 print:px-0 print:py-4">
-      <span aria-hidden="true" className="grid size-10 place-items-center rounded-full bg-brand-soft text-brand md:size-12 print:hidden">
-        <Icon name={icon} size={22} />
+    <li id={id} aria-labelledby={`${id}-title`} className="relative scroll-mt-24 break-inside-avoid px-5 pt-8 sm:pl-16 sm:pr-8 md:pr-10 print:px-0">
+      <span aria-hidden="true" className="absolute left-1 top-8 hidden size-8 place-items-center rounded-full bg-brand-soft text-brand sm:left-[calc((var(--wb-margin)-2rem)/2)] sm:grid print:hidden">
+        <Icon name={icon} size={18} />
       </span>
       <section className="min-w-0">
-        <p className="text-sm font-semibold text-brand">{step}</p>
-        <h2 id={`${id}-title`} className="text-xl font-semibold md:text-2xl">{title}</h2>
-        <p className="mt-1 text-muted print:hidden">{rubric}</p>
-        <div className="mt-4">{children}</div>
+        <h2 id={`${id}-title`} className="flex flex-wrap items-center gap-x-3 text-xl font-semibold leading-8">
+          <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand sm:hidden print:hidden"><Icon name={icon} size={16} /></span>
+          {title}
+          <span className="rounded-full bg-parchment px-2.5 text-sm font-medium leading-6 text-muted print:hidden"><span className="sr-only"> (</span>{step}<span className="sr-only">)</span></span>
+        </h2>
+        <p className="leading-8 text-muted print:hidden">{rubric}</p>
+        <div>{children}</div>
       </section>
     </li>
   );
 }
 
 function Rich({ doc, large = false }: { doc: DevotionalRecord["reflection"]; large?: boolean }) {
-  if (doc.content.length === 0) return <p className="font-serif italic text-muted">Not written yet.</p>;
-  return <RichTextView doc={doc} className={`max-w-[36rem] font-serif ${large ? "text-2xl leading-snug text-balance" : "text-lg"}`} />;
+  if (doc.content.length === 0) return <p className="font-serif italic leading-8 text-muted">Not written yet.</p>;
+  return <RichTextView doc={doc} className={`max-w-[36rem] font-serif ${large ? "text-[1.4rem] text-balance" : "text-lg"}`} />;
 }

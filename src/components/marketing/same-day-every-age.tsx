@@ -12,12 +12,13 @@ export function SameDayEveryAge() {
     <figure>
       <div className="grid gap-4 md:grid-cols-2">
         {SAMPLES.map((s) => (
-          <div key={s.band} className="workbook-paper rounded-card border border-line p-6 shadow-card sm:pl-16">
-            <p className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded-full bg-brand px-2.5 py-0.5 font-semibold text-white">{s.band}</span>
+          // Written on the rules: the label row and each line of the question are 2rem.
+          <div key={s.band} className="workbook-paper rounded-card border border-line px-6 pb-8 pt-8 shadow-card sm:pl-16">
+            <p className="flex h-8 flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full bg-brand px-2.5 py-0.5 font-semibold leading-5 text-white">{s.band}</span>
               <span className="text-muted">{s.long} · Talk</span>
             </p>
-            <p className="mt-4 font-serif text-2xl leading-snug text-balance md:text-[1.7rem]">{s.text}</p>
+            <p className="font-serif text-[1.5rem] leading-8 text-balance">{s.text}</p>
           </div>
         ))}
       </div>

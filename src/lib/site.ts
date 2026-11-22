@@ -6,7 +6,7 @@ export const SITE = {
   wordmark: "Everyday Devotional",
   mark: "180",
   description:
-    "A classroom devotional for every day of the school year, at your students' reading level, ready to present in a minute.",
+    "A classroom devotional for every school day, at your students' reading level, ready to present in a minute.",
 } as const;
 
 export type NavItem = { href: string; label: string; icon: IconName };

@@ -47,49 +47,54 @@ export default async function LandingPage() {
       {/* Today's lesson: the workbook page for the day, ready to present. */}
       <section aria-labelledby="today-title" className="py-8 md:py-12">
         <Container className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-8">
-          <article id="today-lesson" className="workbook-paper min-w-0 rounded-card border border-line shadow-card">
-            <div className="px-5 pb-6 pt-5 sm:pl-16 sm:pr-8 md:pb-8 md:pt-7">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-                <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-brand-soft px-3 font-semibold text-brand">
+          <article id="today-lesson" className="workbook-paper min-w-0 overflow-hidden rounded-card border border-line shadow-card">
+            {/* Written on the rules: every line here is 2rem (titles 2rem on phones, 4rem on wide screens). */}
+            <div className="px-5 pt-8 sm:pl-16 sm:pr-8">
+              <div className="flex min-h-8 flex-wrap items-center gap-x-4 text-sm leading-8">
+                <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-soft px-3 font-semibold leading-none text-brand">
                   <Icon name="sun" size={16} /> {today ? "Today" : formatDate(iso)}
                 </span>
                 {today?.theme ? (
-                  <span className="flex items-center gap-2 text-muted">
+                  <span className="flex flex-wrap items-center gap-x-2 text-muted">
                     <span>This week: <span className="font-semibold text-ink">{today.theme.title}</span></span>
                     {weekDay ? (
-                      <span className="flex items-center gap-1" role="img" aria-label={today.theme.dayLabel}>
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <span key={n} className={`size-2.5 rounded-full ${n < weekDay ? "bg-gilt" : n === weekDay ? "bg-brand ring-2 ring-brand/25" : "bg-line"}`} />
-                        ))}
+                      <span className="flex items-center gap-2">
+                        <span aria-hidden="true" className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <span key={n} className={`size-2.5 rounded-full ${n < weekDay ? "bg-gilt" : n === weekDay ? "bg-brand ring-2 ring-brand/25" : "bg-line"}`} />
+                          ))}
+                        </span>
+                        <span className="whitespace-nowrap">{today.theme.dayLabel}</span>
                       </span>
                     ) : null}
                   </span>
                 ) : null}
               </div>
 
-              <h1 id="today-title" className="mt-4 font-serif text-3xl font-semibold leading-[1.15] tracking-[-0.01em] text-balance md:text-[2.6rem]">
+              <h1 id="today-title" className="font-serif text-[1.75rem] font-semibold leading-8 tracking-[-0.01em] text-balance md:text-[2.5rem] md:leading-[4rem]">
                 {today ? today.title : "A devotional for every school day, written for every age"}
               </h1>
               {today ? (
-                <p className="mt-2 text-muted">
+                <p className="leading-8 text-muted">
                   {[today.scripture.reference, today.topic].filter(Boolean).join(" · ")}
                 </p>
               ) : null}
+            </div>
 
-              <div className="mt-6">
-                {today ? (
-                  <InlinePresenter content={today} />
-                ) : (
-                  <div className="rounded-card border border-line bg-surface p-6 md:p-10">
-                    <p className="font-serif text-2xl leading-snug">Today’s devotional appears here each school day.</p>
-                    <p className="mt-3 max-w-xl text-muted">
-                      Open this page in the morning and present it to your class, with no sign-in. Until the first devotionals
-                      are published, try classroom mode with a sample.
-                    </p>
-                    <ButtonLink href="/classroom-demo" className="mt-6">Try classroom mode</ButtonLink>
-                  </div>
-                )}
-              </div>
+            {/* The presenter is pasted onto the page: its own panel, clear of the ruling. */}
+            <div className="mt-8 bg-surface px-5 pb-6 pt-1 sm:ml-[calc(var(--wb-margin)+1.5px)] sm:pl-[calc(4rem-var(--wb-margin)-1.5px)] sm:pr-8 md:pb-8">
+              {today ? (
+                <InlinePresenter content={today} />
+              ) : (
+                <div className="rounded-card border border-line bg-surface p-6 md:p-10">
+                  <p className="font-serif text-2xl leading-snug">Today’s devotional appears here each school day.</p>
+                  <p className="mt-3 max-w-xl text-muted">
+                    Open this page in the morning and present it to your class, with no sign-in. Until the first devotionals
+                    are published, try classroom mode with a sample.
+                  </p>
+                  <ButtonLink href="/classroom-demo" className="mt-6">Try classroom mode</ButtonLink>
+                </div>
+              )}
             </div>
           </article>
 
@@ -174,13 +179,13 @@ export default async function LandingPage() {
             <p className="mt-4 text-lg text-muted">
               Monday to Friday, every week has one theme, so a class lives with an idea for a few days.
             </p>
-            {/* Why "180": the name counts a school year, but the devotionals keep going all year. */}
+            {/* Why "180 Days": the name counts a school year; the devotionals keep going all year. */}
             <p className="mt-4 flex gap-3 rounded-card bg-gold-soft p-4 text-ink">
               <Icon name="calendar" size={20} className="mt-1 shrink-0 text-gold-ink" />
               <span>
-                <span className="font-semibold">Why 180?</span> A school year has about 180 school days, and they are all
-                here. But it doesn’t stop there: there is a devotional for every weekday, all 52 weeks of the year, so
-                summer school, year-round schools and any calendar are covered.
+                A devotional for every weekday, whatever your school’s calendar. The name counts a school year of about 180
+                days, but it doesn’t stop there: the devotionals carry on through all 52 weeks, so summer school and
+                year-round schools have one each day too.
               </span>
             </p>
           </div>
@@ -189,13 +194,13 @@ export default async function LandingPage() {
       </section>
 
       <section aria-labelledby="trust-title" className="py-14 md:py-20">
-        <Container>
+        <Container className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <h2 id="trust-title" className="font-serif text-3xl font-semibold leading-tight md:text-[2.4rem]">Made for schools</h2>
-          <ul className="mt-8 grid gap-6 md:grid-cols-3">
+          <ul className="grid gap-5">
             {TRUST.map((item) => (
               <li key={item.title} className="flex gap-4">
-                <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
-                  <Icon name="shield" size={20} />
+                <span aria-hidden="true" className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-gold-soft text-gold-ink">
+                  <Icon name="check" size={16} />
                 </span>
                 <div>
                   <p className="text-lg font-semibold">{item.title}</p>
@@ -207,12 +212,13 @@ export default async function LandingPage() {
         </Container>
       </section>
 
-      <section id="founding" aria-labelledby="founding-title" className="scroll-mt-20 pb-16 md:pb-24">
+      <section id="founding" aria-labelledby="founding-title" className="scroll-mt-20 border-t border-line bg-surface py-14 md:py-20">
         <Container>
-          <div className="on-dark rounded-card bg-brand px-6 py-10 text-white shadow-lift md:px-12 md:py-14">
+          {/* A sign-up sheet in the workbook: the margin line, gold checks, one blue action. */}
+          <div className="workbook-margin rounded-card border border-line px-5 py-8 shadow-card sm:pl-16 sm:pr-10 md:py-12">
             <div className="max-w-3xl">
               <h2 id="founding-title" className="font-serif text-3xl font-semibold leading-tight md:text-[2.6rem]">Become a founding school</h2>
-              <p className="mt-5 text-lg leading-relaxed text-[#e6ecfb]">
+              <p className="mt-4 text-lg leading-relaxed text-muted">
                 The first devotionals are being written and theologically reviewed now. Founding schools use them first, in
                 real classrooms, and tell us what works.
               </p>
@@ -223,11 +229,13 @@ export default async function LandingPage() {
                 { title: "What we ask", items: ["Teachers answer a short survey in the app, about three minutes.", "One conversation with an administrator, about 30 to 40 minutes.", "Honest feedback, including “not yet” if that is the answer."] },
               ].map((col) => (
                 <div key={col.title}>
-                  <h3 className="text-lg font-semibold text-white">{col.title}</h3>
+                  <h3 className="text-lg font-semibold">{col.title}</h3>
                   <ul className="mt-4 grid gap-3">
                     {col.items.map((item) => (
                       <li key={item} className="flex gap-3">
-                        <Icon name="check" size={18} className="mt-1 shrink-0 text-gilt" />
+                        <span aria-hidden="true" className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-gold-soft text-gold-ink">
+                          <Icon name="check" size={15} />
+                        </span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -235,16 +243,14 @@ export default async function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-12">
+            <div className="mt-10 border-t border-line pt-8">
               {contact ? (
                 <>
-                  <a href={contactHref} className="inline-flex min-h-13 items-center justify-center gap-2 rounded-control bg-white px-7 text-lg font-semibold text-brand shadow-card hover:bg-brand-soft">
-                    Write to us about your school
-                  </a>
-                  <p className="mt-3 text-sm text-[#e6ecfb]">Opens an email to {contact}.</p>
+                  <ButtonLink href={contactHref} size="lg">Write to us about your school</ButtonLink>
+                  <p className="mt-3 text-sm text-muted">Opens an email to {contact}.</p>
                 </>
               ) : (
-                <p className="text-[#e6ecfb]">Founding places are by invitation. Ask the person who shared this page with you.</p>
+                <p className="text-muted">Founding places are by invitation. Ask the person who shared this page with you.</p>
               )}
             </div>
           </div>
@@ -253,5 +259,6 @@ export default async function LandingPage() {
     </>
   );
 }
+
 
 

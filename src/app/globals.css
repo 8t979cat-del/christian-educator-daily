@@ -74,7 +74,10 @@
   a { text-underline-offset: 0.2em; }
 }
 
-/* A workbook page: faint blue ruling every 2rem with a red margin line (close to the edge on phones). */
+/* A workbook page: faint blue ruling every 2rem with a red margin line (close to the edge on phones).
+   Each rule sits 1.8rem into its 2rem band, just under the baseline of text set on a 2rem line
+   (or 4rem for large titles), so writing sits on the lines. Blocks that cannot keep to the
+   2rem grid clear the ruling with a solid background instead of letting rules cross glyphs. */
 :root { --wb-margin: 0.625rem; }
 @media (min-width: 40rem) { :root { --wb-margin: 2.75rem; } }
 @utility workbook-paper {
@@ -82,7 +85,19 @@
   background-image:
     linear-gradient(to right, transparent var(--wb-margin), var(--color-margin) var(--wb-margin), var(--color-margin) calc(var(--wb-margin) + 1.5px), transparent calc(var(--wb-margin) + 1.5px)),
     repeating-linear-gradient(to bottom, transparent 0, transparent calc(2rem - 1px), var(--color-ruling) calc(2rem - 1px), var(--color-ruling) 2rem);
+  background-position: 0 0, 0 -0.2rem;
 }
+/* The margin line alone, for sheets whose text does not keep to the ruling. */
+@utility workbook-margin {
+  background-color: var(--color-surface);
+  background-image: linear-gradient(to right, transparent var(--wb-margin), var(--color-margin) var(--wb-margin), var(--color-margin) calc(var(--wb-margin) + 1.5px), transparent calc(var(--wb-margin) + 1.5px));
+}
+/* Rich text written on the rules: every line 2rem, paragraphs indented rather than spaced. */
+.on-rules .rich-text, .on-rules.rich-text { line-height: 2rem; }
+.on-rules .rich-text > * + * { margin-top: 0; }
+.on-rules .rich-text p + p { text-indent: 1.5em; }
+.on-rules .rich-text h3, .on-rules .rich-text h4 { margin-top: 2rem; line-height: 2rem; }
+.on-rules .rich-text li + li, .on-rules .rich-text li > * + * { margin-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
