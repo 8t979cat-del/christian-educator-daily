@@ -8,7 +8,7 @@ import { FitText } from "./fit-text";
 
 export function themeVars(theme: ThemeId): CSSProperties {
   const t = PRESENT_THEMES[theme];
-  return { "--p-bg": t.bg, "--p-fg": t.fg, "--p-accent": t.accent, "--p-muted": t.muted, background: t.bg, color: t.fg } as CSSProperties;
+  return { "--p-bg": t.bg, "--p-fg": t.fg, "--p-accent": t.accent, "--p-muted": t.muted, "--p-verse": t.verse, background: t.bg, color: t.fg } as CSSProperties;
 }
 
 const accent: CSSProperties = { color: "var(--p-accent)" };
@@ -64,7 +64,7 @@ export function SlideView({ slide, size, band, onFit }: { slide: Slide; size: nu
                   <span key={i} className={i === 0 ? "block" : "mt-[0.22em] block"}>
                     {verse ? (
                       <>
-                        <sup className="align-[0.45em] text-[0.55em] leading-none" style={accent}>{verse[1]}</sup>
+                        <sup className="align-[0.45em] text-[0.55em] leading-none" style={{ color: "var(--p-verse)" }}>{verse[1]}</sup>
                         {/* A real space, so copied text and screen readers get "1 The", not "1The". */}
                         {" "}{verse[2]}
                       </>
