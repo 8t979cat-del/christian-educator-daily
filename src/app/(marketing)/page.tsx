@@ -172,8 +172,16 @@ export default async function LandingPage() {
           <div>
             <h2 id="week-title" className="font-serif text-3xl font-semibold leading-tight md:text-[2.4rem]">A theme for each week of the school year</h2>
             <p className="mt-4 text-lg text-muted">
-              Monday to Friday, every week has one theme, so a class lives with an idea for a few days. Whatever your
-              school’s calendar, there is a devotional for each school day.
+              Monday to Friday, every week has one theme, so a class lives with an idea for a few days.
+            </p>
+            {/* Why "180": the name counts a school year, but the devotionals keep going all year. */}
+            <p className="mt-4 flex gap-3 rounded-card bg-gold-soft p-4 text-ink">
+              <Icon name="calendar" size={20} className="mt-1 shrink-0 text-gold-ink" />
+              <span>
+                <span className="font-semibold">Why 180?</span> A school year has about 180 school days, and they are all
+                here. But it doesn’t stop there: there is a devotional for every weekday, all 52 weeks of the year, so
+                summer school, year-round schools and any calendar are covered.
+              </span>
             </p>
           </div>
           <SchoolWeek />
