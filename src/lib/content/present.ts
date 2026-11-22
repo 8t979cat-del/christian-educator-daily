@@ -481,19 +481,9 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
   richSection("reflection", text.reflection, H.reflection, false);
   richSection("discussion", text.discussion_question, H.discussion, true);
 
-  // Respond: the practical step and the prayer share one closing slide when they fit together.
-  const respond = ([["practice", text.practical_application, H.practice], ["prayer", text.prayer, H.prayer]] as const)
-    .filter(([id, doc]) => on(id) && richTextToPlain(doc).trim() !== "");
-  const together = respond.reduce((n, [, doc]) => n + richTextToPlain(doc).length, 0);
-  if (respond.length === 2 && together <= pageCapacity("rich", stage, { ...opts, headings: 2 })) {
-    add(["practice", "prayer"], `${SECTION_LABELS.practice} and ${SECTION_LABELS.prayer.toLowerCase()}`, [{
-      kind: "rich",
-      parts: respond.map(([id, doc, heading]) => ({ section: id, heading, doc })),
-      emphasis: false,
-    }]);
-  } else {
-    for (const [id, doc, heading] of respond) richSection(id, doc, heading, false);
-  }
+  // Do and Pray each get their own slide, so the lesson's four steps (Read, Talk, Do, Pray) map one to one.
+  richSection("practice", text.practical_application, H.practice, false);
+  richSection("prayer", text.prayer, H.prayer, false);
   // Tie each question slide's size to the text slide before it (usually the reflection).
   for (let i = 1; i < slides.length; i++) {
     const body = slides[i]!.body;

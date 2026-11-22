@@ -177,7 +177,7 @@ async function walk(page, label) {
     const dedup = order.filter((x, i) => x !== order[i - 1]);
     console.log("  order:", dedup.join(" | "));
     // Theme and title share the opening slide; practice and prayer share the closing one.
-    check(dedup.join("|") === "Devotional title|Scripture passage|Reflection|Discussion question|Put it into practice and closing prayer", "slide order");
+    check(dedup.join("|") === "Devotional title|Scripture passage|Reflection|Discussion question|Put it into practice|Closing prayer", "slide order");
 
     // Controls fade away so only the slide remains.
     await page.mouse.move(600, 400);
