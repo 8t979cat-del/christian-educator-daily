@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ToastProvider } from "@/components/ui/toast";
 import { getPublicEnv } from "@/lib/env";
 import { SITE } from "@/lib/site";
-import { caslon } from "./fonts";
+import { lexend, literata } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={caslon.variable}>
+    <html lang="en" className={`${lexend.variable} ${literata.variable}`}>
       <body>
         <a
           href="#main"

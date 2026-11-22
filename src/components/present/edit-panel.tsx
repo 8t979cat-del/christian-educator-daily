@@ -115,7 +115,7 @@ export function EditPanel({
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-serif text-2xl font-normal">Edit this devotional</h2>
+            <h2 className="font-serif text-2xl font-semibold">Edit this devotional</h2>
             <p className="text-sm text-[#333]">{level}{saved ? " · your saved version" : ""}</p>
           </div>
           <button type="button" onClick={onClose} className={BTN}>Close</button>

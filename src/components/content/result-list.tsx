@@ -22,7 +22,7 @@ export function ResultList({ hits, hrefFor, showStatus, states }: { hits: Search
               {states?.get(hit.id)?.completed_at ? <span className="font-semibold text-brand">✓ Completed</span> : null}
               {states?.get(hit.id)?.bookmarked ? <span className="font-semibold text-brand">Saved</span> : null}
             </div>
-            <h3 className="mt-1 font-serif text-xl font-normal">{hit.title || "Untitled devotional"}</h3>
+            <h3 className="mt-1 font-serif text-xl font-semibold">{hit.title || "Untitled devotional"}</h3>
             {hit.daily_topic ? <p className="mt-0.5 text-muted">{hit.daily_topic}</p> : null}
             {hit.excerpt ? <p className="mt-2 line-clamp-2 text-ink/80">{hit.excerpt}</p> : null}
             {showStatus && hit.author_name ? <p className="mt-2 text-sm text-muted">By {hit.author_name}</p> : null}

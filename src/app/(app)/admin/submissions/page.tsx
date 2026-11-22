@@ -57,7 +57,7 @@ export default async function SubmissionsPage() {
       {pending.length === 0 ? (
         <EmptyState title="Nothing waiting for review" description="When a teacher submits a devotional from the Write tab, it appears here." />
       ) : (
-        <ol className="border-t-4 border-double border-ink/70">
+        <ol className="divide-y divide-line rounded-card border border-line bg-surface px-5 shadow-card md:px-8">
           {pending.map((s) => {
             const text = toLevels({ k2: s.content }).k2 ?? {};
             const code = s.scripture?.translation_code;
@@ -68,11 +68,11 @@ export default async function SubmissionsPage() {
                     {[s.author_name ? `From ${s.author_name}` : "From a teacher", `submitted ${formatDate(s.created_at.slice(0, 10), "short")}`].join(" · ")}
                   </p>
                   <h2 className="mt-1 font-serif text-2xl md:text-3xl">{s.title}</h2>
-                  <p className="mt-1 font-serif italic text-muted">
+                  <p className="mt-1 text-muted">
                     {[s.topic, s.scripture?.reference ? `${s.scripture.reference}${isBibleCode(code) ? ` (${BIBLES[code].short})` : ""}` : null, s.topics.join(", ")].filter(Boolean).join(" · ")}
                   </p>
                 </header>
-                {s.note ? <p className="max-w-[36rem] border-l-2 border-rubric/60 pl-4 font-serif italic">“{s.note}”</p> : null}
+                {s.note ? <p className="max-w-[36rem] rounded-control bg-gold-soft p-3 font-serif italic">“{s.note}”</p> : null}
                 <details className="max-w-[40rem]">
                   <summary className="min-h-11 cursor-pointer font-semibold text-brand">Read the devotional</summary>
                   <div className="mt-3 grid gap-5">
@@ -80,7 +80,7 @@ export default async function SubmissionsPage() {
                       const doc = text[key];
                       return doc && doc.content.length ? (
                         <section key={key}>
-                          <h3 className="font-serif text-lg text-rubric">{label}</h3>
+                          <h3 className="text-lg font-semibold text-brand">{label}</h3>
                           <RichTextView doc={doc} className="mt-1 font-serif" />
                         </section>
                       ) : null;

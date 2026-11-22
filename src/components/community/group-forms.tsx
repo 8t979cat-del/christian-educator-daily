@@ -91,7 +91,7 @@ export function PostComposer({ groupId }: { groupId: string }) {
   }, [state]);
   return (
     <form ref={ref} action={action} className="grid gap-4 rounded-card border border-line bg-surface p-5" aria-labelledby="gp-title">
-      <h3 id="gp-title" className="font-serif text-xl font-normal">Share with the group</h3>
+      <h3 id="gp-title" className="font-serif text-xl font-semibold">Share with the group</h3>
       <input type="hidden" name="groupId" value={groupId} />
       <SelectField name="kind" label="Type" value={kind} onChange={(e) => setKind(e.currentTarget.value)} options={Object.entries(GROUP_POST_LABELS).map(([value, label]) => ({ value, label }))} />
       <TextField name="title" label="Title (optional)" maxLength={120} />

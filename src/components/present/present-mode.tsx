@@ -403,7 +403,7 @@ export function PresentMode({
         {panel === "notes" && notesSlot ? (
           <aside aria-label="Presenter notes" className="fixed inset-y-0 right-0 z-30 w-full max-w-md overflow-y-auto bg-white p-4 text-[#111]">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-xl font-normal">Presenter notes</h2>
+              <h2 className="font-serif text-xl font-semibold">Presenter notes</h2>
               <button type="button" onClick={() => setPanel("none")} className="min-h-11 rounded-control border border-[#777] px-3 text-sm font-semibold">Close</button>
             </div>
             <p role="note" className="mt-2 rounded-control bg-[#fff3cd] p-3 text-sm font-medium">

@@ -1,4 +1,5 @@
-import { Fragment, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { SITE } from "@/lib/site";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
@@ -7,14 +8,10 @@ import type { DevotionalRecord } from "@/lib/content/types";
 
 export type ThemeInfo = { title: string; summary: string; day: number | null };
 
-const ROMAN = ["I", "II", "III", "IV", "V"] as const;
-
 /**
- * The devotional as a page of the hymnal: a running head, the red calendar day
- * beside the title with the week's theme as its tune and meter, then the five
- * parts in the order a class meets them (Scripture, reflection, a question,
- * practice, prayer), each under a red numeral and a red italic rubric, divided
- * by printed rules. Scripture text appears only when the translation's licence
+ * The devotional as a lesson: the date and the week's theme, the title, then the five parts
+ * in the order a class meets them, grouped by the lesson's steps (Read, Talk, Do, Pray), each
+ * with a short tip for the teacher. Scripture text appears only when the translation's licence
  * allows it; otherwise the reference stands alone with a way to read it elsewhere.
  */
 export function DevotionalView({
@@ -36,10 +33,7 @@ export function DevotionalView({
   const translationLabel = translation ? `${translation.name} (${translation.code.toUpperCase()})` : null;
   const grades = d.grade_levels.map((g) => label(GRADE_BANDS, g)).join(", ");
   const date = new Date(`${d.devotional_date}T00:00:00Z`);
-  const day = date.getUTCDate();
-  const month = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
   const weekday = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
-  const meter = [theme?.title, theme?.day ? `Day ${theme.day} of 5` : null].filter(Boolean) as string[];
   const kinds = [d.category_slug ? categoryName(d.category_slug) : null, d.educational_category ? label(EDUCATIONAL_CATEGORIES, d.educational_category) : null].filter(Boolean);
   const colophon = [
     !credited && d.author_name ? `Written by ${d.author_name}` : null,
@@ -49,47 +43,47 @@ export function DevotionalView({
 
   return (
     <article className="mx-auto w-full max-w-3xl lg:max-w-5xl print:max-w-none">
-      {/* Running head: the passage on the left, the date on the right, over a double rule. */}
-      <div className="flex items-baseline justify-between gap-4 border-b-4 border-double border-ink/70 pb-2 font-serif text-sm text-muted">
-        <span className="truncate">{d.scripture_reference || SITE.wordmark}</span>
-        <span className="shrink-0 italic">{weekday}</span>
-      </div>
-
-      {/* The day's page: the text column, and on wide screens a hairline-ruled margin for the tune and meter notes. */}
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-12 print:block">
-      <header className="mt-6 flex items-start gap-5 md:gap-7 lg:col-start-1">
-        <p aria-hidden="true" className="grid shrink-0 justify-items-center font-serif text-rubric print:text-black">
-          <span className="text-[4.5rem] leading-[0.8] tabular-nums md:text-[6rem]">{day}</span>
-          <span className="mt-2 text-sm uppercase tracking-[0.2em]">{month}</span>
-        </p>
-        <div className="min-w-0 pt-1">
-          <h1 className="font-serif text-3xl leading-[1.12] text-balance md:text-[2.75rem]">{d.title || "Untitled devotional"}</h1>
-          {meter.length ? (
-            <p className="mt-2 font-serif italic text-muted">
-              {meter.map((part, i) => (
-                <Fragment key={part}>
-                  {i > 0 ? " · " : ""}
-                  <span className="whitespace-nowrap">{part}</span>
-                </Fragment>
-              ))}
-            </p>
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-x-8 print:block">
+      {/* The lesson's heading: today's date, the week's theme with its five days, and the title. */}
+      <header className="lg:col-start-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-brand-soft px-3 font-semibold text-brand print:bg-transparent print:px-0">
+            <Icon name="calendar" size={16} /> {weekday}
+          </span>
+          {theme?.title ? (
+            <span className="flex items-center gap-2 text-muted">
+              <span>This week: <span className="font-semibold text-ink">{theme.title}</span></span>
+              {theme.day ? (
+                <span className="flex items-center gap-1 print:hidden" role="img" aria-label={`Day ${theme.day} of 5`}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span key={n} className={`size-2.5 rounded-full ${n < theme.day! ? "bg-gilt" : n === theme.day ? "bg-brand ring-2 ring-brand/25" : "bg-line"}`} />
+                  ))}
+                </span>
+              ) : null}
+            </span>
           ) : null}
         </div>
+        <h1 className="mt-4 font-serif text-3xl font-semibold leading-[1.15] tracking-[-0.01em] text-balance md:text-[2.6rem]">{d.title || "Untitled devotional"}</h1>
+        {d.scripture_reference ? <p className="mt-2 text-muted">{d.scripture_reference}</p> : null}
       </header>
 
       {d.daily_topic || theme?.summary || kinds.length ? (
-        <aside aria-label="About this day" className="mt-6 max-w-[36rem] font-serif lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-6 lg:self-start lg:border-l lg:border-line lg:pl-6">
-          {d.daily_topic ? <p className="text-xl leading-snug">{d.daily_topic}</p> : null}
+        <aside aria-label="About this day" className="mt-6 max-w-[36rem] rounded-card border border-line bg-surface p-5 shadow-card lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-0 lg:self-start print:border-0 print:p-0 print:shadow-none">
+          {d.daily_topic ? <p className="font-serif text-lg font-semibold leading-snug">{d.daily_topic}</p> : null}
           {theme?.summary ? <p className="mt-2 text-muted">{theme.summary}</p> : null}
-          {kinds.length ? <p className="mt-2 text-sm italic text-muted">{kinds.join(" · ")}</p> : null}
+          {kinds.length ? (
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {kinds.map((k) => <li key={k as string} className="rounded-full bg-parchment px-2.5 py-0.5 text-sm text-muted">{k}</li>)}
+            </ul>
+          ) : null}
         </aside>
       ) : null}
 
       {actions ? <div className="mt-6 print:hidden lg:col-start-1">{actions}</div> : null}
 
       <div className="lg:col-start-1">
-      <ol className="mt-10 border-t-4 border-double border-ink/70 print:mt-6">
-        <Part n={0} id="scripture" title="Scripture" rubric="Read it aloud together. Announce the reference first.">
+      <ol className="mt-8 divide-y divide-line rounded-card border border-line bg-surface shadow-card print:mt-6 print:border-0 print:shadow-none">
+        <Part n={0} step="Read" icon="book" id="scripture" title="Scripture" rubric="Read it aloud together. Announce the reference first.">
           {display.mode === "text" ? (
             <figure>
               <blockquote className="font-serif text-xl leading-relaxed md:text-2xl">
@@ -126,7 +120,7 @@ export function DevotionalView({
                       href={passageLookupUrl(d.scripture_reference, d.translation_code)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-rubric underline decoration-rubric/40 underline-offset-4 hover:decoration-rubric"
+                      className="font-semibold text-brand underline"
                     >
                       open it on Bible Gateway<span className="sr-only"> (opens in a new tab)</span>
                     </a>
@@ -137,22 +131,22 @@ export function DevotionalView({
             </div>
           )}
         </Part>
-        <Part n={1} id="reflection" title="Reflection" rubric="Read it yourself first; it is written at your students’ level.">
+        <Part n={1} step="Read" icon="book" id="reflection" title="Reflection" rubric="Read it yourself first; it is written at your students’ level.">
           <Rich doc={d.reflection} />
         </Part>
-        <Part n={2} id="think" title="A question to talk about" rubric="Let the room answer before you do.">
+        <Part n={2} step="Talk" icon="chat" id="think" title="A question to talk about" rubric="Let the room answer before you do.">
           <Rich doc={d.discussion_question} large />
         </Part>
-        <Part n={3} id="practice" title="Put it into practice" rubric="One small thing to try today.">
+        <Part n={3} step="Do" icon="target" id="practice" title="Put it into practice" rubric="One small thing to try today.">
           <Rich doc={d.practical_application} />
         </Part>
-        <Part n={4} id="prayer" title="Closing prayer" rubric="Pray it together, or invite a student to read it.">
+        <Part n={4} step="Pray" icon="pray" id="prayer" title="Closing prayer" rubric="Pray it together, or invite a student to read it.">
           <Rich doc={d.prayer} />
         </Part>
       </ol>
 
       {colophon.length ? (
-        <p className="mt-8 font-serif text-sm italic text-muted">{colophon.join(" · ")}</p>
+        <p className="mt-6 text-sm text-muted">{colophon.join(" · ")}</p>
       ) : null}
       </div>
       </div>
@@ -161,14 +155,17 @@ export function DevotionalView({
   );
 }
 
-/** One part of the day: a red numeral, its title, a red italic rubric, then the text. Closed by a hairline. */
-function Part({ n, id, title, rubric, children }: { n: number; id: string; title: string; rubric: string; children: ReactNode }) {
+/** One part of the lesson: its step (Read, Talk, Do, Pray), its title, a short tip for the teacher, then the text. */
+function Part({ step, icon, id, title, rubric, children }: { n: number; step: string; icon: IconName; id: string; title: string; rubric: string; children: ReactNode }) {
   return (
-    <li id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-3 break-inside-avoid border-b border-line py-7 md:grid-cols-[3.5rem_minmax(0,1fr)] print:py-4">
-      <span aria-hidden="true" className="font-serif text-xl text-rubric md:text-2xl print:text-black">{ROMAN[n]}</span>
+    <li id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 break-inside-avoid p-5 md:grid-cols-[3rem_minmax(0,1fr)] md:p-8 print:px-0 print:py-4">
+      <span aria-hidden="true" className="grid size-10 place-items-center rounded-full bg-brand-soft text-brand md:size-12 print:hidden">
+        <Icon name={icon} size={22} />
+      </span>
       <section className="min-w-0">
-        <h2 id={`${id}-title`} className="font-serif text-xl md:text-2xl">{title}</h2>
-        <p className="mt-1 font-serif italic text-rubric print:hidden">{rubric}</p>
+        <p className="text-sm font-semibold text-brand">{step}</p>
+        <h2 id={`${id}-title`} className="text-xl font-semibold md:text-2xl">{title}</h2>
+        <p className="mt-1 text-muted print:hidden">{rubric}</p>
         <div className="mt-4">{children}</div>
       </section>
     </li>

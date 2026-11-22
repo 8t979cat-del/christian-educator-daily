@@ -92,12 +92,12 @@ export function NewDevotionalWithAi({
 
   return (
     <div className="grid gap-8">
-      <section aria-labelledby="ai-new-h" className="border-y-4 border-double border-ink/70 py-6">
+      <section aria-labelledby="ai-new-h" className="rounded-card border border-line bg-surface p-5 shadow-card md:p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h2 id="ai-new-h" className="font-serif text-2xl">Start from an AI draft</h2>
           {ai.configured && quota ? <AiCounter quota={quota} /> : null}
         </div>
-        <p className="mt-1 max-w-[40rem] font-serif italic text-muted">
+        <p className="mt-1 max-w-[40rem] text-muted">
           Choose up to {MAX} categories and a reading level. The AI fills in the form below: title, topic, a Bible passage in the translation you choose and
           all four parts. You review and edit it before saving. Or skip this and write it yourself.
         </p>
@@ -169,7 +169,7 @@ export function NewDevotionalWithAi({
               : "Takes about half a minute. Writing a draft replaces what is in the form below. “Surprise me” picks two categories at random."}
         </p>
         {error ? <p role="alert" className="mt-3 rounded-control bg-danger-soft p-3 font-medium text-danger">{error}</p> : null}
-        <p role="status" className="mt-3 font-serif italic text-brand empty:hidden">{done}</p>
+        <p role="status" className="mt-3 font-medium text-brand empty:hidden">{done}</p>
       </section>
 
       <div ref={formTop} className="scroll-mt-24">

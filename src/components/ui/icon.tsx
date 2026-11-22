@@ -104,6 +104,24 @@ const PATHS = {
       <path d="m9 12 2.2 2.2L15.5 10" />
     </>
   ),
+  chat: (
+    <>
+      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5v-8z" />
+      <path d="M8.5 9h7M8.5 12h4.5" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m8.5 12.2 2.4 2.4 4.6-4.8" />
+    </>
+  ),
+  pray: (
+    <>
+      <path d="M12 4.5c-1 1.3-1.6 3-1.6 5v6.2L7.7 18.4a1.6 1.6 0 0 0 0 2.2h0a1.6 1.6 0 0 0 2.2 0L12 18.6l2.1 2a1.6 1.6 0 0 0 2.2 0h0a1.6 1.6 0 0 0 0-2.2l-2.7-2.7V9.5c0-2-.6-3.7-1.6-5z" />
+      <path d="M12 6.5v11" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

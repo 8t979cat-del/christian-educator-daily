@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Icon } from "@/components/ui/icon";
-import { DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, type PresentContent, type Stage } from "@/lib/content/present";
+import { Icon, type IconName } from "@/components/ui/icon";
+import { DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, type PresentContent, type SectionId, type Stage } from "@/lib/content/present";
 import { SlideView, themeVars } from "./slide-view";
 
 const quantize = (n: number) => Math.max(160, Math.round(n / 24) * 24);
+
+/** The four steps of every lesson, and the parts of the devotional each one covers. */
+const STEPS: Array<{ label: string; icon: IconName; sections: SectionId[] }> = [
+  { label: "Read", icon: "book", sections: ["scripture", "reflection"] },
+  { label: "Talk", icon: "chat", sections: ["discussion"] },
+  { label: "Do", icon: "target", sections: ["practice"] },
+  { label: "Pray", icon: "pray", sections: ["prayer"] },
+];
 
 /**
  * Today's devotional, presentable straight from the home page without signing
@@ -80,12 +88,47 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
     else if (e.key === "f" || e.key === "F") toggleFullscreen();
   };
 
-  const base = "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border px-3 font-serif disabled:opacity-40";
-  const btn = `${base} border-line-strong/50 bg-surface text-ink hover:bg-brand-soft`;
-  const primary = `${base} border-brand bg-brand text-white hover:bg-brand-hover`;
+  const base = "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-control border px-3 font-semibold transition-colors disabled:opacity-40";
+  const btn = `${base} border-[#b8c6ea] bg-surface text-brand hover:border-brand hover:bg-brand-soft`;
+  const primary = `${base} border-brand bg-brand text-white shadow-[0_2px_6px_-1px_rgb(35_80_204/0.45)] hover:bg-brand-hover`;
+
+  // Which lesson step the slide on screen belongs to; the opener belongs to none.
+  const stepOf = (sections: readonly SectionId[]) => STEPS.findIndex((st) => st.sections.some((x) => sections.includes(x)));
+  const currentStep = slide ? stepOf(slide.sections) : -1;
+  const jump = (step: number) => {
+    const at = slides.findIndex((sl) => stepOf(sl.sections) === step);
+    if (at >= 0) setIndex(at);
+  };
 
   return (
     <section aria-label="Today’s devotional" className="grid gap-4">
+      {/* The lesson's four steps. Each jumps to that part of the devotional; the current one is highlighted. */}
+      <nav aria-label="Lesson steps">
+        <ol className="grid grid-cols-4 gap-1.5 rounded-control bg-parchment p-1.5 sm:gap-2">
+          {STEPS.map((st, i) => {
+            const here = i === currentStep;
+            const done = currentStep > i;
+            return (
+              <li key={st.label}>
+                <button
+                  type="button"
+                  onClick={() => jump(i)}
+                  aria-current={here ? "step" : undefined}
+                  className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-[0.5rem] px-2 text-sm font-semibold transition-colors sm:text-base ${
+                    here ? "bg-surface text-brand shadow-card" : "text-muted hover:bg-surface/70 hover:text-ink"
+                  }`}
+                >
+                  <span aria-hidden="true" className={`grid size-6 shrink-0 place-items-center rounded-full text-xs tabular-nums max-sm:hidden ${here ? "bg-brand text-white" : done ? "bg-gilt text-ink" : "bg-line text-muted"}`}>
+                    {done ? <Icon name="check" size={14} /> : i + 1}
+                  </span>
+                  <Icon name={st.icon} size={18} className="sm:hidden" />
+                  {st.label}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
       <div
         ref={box}
         tabIndex={0}
@@ -93,7 +136,7 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         aria-roledescription="presentation"
         aria-label={slide ? `Slide ${safe + 1} of ${slides.length}: ${slide.label}. Use the arrow keys to move.` : "Today’s devotional"}
         className={`present-stage relative flex flex-col overflow-hidden focus-visible:outline-4 focus-visible:outline-offset-2 ${
-          fullscreen ? "h-dvh w-dvw" : "aspect-video w-full border border-ink/70 outline outline-1 outline-offset-[5px] outline-line-strong/50"
+          fullscreen ? "h-dvh w-dvw" : "aspect-video w-full rounded-card border border-line shadow-card"
         }`}
         style={themeVars("white")}
       >
@@ -103,7 +146,7 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
         {fullscreen ? (
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2">
             <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
-            <span className="font-serif tabular-nums">{safe + 1} / {slides.length}</span>
+            <span className="font-semibold tabular-nums">{safe + 1} / {slides.length}</span>
             <span className="flex gap-2">
               <button type="button" className={btn} onClick={toggleFullscreen}>Exit full screen</button>
               <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next</button>
@@ -119,18 +162,18 @@ export function InlinePresenter({ content }: { content: PresentContent }) {
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" className={btn} onClick={() => go(-1)} disabled={safe === 0}>Back</button>
         <button type="button" className={btn} onClick={() => go(1)} disabled={safe >= slides.length - 1}>Next</button>
-        <span className="px-1 font-serif text-sm italic text-muted tabular-nums">Slide {safe + 1} of {slides.length}</span>
+        <span className="px-1 text-sm text-muted tabular-nums">Slide {safe + 1} of {slides.length}</span>
         <span className="flex w-full gap-2 sm:ml-auto sm:w-auto">
           <button type="button" className={btn} aria-label="Smaller text" onClick={() => setSize((s) => Math.max(0, s - 1))} disabled={size === 0}>A−</button>
           <button type="button" className={btn} aria-label="Larger text" onClick={() => setSize((s) => Math.min(SIZE_SCALES.length - 1, s + 1))} disabled={size === SIZE_SCALES.length - 1}>A+</button>
-          <button type="button" className={`${primary} max-sm:flex-1`} onClick={toggleFullscreen}>
+          <button type="button" id="present-today" className={`${primary} max-sm:flex-1`} onClick={toggleFullscreen}>
             <Icon name="expand" size={18} /> Present full screen
           </button>
         </span>
       </div>
-      <p className="font-serif text-sm italic text-rubric">
+      <p className="text-sm text-muted">
         Reading levels for K–2 to 9–12, presenter notes and editing are for signed-in teachers.{" "}
-        <Link href="/login" className="not-italic underline underline-offset-4">Sign in</Link>
+        <Link href="/login" className="font-semibold text-brand underline">Sign in</Link>
       </p>
     </section>
   );

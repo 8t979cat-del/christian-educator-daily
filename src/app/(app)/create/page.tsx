@@ -44,7 +44,7 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
     <Link
       href={m === "blank" ? "/create" : "/create?mode=ai"}
       aria-current={mode === m ? "page" : undefined}
-      className={`-mb-px inline-flex min-h-11 items-center border-b-2 px-1 font-serif text-lg ${mode === m ? "border-rubric text-ink" : "border-transparent text-muted hover:text-ink"}`}
+      className={`-mb-px inline-flex min-h-11 items-center border-b-[3px] px-1 text-lg font-semibold ${mode === m ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink"}`}
     >
       {label}
     </Link>
@@ -64,7 +64,7 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
       </nav>
       {mode === "blank" ? (
         <>
-          {editing ? <p className="mb-4 font-serif italic text-muted">Editing “{editing.title}”. <Link href="/create" className="text-rubric underline decoration-rubric/40 underline-offset-4">Start a new one</Link></p> : null}
+          {editing ? <p className="mb-4 text-muted">Editing “{editing.title}”. <Link href="/create" className="font-semibold text-brand underline">Start a new one</Link></p> : null}
           <BlankWriter key={editing?.id ?? "new"} initial={editing ?? EMPTY_WRITTEN} justSaved={Boolean(editing && sp.saved)} />
         </>
       ) : (
@@ -72,7 +72,7 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
       )}
       {mine.length ? (
         <section aria-labelledby="mine-h" className="mt-14">
-          <h2 id="mine-h" className="font-serif text-2xl font-normal">Your devotionals</h2>
+          <h2 id="mine-h" className="font-serif text-2xl font-semibold">Your devotionals</h2>
           <ul className="mt-4 divide-y divide-line border-y border-line">
             {mine.map((d) => (
               <li key={d.id} className="grid gap-2 py-4">

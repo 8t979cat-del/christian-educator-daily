@@ -1,17 +1,24 @@
 import localFont from "next/font/local";
 
 /**
- * Libre Caslon Text, self-hosted (Latin subset): the hymnal and Bible face of the
- * site. Served from this site, so it loads on school networks that block font
- * services; about 17 KB per style.
+ * Self-hosted (Latin subset) so they load on school networks that block font services.
+ * Lexend: the interface and headings, a face designed to make reading easier.
+ * Literata: Scripture and devotional text, a book serif made for reading on screens.
+ * Both are variable fonts: one file covers every weight.
  */
-export const caslon = localFont({
+export const lexend = localFont({
+  src: [{ path: "./fonts/lexend-latin.woff2", style: "normal", weight: "300 800" }],
+  variable: "--font-lexend",
+  display: "swap",
+  adjustFontFallback: "Arial",
+});
+
+export const literata = localFont({
   src: [
-    { path: "./fonts/libre-caslon-text-400-latin.woff2", style: "normal", weight: "400" },
-    { path: "./fonts/libre-caslon-text-400-italic-latin.woff2", style: "italic", weight: "400" },
-    { path: "./fonts/libre-caslon-text-700-latin.woff2", style: "normal", weight: "700" },
+    { path: "./fonts/literata-latin.woff2", style: "normal", weight: "300 800" },
+    { path: "./fonts/literata-italic-latin.woff2", style: "italic", weight: "300 800" },
   ],
-  variable: "--font-caslon",
+  variable: "--font-literata",
   display: "swap",
   adjustFontFallback: "Times New Roman",
 });

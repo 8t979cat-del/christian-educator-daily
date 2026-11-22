@@ -44,7 +44,7 @@ export function ContributionCard({ item, devotionalId, timeZone, canInteract, is
         </p>
       ) : null}
 
-      {item.title ? <h4 id={`c-${item.id}`} className="font-serif text-lg font-normal">{item.title}</h4> : <span id={`c-${item.id}`} className="sr-only">{meta.label} by {author}</span>}
+      {item.title ? <h4 id={`c-${item.id}`} className="font-serif text-lg font-semibold">{item.title}</h4> : <span id={`c-${item.id}`} className="sr-only">{meta.label} by {author}</span>}
       <p className="whitespace-pre-wrap leading-relaxed">{item.body}</p>
 
       {item.kind === "prayer" && !hidden && item.visibility !== "private" ? (

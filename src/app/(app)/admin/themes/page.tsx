@@ -47,7 +47,7 @@ export default async function ThemesPage({ searchParams }: { searchParams: Promi
                       <p className="text-sm font-semibold text-brand">
                         {formatDate(theme.week_start, "short")} to {formatDate(addDays(theme.week_start, 4), "short")}
                       </p>
-                      <h3 className="mt-1 font-serif text-xl font-normal">{theme.title}</h3>
+                      <h3 className="mt-1 font-serif text-xl font-semibold">{theme.title}</h3>
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
                         {theme.category_slug ? <Badge>{categoryName(theme.category_slug)}</Badge> : null}
                         <span>{s.total} of 5 written</span>

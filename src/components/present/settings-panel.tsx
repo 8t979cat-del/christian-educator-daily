@@ -50,7 +50,7 @@ export function SettingsPanel({
         }}
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-normal">Presentation settings</h2>
+          <h2 className="font-serif text-2xl font-semibold">Presentation settings</h2>
           <button type="button" onClick={onClose} className={BTN}>Done</button>
         </div>
 

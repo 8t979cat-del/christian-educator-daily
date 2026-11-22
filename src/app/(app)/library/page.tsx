@@ -46,7 +46,7 @@ export default async function LibraryPage({ searchParams }: LibraryProps) {
         )}
       </div>
     <section className="mt-12" aria-labelledby="collections">
-        <h2 id="collections" className="font-serif text-2xl font-normal">Your collections</h2>
+        <h2 id="collections" className="font-serif text-2xl font-semibold">Your collections</h2>
         {collections.length === 0 && !hasCollections ? (
           <UpgradeNotice className="mt-4" title="Saved collections are part of Educator Plus" feature="collections">
             Saving devotionals with the Save button is free; collections let you organize them into sets.
@@ -56,7 +56,7 @@ export default async function LibraryPage({ searchParams }: LibraryProps) {
           <div className="mt-4 grid gap-4">
             {collections.map((c) => (
               <Card key={c.id}>
-                <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-serif text-lg font-normal">{c.name}</h3><DeleteCollectionButton id={c.id} name={c.name} /></div>
+                <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-serif text-lg font-semibold">{c.name}</h3><DeleteCollectionButton id={c.id} name={c.name} /></div>
                 <ul className="mt-2 grid gap-1 text-sm">
                   {c.user_collection_items.length === 0 ? <li className="text-muted">Empty. Add devotionals from their page.</li> : c.user_collection_items.map((i) => (
                     <li key={i.devotional_id} className="flex items-center justify-between gap-2">

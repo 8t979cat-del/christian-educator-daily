@@ -54,7 +54,7 @@ export function PresenterView({ devotionalId, notesSlot, title }: { devotionalId
     <div className="min-h-dvh bg-[#fbfaf6] p-4 text-[#1b1a17]">
       <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl font-normal">Presenter window</h1>
+          <h1 className="font-serif text-2xl font-semibold">Presenter window</h1>
           <p className="text-sm text-[#55524b]">{title}</p>
         </div>
         <p className="font-mono text-2xl" aria-label={`Elapsed time ${mm} minutes ${ss} seconds`}>{mm}:{ss}</p>

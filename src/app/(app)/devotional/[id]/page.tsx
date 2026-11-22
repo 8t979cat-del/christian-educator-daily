@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
 import { notFound } from "next/navigation";
 import { BookmarkButton, CompleteButton, PresentLink, PrintButton, ShareButton } from "@/components/content/devotional-actions";
 import { AddToCollectionControl } from "@/components/billing/collection-forms";
@@ -73,11 +74,11 @@ export default async function DevotionalPage({
         }
       />
       {credits.length > 0 ? (
-        <section aria-label="Credits" className="mx-auto w-full max-w-3xl lg:max-w-5xl lg:pr-[19rem] font-serif text-sm text-muted print:hidden">
+        <section aria-label="Credits" className="mx-auto w-full max-w-3xl lg:max-w-5xl lg:pr-[19rem] text-sm text-muted print:hidden">
           <ul className="grid gap-1">
             {credits.map((c) => (
               <li key={`${c.contributor_id}-${c.role}`}>
-                <span className="italic text-ink">{c.role === "author" ? "Written by" : c.role === "reviewer" ? "Reviewed by" : "With contributions from"} {c.name}</span>
+                <span className="font-semibold text-ink">{c.role === "author" ? "Written by" : c.role === "reviewer" ? "Reviewed by" : "With contributions from"} {c.name}</span>
                 {c.bio ? ` · ${c.bio}` : ""}
               </li>
             ))}
@@ -89,24 +90,30 @@ export default async function DevotionalPage({
         <div className="mt-6"><AddToCollectionControl devotionalId={id} collections={collections} /></div>
       </div>
       {/* Comments ("Reflect Together") are off for launch: they need moderation the pilot is not staffed for. The component and its database switch remain. */}
-      {/* Turning the page: the days either side, between printed rules. */}
-      <nav aria-label="Devotional navigation" className="mx-auto grid w-full max-w-3xl border-y-4 border-double border-ink/70 font-serif print:hidden sm:grid-cols-2">
+      {/* The days either side, as the previous and next lessons. */}
+      <nav aria-label="Devotional navigation" className="mx-auto grid w-full max-w-3xl gap-3 print:hidden sm:grid-cols-2 lg:max-w-5xl lg:pr-[19rem]">
         {prev ? (
-          <Link href={`/devotional/${prev.id}`} className="group block py-4 pr-4">
-            <span className="text-sm italic text-muted">The day before · {formatDate(prev.devotional_date, "short")}</span>
-            <span className="mt-1 block text-lg group-hover:text-rubric group-hover:underline group-hover:underline-offset-4">{prev.title}</span>
+          <Link href={`/devotional/${prev.id}`} className="group flex items-center gap-3 rounded-card border border-line bg-surface p-4 shadow-card hover:border-brand">
+            <Icon name="arrow-left" className="shrink-0 text-brand" />
+            <span className="min-w-0">
+              <span className="block text-sm text-muted">The day before · {formatDate(prev.devotional_date, "short")}</span>
+              <span className="block font-serif text-lg font-semibold leading-snug group-hover:text-brand">{prev.title}</span>
+            </span>
           </Link>
         ) : null}
         {next ? (
-          <Link href={`/devotional/${next.id}`} className={`group block py-4 text-right sm:col-start-2 sm:border-l sm:border-line sm:pl-4 ${prev ? "border-t border-line sm:border-t-0" : ""}`}>
-            <span className="text-sm italic text-muted">The day after · {formatDate(next.devotional_date, "short")}</span>
-            <span className="mt-1 block text-lg group-hover:text-rubric group-hover:underline group-hover:underline-offset-4">{next.title}</span>
+          <Link href={`/devotional/${next.id}`} className="group flex items-center justify-end gap-3 rounded-card border border-line bg-surface p-4 text-right shadow-card hover:border-brand sm:col-start-2">
+            <span className="min-w-0">
+              <span className="block text-sm text-muted">The day after · {formatDate(next.devotional_date, "short")}</span>
+              <span className="block font-serif text-lg font-semibold leading-snug group-hover:text-brand">{next.title}</span>
+            </span>
+            <Icon name="arrow-right" className="shrink-0 text-brand" />
           </Link>
         ) : null}
       </nav>
-      <p className="mx-auto w-full max-w-3xl lg:max-w-5xl lg:pr-[19rem] text-center font-serif print:hidden">
-        <Link href="/archive" className="text-rubric underline decoration-rubric/40 underline-offset-4 hover:decoration-rubric">Browse the archive</Link>
-        {theme ? <> · <Link href={`/themes/${theme.id}`} className="text-rubric underline decoration-rubric/40 underline-offset-4 hover:decoration-rubric">This week: {theme.title}</Link></> : null}
+      <p className="mx-auto flex w-full max-w-3xl flex-wrap justify-center gap-x-6 lg:max-w-5xl lg:pr-[19rem] print:hidden">
+        <Link href="/archive" className="inline-flex min-h-11 items-center font-semibold text-brand hover:underline">Browse the archive</Link>
+        {theme ? <Link href={`/themes/${theme.id}`} className="inline-flex min-h-11 items-center font-semibold text-brand hover:underline">This week: {theme.title}</Link> : null}
       </p>
     </div>
   );

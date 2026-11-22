@@ -1,24 +1,49 @@
-/**
- * The school year as a hymnal's index: thirty-six weeks, five days each, every
- * day numbered from 1 to 180 the way a hymnal numbers its hymns. It shows the
- * shape of the sequence, not a schedule or any real content.
- */
-const WEEKS = 36;
+import { Icon } from "@/components/ui/icon";
 
-export function SchoolYear() {
+/**
+ * One sample school week: five days on one theme, today highlighted, the days before it
+ * done. It shows the rhythm of the year, not a schedule; the theme and titles are samples.
+ */
+const DAYS = [
+  { day: "Mon", title: "Waiting well", state: "done" },
+  { day: "Tue", title: "Patient with friends", state: "done" },
+  { day: "Wed", title: "When it takes a while", state: "today" },
+  { day: "Thu", title: "God is patient with us", state: "next" },
+  { day: "Fri", title: "Slow to anger", state: "next" },
+] as const;
+
+export function SchoolWeek() {
   return (
-    <figure>
-      <ol aria-label="180 school days in 36 weeks" className="grid grid-cols-2 gap-x-8 font-serif sm:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: WEEKS }, (_, w) => (
-          <li key={w} className="flex items-baseline gap-2 border-b border-line py-1.5 text-sm">
-            <span className="w-14 shrink-0 italic text-muted">Week {w + 1}</span>
-            <span aria-hidden="true" className="min-w-2 flex-1 translate-y-[-0.2em] border-b border-dotted border-line-strong/50" />
-            <span className="tabular-nums text-ink [font-variant-numeric:oldstyle-nums_tabular-nums]">
-              {w * 5 + 1}–{w * 5 + 5}
+    <figure className="rounded-card border border-line bg-parchment p-4 sm:p-6">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-semibold">This week: Patience</p>
+        <p className="text-sm text-muted">Psalm 23 and more</p>
+      </div>
+      <ol className="mt-4 grid gap-2 sm:grid-cols-5">
+        {DAYS.map((d) => (
+          <li
+            key={d.day}
+            aria-current={d.state === "today" ? "date" : undefined}
+            className={`flex items-center gap-3 rounded-control border p-3 sm:block sm:min-h-32 ${
+              d.state === "today" ? "border-brand bg-surface shadow-card" : "border-line bg-surface/70"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`grid size-8 shrink-0 place-items-center rounded-full text-xs font-semibold ${
+                d.state === "done" ? "bg-gilt text-ink" : d.state === "today" ? "bg-brand text-white" : "bg-line text-muted"
+              }`}
+            >
+              {d.state === "done" ? <Icon name="check" size={16} /> : d.day.slice(0, 1)}
+            </span>
+            <span className="min-w-0 sm:mt-3 sm:block">
+              <span className="block text-xs font-semibold uppercase text-muted">{d.day}</span>
+              <span className="block font-serif leading-snug">{d.title}</span>
             </span>
           </li>
         ))}
       </ol>
+      <figcaption className="mt-3 text-sm text-muted">A sample week. Titles are illustrations, not this week’s devotionals.</figcaption>
     </figure>
   );
 }

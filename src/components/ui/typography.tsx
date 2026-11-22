@@ -3,12 +3,12 @@ import { cn } from "@/lib/cn";
 
 type Level = 1 | 2 | 3 | 4;
 
-// Caslon: regular weight at display sizes (as a hymnal sets its titles), bold only for small headings.
+// Literata, semibold: the workbook sets its titles in the reading serif, a little heavier than the text.
 const HEADING_SIZES: Record<Level, string> = {
-  1: "text-4xl md:text-5xl leading-[1.12] font-normal",
-  2: "text-3xl md:text-[2.5rem] leading-[1.15] font-normal",
-  3: "text-2xl leading-snug font-normal",
-  4: "text-lg leading-snug font-bold",
+  1: "text-4xl md:text-5xl leading-[1.12] font-semibold tracking-[-0.01em]",
+  2: "text-3xl md:text-[2.5rem] leading-[1.15] font-semibold tracking-[-0.01em]",
+  3: "text-2xl leading-snug font-semibold",
+  4: "text-lg leading-snug font-semibold",
 };
 
 type HeadingProps = ComponentProps<"h1"> & {
@@ -50,7 +50,7 @@ export function Scripture({
   return (
     <figure className={className}>
       <blockquote className="font-serif text-2xl leading-relaxed md:text-3xl">{children}</blockquote>
-      <figcaption className="mt-3 font-serif italic text-rubric">
+      <figcaption className="mt-3 text-sm font-semibold text-muted">
         {reference} · {translation}
       </figcaption>
     </figure>

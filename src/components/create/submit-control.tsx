@@ -27,13 +27,13 @@ export function SubmitControl({ versionId, title, latest }: { versionId: string;
     <div className="grid gap-2">
       {status === "pending" ? (
         <p className="flex flex-wrap items-center gap-x-3 text-sm">
-          <span className="font-serif italic text-brand">Submitted for publishing · waiting for review</span>
+          <span className="font-semibold text-brand">Submitted for publishing · waiting for review</span>
           <button type="button" disabled={pending} onClick={() => run(() => withdrawSubmissionAction(latest!.id))} className="min-h-11 font-semibold text-muted underline underline-offset-4 hover:text-ink">
             Withdraw<span className="sr-only"> {title}</span>
           </button>
         </p>
       ) : status === "accepted" ? (
-        <p className="font-serif text-sm italic text-brand">Accepted. The editors are preparing it for publishing.</p>
+        <p className="text-sm font-semibold text-brand">Accepted. The editors are preparing it for publishing.</p>
       ) : open ? (
         <form
           className="grid max-w-[36rem] gap-2"
@@ -60,7 +60,7 @@ export function SubmitControl({ versionId, title, latest }: { versionId: string;
         <div className="grid gap-1">
           {status === "declined" ? (
             <p className="text-sm">
-              <span className="font-serif italic text-rubric">Not accepted this time.</span>
+              <span className="font-semibold text-danger">Not accepted this time.</span>
               {latest?.editor_note ? <span className="text-muted"> The editors said: “{latest.editor_note}”</span> : null}
             </p>
           ) : null}
