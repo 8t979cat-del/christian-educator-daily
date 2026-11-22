@@ -8,9 +8,9 @@ type CardProps = ComponentProps<"div"> & {
 };
 
 const TONES = {
-  default: "bg-surface border-line text-ink",
+  default: "bg-surface border-line text-ink shadow-card",
   soft: "bg-brand-soft border-transparent text-ink",
-  dark: "bg-brand border-brand-hover text-[#e9e3d2] on-dark",
+  dark: "bg-brand border-brand-hover text-white on-dark",
 } as const;
 
 const PADDING = { none: "", md: "p-5", lg: "p-6 md:p-8" } as const;

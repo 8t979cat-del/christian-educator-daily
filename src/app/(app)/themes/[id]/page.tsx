@@ -38,7 +38,7 @@ export default async function ThemePage({ params }: { params: Promise<{ id: stri
                   Day {i + 1} · {formatDate(date, "short")}
                   {states.get(devotional.id)?.completed_at ? " · ✓ Completed" : ""}
                 </p>
-                <h2 className="mt-1 font-serif text-xl font-normal">{devotional.title}</h2>
+                <h2 className="mt-1 font-serif text-xl font-semibold">{devotional.title}</h2>
                 <p className="text-muted">{devotional.scripture_reference}</p>
               </Link>
             ) : (

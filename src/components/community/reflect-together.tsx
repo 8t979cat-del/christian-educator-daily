@@ -39,7 +39,7 @@ export async function ReflectTogether({
   if (!discussion.enabled && !isModerator) {
     return (
       <section id="reflect-together" aria-labelledby="reflect-heading" className="mx-auto w-full max-w-3xl print:hidden">
-        <h2 id="reflect-heading" className="font-serif text-3xl font-normal">Reflect Together</h2>
+        <h2 id="reflect-heading" className="font-serif text-3xl font-semibold">Reflect Together</h2>
         <p className="mt-2 rounded-control border border-line bg-surface p-4 text-muted">Discussion is turned off for this devotional. The devotional itself is unaffected.</p>
       </section>
     );
@@ -72,7 +72,7 @@ export async function ReflectTogether({
   return (
     <section id="reflect-together" aria-labelledby="reflect-heading" className="mx-auto grid w-full max-w-3xl gap-6 print:hidden">
       <div>
-        <h2 id="reflect-heading" className="font-serif text-3xl font-normal">Reflect Together</h2>
+        <h2 id="reflect-heading" className="font-serif text-3xl font-semibold">Reflect Together</h2>
         <p className="mt-2 text-muted">
           Share a reflection, a prayer, a question, or a word of encouragement about this passage. It is entirely optional.{" "}
           <Link href="/community/covenant" className="text-brand underline">Our community covenant</Link>

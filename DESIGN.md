@@ -1,252 +1,275 @@
 ---
 name: Everyday Devotional
-description: A school hymnal for every school day, set in Caslon on Bible paper, bound in navy bookcloth with gilt and red rubrics.
+description: A classroom workbook for every school day; an edtech lesson page meets the Bible on ruled paper.
 colors:
-  paper: "#fbfaf6"
+  parchment: "#f8f6f0"
   surface: "#ffffff"
-  ink: "#1b1a17"
-  muted: "#55524b"
-  line: "#d9d4c7"
-  line-strong: "#6b665c"
-  bookcloth: "#1c2a47"
-  bookcloth-deep: "#121c31"
-  bookcloth-raised: "#2a3a5e"
-  bookcloth-wash: "#e7e9ef"
-  cloth-text: "#e9e3d2"
-  gilt: "#d4b25e"
-  rubric: "#a31d16"
+  ink: "#1d2433"
+  muted: "#4e5668"
+  line: "#dde3ec"
+  line-strong: "#687286"
+  brand: "#2350cc"
+  brand-hover: "#1a3ea3"
+  brand-soft: "#e9eefc"
+  rubric: "#b42318"
+  gilt: "#f2b23a"
+  gold-ink: "#7a4d00"
+  gold-soft: "#fdf3dc"
+  ruling: "#d5e0f3"
+  margin: "#efb0a8"
   danger: "#b3261e"
   danger-soft: "#fbeae8"
 typography:
   display:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
-    fontSize: "6rem"
-    fontWeight: 400
-    lineHeight: 0.8
-    fontFeature: "tnum"
-  headline:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
+    fontFamily: "Literata, Iowan Old Style, Georgia, serif"
     fontSize: "2.75rem"
-    fontWeight: 400
-    lineHeight: 1.12
-  title:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
-    fontSize: "1.25rem"
-    fontWeight: 400
-    lineHeight: 1.4
-  body:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
-    fontSize: "1rem"
-    fontWeight: 400
-    lineHeight: 1.6
-  rubric:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.5
-  label:
-    fontFamily: "Libre Caslon Text, Big Caslon, Iowan Old Style, Georgia, serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    letterSpacing: "0.16em"
-  ui:
-    fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
-    fontSize: "1rem"
     fontWeight: 600
+    lineHeight: "4rem"
+    letterSpacing: "-0.01em"
+  headline:
+    fontFamily: "Literata, Iowan Old Style, Georgia, serif"
+    fontSize: "2.4rem"
+    fontWeight: 600
+    lineHeight: 1.25
+  title:
+    fontFamily: "Lexend, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 600
+    lineHeight: "2rem"
+  scripture:
+    fontFamily: "Literata, Iowan Old Style, Georgia, serif"
+    fontSize: "1.4rem"
+    fontWeight: 400
+    lineHeight: "2rem"
+  body:
+    fontFamily: "Lexend, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
     lineHeight: 1.6
+  reading:
+    fontFamily: "Literata, Iowan Old Style, Georgia, serif"
+    fontSize: "1.125rem"
+    fontWeight: 400
+    lineHeight: "2rem"
+  label:
+    fontFamily: "Lexend, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 600
+    lineHeight: 1.4
 rounded:
-  control: "0.1875rem"
-  card: "0.25rem"
+  step: "0.5rem"
+  control: "0.625rem"
+  card: "1rem"
+  pill: "9999px"
 spacing:
-  gutter: "16px"
-  gutter-md: "32px"
-  section: "56px"
-  section-md: "80px"
-  container: "72rem"
+  ruling: "2rem"
+  card-sm: "1.25rem"
+  card-md: "1.5rem"
+  margin-gutter: "4rem"
+  section: "3.5rem"
+  section-lg: "5rem"
 components:
   button-primary:
-    backgroundColor: "{colors.bookcloth}"
+    backgroundColor: "{colors.brand}"
     textColor: "{colors.surface}"
     rounded: "{rounded.control}"
     padding: "0 20px"
     height: "44px"
   button-primary-hover:
-    backgroundColor: "{colors.bookcloth-deep}"
+    backgroundColor: "{colors.brand-hover}"
   button-secondary:
     backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
+    textColor: "{colors.brand}"
     rounded: "{rounded.control}"
-    padding: "0 12px"
+    padding: "0 20px"
     height: "44px"
   button-secondary-hover:
-    backgroundColor: "{colors.bookcloth-wash}"
-  button-gilt:
-    backgroundColor: "{colors.gilt}"
-    textColor: "{colors.bookcloth}"
+    backgroundColor: "{colors.brand-soft}"
+  button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.brand}"
     rounded: "{rounded.control}"
-    padding: "0 28px"
-    height: "52px"
-  masthead:
-    backgroundColor: "{colors.bookcloth}"
-    textColor: "{colors.cloth-text}"
-    height: "64px"
-  text-field:
+  lesson-card:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "8px 12px"
+    rounded: "{rounded.card}"
+    padding: "{spacing.card-sm}"
+  card-soft:
+    backgroundColor: "{colors.brand-soft}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.card}"
+  step-tab-current:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.brand}"
+    rounded: "{rounded.step}"
     height: "44px"
+  step-tabs-track:
+    backgroundColor: "{colors.parchment}"
+    rounded: "{rounded.control}"
+  date-chip:
+    backgroundColor: "{colors.brand-soft}"
+    textColor: "{colors.brand}"
+    rounded: "{rounded.pill}"
+    typography: "{typography.label}"
+  check-badge:
+    backgroundColor: "{colors.gold-soft}"
+    textColor: "{colors.gold-ink}"
+    rounded: "{rounded.pill}"
+    size: "24px"
 ---
 
 # Design System: Everyday Devotional
 
 ## Overview
 
-**Creative North Star: "The School Hymnal"**
+**Creative North Star: "The Classroom Workbook"**
 
-The site is a well-made hymnal, a numbered book for every school day. Inside, the page is bright, thin Bible paper with true ink black and red rubrics; outside, whole regions are bound in navy bookcloth with gilt stamping. The masthead is the front board, the founding section and colophon are the back cover. Everything between them reads as printed matter: Caslon set at regular weight, square-cut corners, hairline and double rules where another product would put cards.
+Each school day is a lesson page in a workbook: a friendly edtech course page set on bright paper with faint blue ruling and a red margin line, with the Bible written onto those lines in a book serif. The interface speaks in Lexend, a face built for reading fluency, with confident classroom blue for anything you can press. Scripture, titles and devotional text are set in Literata, so the Word reads like a printed book on the workbook page.
 
-Density is that of a well-leaded book page, not a dashboard. Sections are separated by rules and paper, not by boxes and shadows. The red is the red-letter tradition: it marks what the teacher does (instructions set in italic) and what you count by (day numbers, roman order numerals, verse figures), never decoration. Gilt only ever appears on cloth.
+The system is clean and calm rather than ornamental. Colour is functional and sparse: blue means "act here" or "you are here", gold means "done" or "progress", and Bible red appears only on verse numbers. Surfaces are white lesson cards with friendly rounded corners and soft blurred shadows, lifted slightly off warm workbook paper. Density is moderate: generous section spacing on the marketing page, tight 2rem line rhythm on the ruled sheets.
 
-This world replaces an earlier cream-parchment, teal, Source Serif look with rounded cards; that look is retired and nothing of it is current.
+The world deliberately replaces an earlier hymnal-and-letterpress costume, and refuses the generic SaaS landing page (centred hero, card grid, dark call-to-action band). It reads as a classroom material, not a church bulletin and not a startup.
 
 **Key Characteristics:**
-- Bible paper (#fbfaf6) inside, navy bookcloth (#1c2a47) for the masthead, back cover and colophon.
-- Red italic rubrics as the signature: instructions to the teacher, day numbers, order numerals.
-- Libre Caslon Text throughout, regular weight even at display sizes.
-- Printed rules instead of containers: 4px double rules open lists and sections, hairlines divide items, dotted leaders run index entries.
-- Square-cut corners (3px and 4px); no shadows on the page.
+- Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules; the large title gets its own 4rem title ruling.
+- Two faces with clear jobs: Lexend for the interface and small headings, Literata for titles, Scripture and devotional text.
+- Classroom blue for actions, links and the current step; gold for progress and done; Bible red only for verse numbers.
+- The four-step lesson (Read, Talk, Do, Pray) as the recurring structure, with rounded stroke icons.
+- Friendly rounded controls (0.625rem) and cards (1rem), soft blurred shadows only.
 
 ## Colors
 
-A three-ink book: black on bright paper, one red for rubrics, and navy cloth stamped in gilt.
+A bright, mostly neutral paper palette with one action blue, one progress gold and one sacred red, each held to a single job.
 
 ### Primary
-- **Bookcloth Navy** (bookcloth): primary actions (Present full screen, primary buttons), the masthead, the founding "back cover" and the footer colophon. It is the binding, so it carries whole regions or the single most important control, nothing in between. **Bookcloth Deep** (bookcloth-deep) is its hover; **Bookcloth Raised** (bookcloth-raised) is a lifted surface on cloth; **Bookcloth Wash** (bookcloth-wash) is the hover and selection tint on paper.
+- **Classroom Blue** (brand): primary buttons, links, the current lesson step, the active progress dot, the focus ring, the logo tile, step icons. Darkens to **Pressed Blue** (brand-hover) on hover; **Blue Wash** (brand-soft) is the tint behind date chips, margin step icons and hover states of secondary and ghost controls.
 
 ### Secondary
-- **Rubric Red** (rubric): the red-letter ink. Day numbers, roman order numerals, the section figures of the reading page (set in Caslon on the heading baseline, black in print), italic instructions to the teacher, the progress bar and verse figures in slides, and rubric links (red text with a 40% red underline that fills on hover). Measured ≥7:1 on paper.
+- **Star-chart Gold** (gilt): completed lesson steps, completed days in the week, earlier progress dots, the gold ribbon in the logo. A fill only; never text on paper.
+- **Gold Ink** (gold-ink): gold as legible text and check marks, always on **Gold Wash** (gold-soft), which also backs the "180 days" note.
 
 ### Tertiary
-- **Gilt** (gilt): stamping on cloth only. The wordmark, cloth headings and sub-heads, double-rule frames on the back cover, the Sign in outline, the focus ring on dark surfaces, and the one gilt-filled button on the back cover.
+- **Bible Red** (rubric): verse numbers in Scripture on the reading page. The projector themes carry their own `verse` colour (#a01c14 on white, #9a1a12 on paper, #ffa094 on navy, #ffe14d in high contrast), each held at 7:1.
 
 ### Neutral
-- **Bible Paper** (paper): the page ground everywhere outside the cloth.
-- **Clean Leaf** (surface): white for controls and fields that sit on the page.
-- **Press Ink** (ink): body text and the 70%-opacity double rules.
-- **Faded Ink** (muted): running heads, tune-and-meter lines, secondary prose, captions.
-- **Hairline** (line): item dividers and section borders. **Strong Hairline** (line-strong): control borders, dotted leaders and the outer keyline of framed blocks, usually at 50 to 60% opacity.
-- **Cloth Text** (cloth-text): the warm off-white for running text on navy cloth (applied as a literal value, not yet a theme token).
-- **Danger** (danger, danger-soft): form errors and destructive actions in the app only.
+- **Workbook Paper** (parchment): the page background, the step-tab track, small topic pills.
+- **Clean Leaf** (surface): lesson cards, the app bar, the footer, alternating full-width bands, and the background under ruled sheets.
+- **Ink Navy** (ink): body text and headings.
+- **Pencil Grey** (muted): secondary text, captions, teacher tips.
+- **Faint Rule** (line): card borders, dividers, inactive dots and step numbers.
+- **Strong Rule** (line-strong): higher-contrast borders where a control edge must meet 3:1.
+- **Ruling Blue** (ruling): the workbook's horizontal lines and the connector between the four steps.
+- **Margin Pink** (margin): the vertical margin line on workbook sheets, nothing else.
+- **Alert Red** (danger) with **Alert Wash** (danger-soft): destructive actions and error messages only.
 
 ### Named Rules
-**The Red-Letter Rule.** Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, section figures, verse figures. It never fills a surface, a button or a heading, and numbers are bare figures, never set in discs or badges.
+**The Red-Letter Rule.** Bible red is for verse numbers and nothing else. Errors use danger; the margin line uses its own pale pink.
 
-**The Gilt-on-Cloth Rule.** Gilt appears only on bookcloth navy. On paper it has no contrast and no meaning.
+**The Gold Star Rule.** Gold marks progress and completion: done steps, done days, earlier dots, check marks in benefit lists. It never marks an action.
 
-**The Binding Rule.** Navy either carries a whole region (masthead, back cover, colophon) or the single primary action in view. It is never a tinted card in the middle of the page.
+**The Blue Means Here Rule.** Classroom blue marks what you can press and where you are now. Do not spend it on decoration.
 
 ## Typography
 
-**Display Font:** Libre Caslon Text, self-hosted (400, 400 italic, 700; `--font-caslon`), falling back to Big Caslon, Iowan Old Style, Georgia.
-**Body Font:** the same Caslon for all reading text on the site and on slides.
-**UI Font:** the system sans stack for application controls, form labels and fields.
+**Display Font:** Literata (with Iowan Old Style, Georgia)
+**Body Font:** Lexend (with ui-sans-serif, system-ui)
 
-**Character:** One old-style book face does all the speaking, at regular weight, with italic for rubrics and tune-and-meter lines. The system sans is a tool, not a voice: it stays inside app forms and controls.
+**Character:** Lexend is round, open and plainly classroom; Literata is a warm screen-reading book serif that gives Scripture and titles the weight of a printed Bible without costume. Both are self-hosted variable fonts so they load on school networks that block font services.
 
 ### Hierarchy
-- **Display** (400, 4.5rem to 6rem, line-height 0.8, tabular figures, rubric red): the day number at the head of today's page, with the month beneath it in tracked capitals.
-- **Headline** (400, 1.875rem to 2.75rem, line-height 1.12 to 1.15, balanced): page and section titles; `Heading` levels 1 to 3 are all regular weight.
-- **Title** (400, 1.25rem to 1.75rem, snug): list-item names, sample passages, order-of-day entries. Level-4 headings (and rich-text h3) are the small-heading place Caslon bold appears.
-- **Body** (400, 1rem to 1.125rem, line-height 1.6; rich text 1.7): reading prose, kept to about 36rem (`max-w-xl`/`max-w-md`) in marketing copy. Paragraphs and list items use `text-wrap: pretty`.
-- **Rubric** (400 italic, 0.875rem to 1rem, rubric red): instructions to the teacher and reading-level labels.
-- **Label** (400, 0.875rem, uppercase, tracking 0.16em to 0.2em): the wordmark, the month under the day number, and sub-heads on the back cover (in gilt).
+- **Display** (Literata 600, 1.75rem on a 2rem line on phones, 2.75rem on a 4rem line from md): the day's devotional title on ruled paper, written on the 4rem title ruling from md.
+- **Headline** (Literata 600, 1.875rem to 2.4rem, line-height 1.25): section headings on the marketing page and page titles.
+- **Title** (Lexend 600, 1.25rem on a 2rem line): lesson part titles (Scripture, Reflection), step names, card headings at 1.125rem.
+- **Scripture** (Literata 400, 1.25rem to 1.4rem on a 2rem line): passages on the reading page, with superscript verse numbers at 0.6em in Bible red.
+- **Reading** (Literata 400, 1.125rem on a 2rem line, max 36rem): reflection, practice and prayer text; the discussion question is set larger (1.4rem) and balanced.
+- **Body** (Lexend 400, 1rem, line-height 1.6): interface copy, descriptions, lists.
+- **Label** (Lexend 600, 0.875rem): chips, step tabs, captions, the "Slide 2 of 5" count.
 
 ### Named Rules
-**The Regular-Weight Display Rule.** Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3). The one stated exception at display size is the projected discussion question on slides (the emphasis block), set semibold so it carries across a classroom; nowhere else does Caslon pair with a heavier weight.
+**The Two Jobs Rule.** Lexend does the interface; Literata carries the Word and the day's title. Never set Scripture in Lexend or buttons in Literata.
 
-**The Stated Substitution Rule.** Libre Caslon Text has no true small capitals, so tracked full capitals (0.16em to 0.2em) stand in for them: the wordmark, the month abbreviation, the founding sub-heads. Never synthesize small caps with `font-variant: small-caps` or scaled capitals.
-
-**The Figures Rule.** Counted numbers use tabular figures; the wordmark's "180" and the index ranges use old-style figures.
+**The No Kicker Rule.** No small label line above a heading. Context (date, week, step) sits in chips and progress dots beside or above the title row, not as letter-spaced capitals.
 
 ## Layout
 
-A single centred book column (max 72rem, 16px gutter on phones, 32px from md) with sections stacked vertically at 56px padding, 80px from md. Within a section the grid is asymmetric, like a book spread: a 5:7 split puts the heading on the left and the ruled list on the right; today's page puts the devotional in the main column and a 16rem right margin for "tune and meter" notes, separated by a hairline. The tune-and-meter line under the title keeps each part whole ("Day 1 of 5" never breaks); it may wrap only at the centred-dot separator. Every split collapses to one column on phones, the margin notes falling below.
+Content sits in a centred container. The home page opens with today's lesson sheet beside a 19rem "why schools use it" panel on large screens (`minmax(0,1fr) 19rem`, gap 2rem), stacking below on phones. Following sections alternate full-width bands of paper and white, separated by faint rules, with 3.5rem vertical padding growing to 5rem from md. Text blocks hold to about 42rem; two-column sections split 5:7.
 
-The page opens with a running head: the passage reference on the left, the weekday in italic on the right, over a 4px double rule. The index of the year runs 2, 3 then 4 columns with dotted leaders between the week and its day range. Targets on every control are at least 44px.
+Ruled sheets follow a strict 2rem vertical rhythm. Three paper treatments exist: **workbook paper** (2rem blue ruling, each rule 1.8rem into its band just under the baseline, plus the red margin line), **title lines** (a 4rem ruling for the large title from md, each rule at 3.05rem just under its baseline; the block is always a whole number of 2rem bands tall so the 2rem ruling continues below it), and **margin only** (the red margin line without ruling, for sheets whose text does not keep to the grid). The margin line sits at 0.625rem on phones and 2.75rem from 40rem; text on a sheet starts at 4rem from the left on wider screens and 1.25rem on phones, with the step icon centred in the margin. The reading page is a single column up to 48rem, widening to a two-column layout with a 17rem side card at lg.
+
+Touch targets are at least 44px everywhere (buttons, nav links, step tabs).
+
+### Named Rules
+**The On-the-Lines Rule.** Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.
 
 ## Elevation & Depth
 
-The page is flat. Depth is printed, not lit: a double rule, an inset keyline, or the change from paper to cloth. Framed blocks (the inline presenter, the empty-state verse block) use a 1px ink border with a second 1px keyline outline offset 5px, and the back cover uses a 4px gilt double rule with a 1px inset gilt rule 6px inside it. Dialogs are ruled frames as well: a 1px ink border at 70% with 4px corners and a 1px Hairline outline offset 4px, laid over a backdrop of bookcloth navy at 60%. The presenter's Settings and Edit drawers dim the slide with the same bookcloth wash, never grey or black. Nothing is lifted with a shadow anywhere in the product.
+Depth is gentle and layered: white lesson cards lifted a little off warm paper with soft, blurred, slightly dropped shadows. Bands and the paper/white alternation do most of the structural work; shadows only say "this is a sheet you work on".
+
+### Shadow Vocabulary
+- **Card** (`0 1px 2px rgb(29 36 51 / 0.06), 0 6px 16px -4px rgb(29 36 51 / 0.1)`): lesson cards, ruled sheets, the presenter frame, the current step tab, today's day in the week.
+- **Lift** (`0 2px 4px rgb(29 36 51 / 0.06), 0 12px 28px -8px rgb(29 36 51 / 0.18)`): raised states and overlays.
+- **Blue press** (`0 2px 6px -1px rgb(35 80 204 / 0.45)`): under primary buttons only; it collapses on press as the button moves down 1px.
 
 ### Named Rules
-**The Printed-Depth Rule.** No shadows on paper or cloth. Separation comes from rules, keylines and the paper/cloth boundary.
+**The Soft Shadow Rule.** Every shadow is blurred. No zero-blur offset shadows, no hard outlines standing in for elevation.
 
 ## Shapes
 
-Square-cut, as a trimmed book block: controls at 3px (`rounded.control`), any remaining containers at 4px (`rounded.card`). Rules are the recurring geometry: 4px double rules (ink at 70% on paper, gilt at 60 to 70% on cloth) open sections and lists, 1px hairlines divide items, dotted rules lead the eye across index entries. There are no pills or icon tiles in this world's vocabulary: badges, status labels, the AI-request counter, topic-map nodes and the create chips are all square-cut at 3px. The only round forms are dots (slide progress dots, the counter's status dot) and avatars.
+Friendly, rounded classroom materials. Controls take 0.625rem corners; cards and sheets take 1rem; step tabs inside their track take 0.5rem so they nest. Chips, step numbers, progress dots, check badges and margin icons are full circles or pills. Borders are 1px faint rules; the four-step path uses 2px blue rings around its icons. Icons are rounded strokes (1.75 weight, round caps and joins), including book, chat, target and pray. The logo is an open Bible on a 9-unit-rounded blue tile with a gold ribbon.
 
 ## Components
 
 ### Buttons
-Plain and set like type.
-- **Shape:** square-cut (3px).
-- **Primary:** bookcloth navy fill, white text, 44px minimum height, 20px side padding; hover deepens to Bookcloth Deep. On marketing surfaces the label is Caslon regular; in the app it is the semibold system sans.
-- **Secondary:** white leaf, ink text, Strong Hairline border at 50 to 60%; hover takes the Bookcloth Wash.
-- **Ghost:** navy text, no border, wash on hover.
-- **Gilt (back cover only):** gilt fill, navy text, Caslon regular, 52px tall.
-- **Focus:** a 3px navy outline offset 2px everywhere; on cloth (`.on-dark`) the ring turns gilt. Disabled controls drop to 40 to 60% opacity.
+Clear and confident, like a classroom app.
+- **Shape:** gently rounded (0.625rem), Lexend 600, gap 0.5rem for an icon.
+- **Primary:** classroom blue with white text, the blue press shadow; 44px high with 20px side padding, or 52px with 28px at large size.
+- **Hover / Focus:** darkens to pressed blue; pressed moves down 1px and drops the shadow. Focus is a 3px classroom-blue outline at 2px offset (gold on dark).
+- **Secondary:** white with blue text and a pale blue border (#b8c6ea), turning to a blue border on a blue wash on hover. Used for Sign in, Back/Next, text size and the founding-school link.
+- **Ghost:** blue text, no border, blue wash on hover. **Danger:** alert red with white text.
 
-### Rubric Links
-The default link on marketing pages: Caslon in rubric red with an underline at 40% red, offset 4px, that fills to full red on hover. Used for "Become a founding school" and the classroom-mode link.
+### Chips
+- **Date chip:** blue wash pill with blue Lexend 600 label and a sun or calendar icon.
+- **Step tag:** an inline, non-wrapping paper-coloured pill with muted Lexend 500 text (Read, Talk, Do, Pray) that leads the part's heading, so it never wraps away from the title; on phones it carries a small blue step icon.
+- **Topic pills:** paper-coloured pills with muted text.
+- **Week progress:** five 10px dots (gold for days done, blue with a soft blue ring for today, faint rule for later days) always followed by the visible text "Day n of 5".
+- **Reading-level chip:** solid blue pill with white label (K–2, 9–12).
 
-### Chips and Badges
-- **Style:** square-cut (3px), Bookcloth Wash ground, navy semibold sans at 0.75rem, 4px by 12px padding; danger states use Danger Soft with a 40% Danger border.
-- **State:** choice chips (topic-map nodes, chosen topics) sit on white with a 40% Strong Hairline border and, when selected, take a navy border on the wash with a check; option chips for a single choice fill navy when checked. 44px minimum, nothing pill-shaped.
-
-### Dialogs
-- **Style:** the printed-depth frame described under Elevation & Depth, Clean Leaf ground, Caslon title, a 44px square-cut close control that takes the wash on hover.
-
-### Inputs / Fields
-- **Style:** white field, 1px Strong Hairline border at 60%, 3px corners, 44px minimum height, 8px by 12px padding, system sans; label in semibold sans above, hint in muted below it.
-- **Focus:** the global navy ring.
-- **Error / Disabled:** border and message in Danger; disabled fields take a 40% Hairline wash.
+### Cards / Containers
+- **Corner Style:** 1rem.
+- **Background:** white on paper; a blue-wash tone and a solid blue tone exist for emphasis.
+- **Shadow Strategy:** the Card shadow (see Elevation).
+- **Border:** 1px faint rule.
+- **Internal Padding:** 1.25rem, or 1.5rem to 2rem for large cards.
 
 ### Navigation
-- **Masthead:** sticky navy cloth band, 64px tall, closed by a 4px gilt double rule at 60%. Gilt wordmark on the left; Caslon links in cloth text that turn gilt and underline on hover; "Sign in" as a gilt-outlined control. Phones get a gilt menu button and a disclosure panel on cloth divided by a 40% gilt hairline.
-- **Colophon (footer):** the back cover continued: the wordmark, the description, and an italic note on the setting and the Scripture translation in a dimmed cloth tone, with Caslon links on the right.
+A sticky white app bar (95% opacity with a light blur), 64px tall, with the wordmark at left and Lexend 500 links in pencil grey that take blue text on a blue wash on hover; Sign in is a secondary button. On phones the links fold into a disclosure menu under a 44px menu button. The footer is white with muted links that turn blue and underline on hover, and the Scripture source line in Literata italic.
 
-### Wordmark
-The "180" boxed in a ruled label (a 1px frame with an inner rule above and below) in old-style figures, then the name in tracked capitals. Navy on paper, gilt on cloth.
+### Lesson Step Tabs (signature)
+The four steps of every lesson, Read, Talk, Do, Pray, as a four-column tab strip on a paper-coloured track. The current step is a white tab with blue text, the card shadow and a blue numbered circle; steps already passed show a gold circle with a check; later steps show a grey number. On phones the number gives way to the step's icon. Each tab jumps the presenter to that part of the devotional.
 
-### Day Number (signature)
-The day of the month in rubric red at display size, tabular figures, line-height 0.8, with the month in tracked capitals beneath, set at the top left of today's page beside the title, as a red-letter calendar prints a day.
+### Workbook Sheet (signature)
+A white sheet with 2rem blue ruling and a red margin line, 1rem corners and the card shadow. On the reading page each lesson part opens with a Lexend heading led by its step tag, then a muted teacher tip, then Literata text on the lines. From sm the step icon sits as a 2rem blue-wash medallion centred in the margin column; on phones the icon moves into the step tag instead. Today's lesson on the home page uses the same sheet for the date row (date chip, week theme, dots and "Day n of 5"), the title on its title ruling, and the reference, with the inline presenter pasted on as a clear white panel.
 
-### Ruled Order List (signature)
-A list opened by a 4px double rule, each entry closed by a hairline: a 3rem column of rubric-red roman numerals, the entry name in Caslon at title size, and its instruction in red italic beneath. The same ruled form (without numerals, muted body) carries the trust list.
+### Inline Presenter
+A 16:9 slide frame with the card shadow and a 4px progress bar along its bottom edge, set in Literata from the projector theme. Controls below: Back, Next, slide count, A− / A+, and the primary "Present full screen". Projector themes are White, Paper, Classroom navy and High contrast, each tested at 7:1.
 
-### Back Cover (signature)
-The founding section on bookcloth: a 4px gilt double-rule frame with a 1px inset gilt rule 6px inside, a gilt headline, cloth-text body, gilt tracked-capital sub-heads over two columns, and the gilt button.
-
-### Classroom Slides
-Slides are set in Caslon (type scales in em with the slide) and take their colours from four projector themes held in `PRESENT_THEMES` (src/lib/content/present.ts): White (ink on white, rubric accent), Paper (ink on Bible paper, rubric accent), Bookcloth (white on a deeper cloth navy, gilt accent) and High contrast (white on black, bright yellow accent). Each exposes `--p-bg`, `--p-fg`, `--p-accent` and `--p-muted`; list markers, blockquote rules and the 4px progress bar use the accent. Every theme's text, muted and accent colour must reach 7:1 on its background, enforced by the unit tests. When a passage or section is split across slides, later pages are labelled "…, continued" (never "2 of 3"; the controls already count slides), and a page whose text runs on carries "continues on the next slide" in Caslon italic in the theme's muted colour, never smaller than 12px, at the end of the label row. Printed slides are black on white, one per landscape page.
+### Week Strip and Four-Step Path
+The sample week shows five day cards: done days with a gold check, today outlined in blue with the card shadow, later days grey. The four-step path is a row of 48px circles with a 2px blue ring, joined by a ruling-blue line.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** separate sections and list items with printed rules: a 4px double rule to open, 1px hairlines between entries, dotted leaders in indexes.
-- **Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3, plus the projected discussion question on slides.
-- **Do** put instructions to the teacher in red italic rubrics, and number things (days, order steps) in rubric red.
-- **Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.
-- **Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.
-- **Do** keep every projector theme at 7:1 or better for text, muted and accent colours, and add any new theme to the contrast test.
-- **Do** keep controls at least 44px and square-cut (3px), badges and chips included.
-- **Do** mark a split slide with "…, continued" and a muted italic "continues on the next slide", never a page count.
+- **Do** set every line on a ruled sheet to the 2rem grid, or give the block a solid white panel that clears the ruling.
+- **Do** use classroom blue for actions, links, the current step and focus, and nothing else.
+- **Do** mark progress and completion with gold: fills in gilt, text and checks in gold ink on gold wash.
+- **Do** set Scripture, titles and devotional text in Literata and the interface in Lexend.
+- **Do** keep every interactive target at least 44px and every presentation theme at 7:1.
+- **Do** keep the four-step lesson (Read, Talk, Do, Pray) and its icons consistent wherever the devotional appears.
 
 ### Don't:
-- **Don't** synthesize small capitals with `font-variant: small-caps` or scaled-down capitals.
-- **Don't** use cards, icon tiles, pills or shadows anywhere, dialogs included; frame with rules and keylines instead. Only dots and avatars are round.
-- **Don't** use rubric red for fills, buttons or decorative headings.
-- **Don't** put gilt on paper.
-- **Don't** bring back the retired look: cream parchment ground with teal accents, Source Serif, rounded cards.
-- **Don't** add uppercase semibold label lines above headings; the only tracked capitals are the wordmark, the month and the back-cover sub-heads.
+- **Don't** use Bible red for anything but verse numbers.
+- **Don't** put a label line or kicker above a heading.
+- **Don't** use zero-blur offset shadows; every shadow is soft and blurred.
+- **Don't** let ruling lines cross glyphs: text off the grid sits on a solid panel or a margin-only sheet.
+- **Don't** bring back the hymnal costume (bookcloth navy, gilt rules, letterpress capitals) or the SaaS landing template (centred hero, card grid, dark call-to-action band).
+- **Don't** lead with "180 days"; one devotional for every school day is the promise, the count stays in the background.

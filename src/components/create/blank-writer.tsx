@@ -124,7 +124,7 @@ export function BlankWriter({ initial, justSaved = false }: { initial: WrittenDr
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={pending || !d.title.trim()}>{pending ? "Saving…" : d.id ? "Save changes" : "Save devotional"}</Button>
         {d.id ? <Button type="button" variant="secondary" onClick={() => router.push(`/create/${d.id}/present`)}>Present</Button> : null}
-        <p role="status" className="font-serif italic text-brand empty:hidden">{saved ? "Saved. It is in Your devotionals below, where you can present it or submit it for publishing." : ""}</p>
+        <p role="status" className="font-medium text-brand empty:hidden">{saved ? "Saved. It is in Your devotionals below, where you can present it or submit it for publishing." : ""}</p>
       </div>
     </form>
   );

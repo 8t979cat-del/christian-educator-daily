@@ -43,7 +43,7 @@ export function Modal({ open, onClose, title, description, children, footer }: M
     >
       <div className="p-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 id={titleId} className="font-serif text-2xl font-normal">
+          <h2 id={titleId} className="font-serif text-2xl font-semibold">
             {title}
           </h2>
           <button

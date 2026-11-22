@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-21T19:30:00+00:00",
+  "generatedAt": "2026-11-22T00:43:41+00:00",
   "title": "Design System: Everyday Devotional",
   "extensions": {
     "colorMeta": {
-      "paper": {
+      "parchment": {
         "role": "neutral",
-        "displayName": "Bible Paper",
-        "canonical": "#fbfaf6",
+        "displayName": "Workbook Paper",
+        "canonical": "#f8f6f0",
         "tonalRamp": [
-          "#4b4b4a",
-          "#7e7d7b",
-          "#b0afac",
-          "#dddcd8",
-          "#fcfbf8",
-          "#fdfcfa",
-          "#fefefd",
-          "#fffffe"
+          "#2f2b1e",
+          "#584e32",
+          "#837344",
+          "#af9955",
+          "#beaf83",
+          "#d0c8ae",
+          "#e3dfd3",
+          "#f5f3f0"
         ]
       },
       "surface": {
@@ -24,480 +24,487 @@
         "displayName": "Clean Leaf",
         "canonical": "#ffffff",
         "tonalRamp": [
-          "#4d4d4d",
-          "#808080",
-          "#b2b2b2",
-          "#e0e0e0",
-          "#ffffff",
-          "#ffffff",
-          "#ffffff",
-          "#ffffff"
+          "#262626",
+          "#454545",
+          "#636363",
+          "#828282",
+          "#a1a1a1",
+          "#bfbfbf",
+          "#dbdbdb",
+          "#f2f2f2"
         ]
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Press Ink",
-        "canonical": "#1b1a17",
+        "displayName": "Ink Navy",
+        "canonical": "#1d2433",
         "tonalRamp": [
-          "#080807",
-          "#0e0d0c",
-          "#131210",
-          "#181714",
-          "#545351",
-          "#8d8c8b",
-          "#c6c6c5",
-          "#ededec"
+          "#20242d",
+          "#374053",
+          "#4b5b7b",
+          "#6076a4",
+          "#8a99b7",
+          "#b3bbcc",
+          "#d5d9e1",
+          "#f0f2f4"
         ]
       },
       "muted": {
         "role": "neutral",
-        "displayName": "Faded Ink",
-        "canonical": "#55524b",
+        "displayName": "Pencil Grey",
+        "canonical": "#4e5668",
         "tonalRamp": [
-          "#1a1917",
-          "#2a2926",
-          "#3b3934",
-          "#4b4842",
-          "#807d78",
-          "#aaa8a5",
-          "#d4d4d2",
-          "#f1f1f1"
+          "#23252a",
+          "#3e424c",
+          "#575f70",
+          "#707b94",
+          "#959cac",
+          "#b9bdc6",
+          "#d8dade",
+          "#f1f2f3"
         ]
       },
       "line": {
         "role": "neutral",
-        "displayName": "Hairline",
-        "canonical": "#d9d4c7",
+        "displayName": "Faint Rule",
+        "canonical": "#dde3ec",
         "tonalRamp": [
-          "#41403c",
-          "#6c6a64",
-          "#98948b",
-          "#bfbbaf",
-          "#e2dfd5",
-          "#eceae3",
-          "#f6f4f1",
-          "#fcfcfb"
+          "#20252d",
+          "#364253",
+          "#4b5f7c",
+          "#5f7ba5",
+          "#8a9cb8",
+          "#b2bdcc",
+          "#d5dae1",
+          "#f0f2f4"
         ]
       },
       "line-strong": {
         "role": "neutral",
-        "displayName": "Strong Hairline",
-        "canonical": "#6b665c",
+        "displayName": "Strong Rule",
+        "canonical": "#687286",
         "tonalRamp": [
-          "#201f1c",
-          "#36332e",
-          "#4b4740",
-          "#5e5a51",
-          "#908c85",
-          "#b5b2ae",
-          "#dad9d6",
-          "#f3f3f2"
+          "#232529",
+          "#3e434b",
+          "#58606e",
+          "#727d92",
+          "#969dab",
+          "#b9bdc5",
+          "#d9dade",
+          "#f1f2f3"
         ]
       },
-      "bookcloth": {
+      "brand": {
         "role": "primary",
-        "displayName": "Bookcloth Navy",
-        "canonical": "#1c2a47",
+        "displayName": "Classroom Blue",
+        "canonical": "#2350cc",
         "tonalRamp": [
-          "#080d15",
-          "#0e1524",
-          "#141d32",
-          "#19253e",
-          "#555f75",
-          "#8e94a3",
-          "#c6cad1",
-          "#edeef0"
+          "#161e37",
+          "#203469",
+          "#2647a1",
+          "#2b59d9",
+          "#6786da",
+          "#9fb0e0",
+          "#ccd4eb",
+          "#eef0f7"
         ]
       },
-      "bookcloth-deep": {
+      "brand-hover": {
         "role": "primary",
-        "displayName": "Bookcloth Deep",
-        "canonical": "#121c31",
+        "displayName": "Pressed Blue",
+        "canonical": "#1a3ea3",
         "tonalRamp": [
-          "#05080f",
-          "#090e18",
-          "#0d1422",
-          "#10192b",
-          "#4d5564",
-          "#888e98",
-          "#c4c6cc",
-          "#ecedef"
+          "#151e37",
+          "#20336a",
+          "#2445a3",
+          "#2858dc",
+          "#6685db",
+          "#9eafe1",
+          "#ccd4eb",
+          "#eef0f7"
         ]
       },
-      "bookcloth-raised": {
+      "brand-soft": {
         "role": "primary",
-        "displayName": "Bookcloth Raised",
-        "canonical": "#2a3a5e",
+        "displayName": "Blue Wash",
+        "canonical": "#e9eefc",
         "tonalRamp": [
-          "#0d111c",
-          "#151d2f",
-          "#1d2942",
-          "#253353",
-          "#5f6b86",
-          "#949cae",
-          "#caced7",
-          "#eeeff2"
-        ]
-      },
-      "bookcloth-wash": {
-        "role": "primary",
-        "displayName": "Bookcloth Wash",
-        "canonical": "#e7e9ef",
-        "tonalRamp": [
-          "#454648",
-          "#747478",
-          "#a2a3a7",
-          "#cbcdd2",
-          "#edeef3",
-          "#f3f4f7",
-          "#f9fafb",
-          "#fdfdfe"
-        ]
-      },
-      "cloth-text": {
-        "role": "neutral",
-        "displayName": "Cloth Text",
-        "canonical": "#e9e3d2",
-        "tonalRamp": [
-          "#46443f",
-          "#747269",
-          "#a39f93",
-          "#cdc8b9",
-          "#eeeadd",
-          "#f4f1e8",
-          "#faf8f4",
-          "#fdfdfb"
-        ]
-      },
-      "gilt": {
-        "role": "tertiary",
-        "displayName": "Gilt",
-        "canonical": "#d4b25e",
-        "tonalRamp": [
-          "#40351c",
-          "#6a592f",
-          "#947d42",
-          "#bb9d53",
-          "#dfc586",
-          "#ead8ae",
-          "#f4ecd7",
-          "#fcf9f2"
+          "#141e38",
+          "#1e326c",
+          "#2144a6",
+          "#2456e0",
+          "#6384de",
+          "#9cafe2",
+          "#cbd4ec",
+          "#edf0f7"
         ]
       },
       "rubric": {
-        "role": "secondary",
-        "displayName": "Rubric Red",
-        "canonical": "#a31d16",
+        "role": "tertiary",
+        "displayName": "Bible Red",
+        "canonical": "#b42318",
         "tonalRamp": [
-          "#310907",
-          "#520e0b",
-          "#72140f",
-          "#8f1a13",
-          "#ba5650",
-          "#d18e8a",
-          "#e8c6c5",
-          "#f8edec"
+          "#381714",
+          "#6c231e",
+          "#a62a21",
+          "#e13124",
+          "#de6c63",
+          "#e3a19c",
+          "#eccdcb",
+          "#f7eeed"
+        ]
+      },
+      "gilt": {
+        "role": "secondary",
+        "displayName": "Star-chart Gold",
+        "canonical": "#f2b23a",
+        "tonalRamp": [
+          "#3b2d12",
+          "#725318",
+          "#b07b17",
+          "#eea316",
+          "#e7b65a",
+          "#e8cc97",
+          "#eee1c8",
+          "#f8f4ed"
+        ]
+      },
+      "gold-ink": {
+        "role": "secondary",
+        "displayName": "Gold Ink",
+        "canonical": "#7a4d00",
+        "tonalRamp": [
+          "#3e2c0f",
+          "#785211",
+          "#bb7a0c",
+          "#fea206",
+          "#f2b650",
+          "#edcb91",
+          "#f1e1c6",
+          "#f9f4ec"
+        ]
+      },
+      "gold-soft": {
+        "role": "secondary",
+        "displayName": "Gold Wash",
+        "canonical": "#fdf3dc",
+        "tonalRamp": [
+          "#3b2f11",
+          "#735717",
+          "#b18215",
+          "#f0ad14",
+          "#e9bd59",
+          "#e8cf96",
+          "#efe3c8",
+          "#f8f5ed"
+        ]
+      },
+      "ruling": {
+        "role": "neutral",
+        "displayName": "Ruling Blue",
+        "canonical": "#d5e0f3",
+        "tonalRamp": [
+          "#192333",
+          "#283d61",
+          "#335694",
+          "#3d70c7",
+          "#7495ce",
+          "#a6b8d9",
+          "#cfd8e7",
+          "#eff1f6"
+        ]
+      },
+      "margin": {
+        "role": "neutral",
+        "displayName": "Margin Pink",
+        "canonical": "#efb0a8",
+        "tonalRamp": [
+          "#361a16",
+          "#682921",
+          "#a03527",
+          "#d7402d",
+          "#d87569",
+          "#dfa79f",
+          "#ead0cc",
+          "#f7efee"
         ]
       },
       "danger": {
         "role": "error",
-        "displayName": "Danger",
+        "displayName": "Alert Red",
         "canonical": "#b3261e",
         "tonalRamp": [
-          "#360b09",
-          "#5a130f",
-          "#7d1b15",
-          "#9e211a",
-          "#c65c56",
-          "#d9928e",
-          "#ecc9c7",
-          "#f9eeed"
+          "#371715",
+          "#6a2420",
+          "#a22c25",
+          "#da332a",
+          "#da6d67",
+          "#e0a29e",
+          "#ebcecc",
+          "#f7eeee"
         ]
       },
       "danger-soft": {
         "role": "error",
-        "displayName": "Danger Wash",
+        "displayName": "Alert Wash",
         "canonical": "#fbeae8",
         "tonalRamp": [
-          "#4b4646",
-          "#7e7574",
-          "#b0a4a2",
-          "#ddcecc",
-          "#fcefee",
-          "#fdf4f4",
-          "#fefaf9",
-          "#fffdfd"
+          "#371916",
+          "#692821",
+          "#a13326",
+          "#d93d2b",
+          "#da7468",
+          "#e0a69f",
+          "#eacfcc",
+          "#f7efee"
         ]
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Day Number",
-        "purpose": "The red-letter day number at the head of today's page; rubric red, tabular figures."
+        "displayName": "Display",
+        "purpose": "The day's devotional title on ruled paper; 1.75rem on a 2rem line on phones, 2.75rem on a 4rem line on its own 4rem title ruling from md."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Page and section titles, Caslon regular, 1.875rem to 2.75rem."
+        "purpose": "Marketing section headings and page titles, Literata 600."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "List-entry names, sample passages, order-of-day entries."
+        "purpose": "Lesson part titles, step names and card headings in Lexend 600 on a 2rem line."
+      },
+      "scripture": {
+        "displayName": "Scripture",
+        "purpose": "Passages on the reading page, with Bible-red superscript verse numbers."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Reflection, practice and prayer text on the 2rem ruling, max 36rem."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "All reading prose on paper and cloth."
-      },
-      "rubric": {
-        "displayName": "Rubric",
-        "purpose": "Italic red instructions to the teacher and reading-level labels."
+        "purpose": "Interface copy, descriptions and lists."
       },
       "label": {
-        "displayName": "Tracked Capitals",
-        "purpose": "Stand-in for small capitals (the face has none): wordmark, month, back-cover sub-heads."
-      },
-      "ui": {
-        "displayName": "Interface Sans",
-        "purpose": "App form labels, fields and default button labels only."
+        "displayName": "Label",
+        "purpose": "Chips, step tabs, captions and counts."
       }
     },
-    "shadows": [],
-    "rules": [
+    "shadows": [
       {
-        "name": "double-rule",
-        "value": "4px double rgb(27 26 23 / .7)",
-        "purpose": "Opens sections, lists and the running head on paper; on cloth in gilt at 60 to 70%."
+        "name": "card",
+        "value": "0 1px 2px rgb(29 36 51 / 0.06), 0 6px 16px -4px rgb(29 36 51 / 0.1)",
+        "purpose": "Lesson cards, ruled sheets, the presenter frame, the current step tab."
       },
       {
-        "name": "hairline",
-        "value": "1px solid #d9d4c7",
-        "purpose": "Divides list entries and sections."
+        "name": "lift",
+        "value": "0 2px 4px rgb(29 36 51 / 0.06), 0 12px 28px -8px rgb(29 36 51 / 0.18)",
+        "purpose": "Raised states and overlays."
       },
       {
-        "name": "dotted-leader",
-        "value": "1px dotted rgb(107 102 92 / .5)",
-        "purpose": "Leads the eye across index entries."
-      },
-      {
-        "name": "keyline-frame",
-        "value": "1px solid rgb(27 26 23 / .7) + outline 1px rgb(107 102 92 / .5) offset 5px",
-        "purpose": "Frames the inline presenter and the empty verse block."
-      },
-      {
-        "name": "focus-ring",
-        "value": "3px solid #1c2a47, offset 2px; gilt on cloth",
-        "purpose": "The one focus treatment everywhere."
+        "name": "blue-press",
+        "value": "0 2px 6px -1px rgb(35 80 204 / 0.45)",
+        "purpose": "Under primary buttons; removed on press."
       }
     ],
-    "presentThemes": {
-      "source": "src/lib/content/present.ts PRESENT_THEMES",
-      "minContrast": 7,
-      "themes": {
-        "white": {
-          "label": "White",
-          "bg": "#ffffff",
-          "fg": "#111111",
-          "accent": "#a31d16",
-          "muted": "#333333"
-        },
-        "cream": {
-          "label": "Paper",
-          "bg": "#fbfaf6",
-          "fg": "#161616",
-          "accent": "#a31d16",
-          "muted": "#363636"
-        },
-        "dark": {
-          "label": "Bookcloth",
-          "bg": "#141f36",
-          "fg": "#ffffff",
-          "accent": "#d4b25e",
-          "muted": "#d9dce4"
-        },
-        "contrast": {
-          "label": "High contrast",
-          "bg": "#000000",
-          "fg": "#ffffff",
-          "accent": "#ffe14d",
-          "muted": "#e8e8e8"
-        }
-      }
-    },
     "motion": [
       {
-        "name": "color-transition",
-        "value": "transition-colors 150ms",
-        "purpose": "Hover fills on buttons; nothing else moves. Reduced motion collapses all durations."
+        "name": "state",
+        "value": "150ms ease",
+        "purpose": "Background, border, shadow and 1px press on buttons and tabs; collapsed under prefers-reduced-motion."
       }
     ],
     "breakpoints": [
       {
         "name": "sm",
-        "value": "640px"
+        "value": "40rem",
+        "note": "Margin line moves from 0.625rem to 2.75rem; step numbers replace icons in tabs."
       },
       {
         "name": "md",
-        "value": "768px"
+        "value": "48rem"
       },
       {
         "name": "lg",
-        "value": "1024px"
+        "value": "64rem"
       }
-    ]
+    ],
+    "paper": [
+      {
+        "name": "workbook-paper",
+        "value": "2rem blue ruling, each rule 1.8rem into its band, plus the red margin line at --wb-margin (0.625rem, 2.75rem from 40rem)",
+        "purpose": "Sheets whose text keeps to the 2rem grid."
+      },
+      {
+        "name": "title-lines",
+        "value": "4rem ruling, each rule at 3.05rem just under the baseline",
+        "purpose": "The large title from md; the block is a whole number of 2rem bands so the 2rem ruling continues below."
+      },
+      {
+        "name": "workbook-margin",
+        "value": "the red margin line only",
+        "purpose": "Sheets whose text does not keep to the ruling."
+      }
+    ],
+    "presentThemes": {
+      "white": {
+        "bg": "#ffffff",
+        "fg": "#141a26",
+        "accent": "#1d41a8",
+        "muted": "#333a47",
+        "verse": "#a01c14"
+      },
+      "cream": {
+        "bg": "#f8f6f0",
+        "fg": "#141a26",
+        "accent": "#1c3fa3",
+        "muted": "#353b47",
+        "verse": "#9a1a12"
+      },
+      "dark": {
+        "bg": "#141f3d",
+        "fg": "#ffffff",
+        "accent": "#f2b23a",
+        "muted": "#d9dee9",
+        "verse": "#ffa094"
+      },
+      "contrast": {
+        "bg": "#000000",
+        "fg": "#ffffff",
+        "accent": "#ffe14d",
+        "muted": "#e8e8e8",
+        "verse": "#ffe14d"
+      }
+    }
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Bookcloth navy fill for the single primary action, e.g. Present full screen.",
+      "description": "The one main action on a view: Present full screen, Write to us about your school.",
       "html": "<button class=\"ds-btn-primary\">Present full screen</button>",
-      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 20px; background:var(--color-brand,#1c2a47); color:#fff; border:1px solid var(--color-brand,#1c2a47); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1rem; font-weight:400; cursor:pointer; transition:background-color .15s; } .ds-btn-primary:hover { background:var(--color-brand-hover,#121c31); } .ds-btn-primary:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:0 20px;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);font-size:1rem;font-weight:600;color:#fff;background:var(--color-brand,#2350cc);border:1px solid transparent;border-radius:var(--radius-control,.625rem);box-shadow:0 2px 6px -1px rgb(35 80 204/.45);cursor:pointer;transition:background-color .15s,transform .15s,box-shadow .15s}.ds-btn-primary:hover{background:var(--color-brand-hover,#1a3ea3)}.ds-btn-primary:active{transform:translateY(1px);box-shadow:none}.ds-btn-primary:focus-visible{outline:3px solid var(--color-brand,#2350cc);outline-offset:2px}"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "White leaf with a strong hairline; Back, Next, text size.",
-      "html": "<button class=\"ds-btn-secondary\">Next</button>",
-      "css": ".ds-btn-secondary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px; padding:0 12px; background:var(--color-surface,#fff); color:var(--color-ink,#1b1a17); border:1px solid rgb(107 102 92 / .5); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1rem; cursor:pointer; transition:background-color .15s; } .ds-btn-secondary:hover { background:var(--color-brand-soft,#e7e9ef); } .ds-btn-secondary:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
+      "description": "Sign in, Back and Next, text size, and the founding-school link.",
+      "html": "<button class=\"ds-btn-secondary\">Sign in</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);font-size:1rem;font-weight:600;color:var(--color-brand,#2350cc);background:var(--color-surface,#fff);border:1px solid #b8c6ea;border-radius:var(--radius-control,.625rem);cursor:pointer;transition:background-color .15s,border-color .15s}.ds-btn-secondary:hover{border-color:var(--color-brand,#2350cc);background:var(--color-brand-soft,#e9eefc)}.ds-btn-secondary:focus-visible{outline:3px solid var(--color-brand,#2350cc);outline-offset:2px}"
     },
     {
-      "name": "Gilt Button",
+      "name": "Ghost Button",
       "kind": "button",
-      "refersTo": "button-gilt",
-      "description": "The one gilt-filled action, on the back cover only.",
-      "html": "<div class=\"ds-cloth\"><a class=\"ds-btn-gilt\" href=\"#\">Write to us about your school</a></div>",
-      "css": ".ds-cloth { background:#1c2a47; padding:24px; } .ds-btn-gilt { display:inline-flex; align-items:center; min-height:52px; padding:0 28px; background:var(--color-gilt,#d4b25e); color:var(--color-brand,#1c2a47); border:1px solid var(--color-gilt,#d4b25e); border-radius:var(--radius-control,0.1875rem); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1.125rem; text-decoration:none; transition:background-color .15s; } .ds-btn-gilt:hover { background:#e2c57a; } .ds-btn-gilt:focus-visible { outline:3px solid var(--color-gilt,#d4b25e); outline-offset:2px; }"
+      "refersTo": "button-ghost",
+      "description": "Quiet blue actions inside cards and toolbars.",
+      "html": "<button class=\"ds-btn-ghost\">Show notes</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);font-weight:600;color:var(--color-brand,#2350cc);background:transparent;border:1px solid transparent;border-radius:var(--radius-control,.625rem);cursor:pointer;transition:background-color .15s}.ds-btn-ghost:hover{background:var(--color-brand-soft,#e9eefc)}.ds-btn-ghost:focus-visible{outline:3px solid var(--color-brand,#2350cc);outline-offset:2px}"
     },
     {
-      "name": "Rubric Link",
-      "kind": "custom",
-      "refersTo": "colors.rubric",
-      "description": "Red Caslon link with a 40% red underline that fills on hover.",
-      "html": "<a class=\"ds-rubric-link\" href=\"#\">Become a founding school</a>",
-      "css": ".ds-rubric-link { font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size:1.125rem; color:var(--color-rubric,#a31d16); text-decoration:underline; text-decoration-color:rgb(163 29 22 / .4); text-underline-offset:4px; } .ds-rubric-link:hover { text-decoration-color:var(--color-rubric,#a31d16); } .ds-rubric-link:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
-    },
-    {
-      "name": "Text Field",
-      "kind": "input",
-      "refersTo": "text-field",
-      "description": "App field: white leaf, strong hairline, square-cut, system sans.",
-      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">School name</span><input class=\"ds-input\" placeholder=\"St. Mark's School\"></label>",
-      "css": ".ds-field { display:flex; flex-direction:column; gap:6px; font-family:ui-sans-serif,system-ui,sans-serif; } .ds-field-label { font-size:.875rem; font-weight:600; color:var(--color-ink,#1b1a17); } .ds-input { min-height:44px; padding:8px 12px; background:var(--color-surface,#fff); color:var(--color-ink,#1b1a17); border:1px solid rgb(107 102 92 / .6); border-radius:var(--radius-control,0.1875rem); font-size:1rem; } .ds-input:focus-visible { outline:3px solid var(--color-brand,#1c2a47); outline-offset:2px; }"
-    },
-    {
-      "name": "Masthead",
+      "name": "App Bar",
       "kind": "nav",
-      "refersTo": "masthead",
-      "description": "Navy cloth band with gilt wordmark, Caslon links and a gilt double rule beneath.",
-      "html": "<header class=\"ds-masthead\"><a class=\"ds-mark\" href=\"#\"><span class=\"ds-mark-box\"><span>180</span></span><span class=\"ds-mark-name\">Everyday Devotional</span></a><nav class=\"ds-nav\"><a href=\"#\">Today</a><a href=\"#\">The year</a><a class=\"ds-signin\" href=\"#\">Sign in</a></nav></header>",
-      "css": ".ds-masthead { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:0 16px; background:#1c2a47; color:#e9e3d2; border-bottom:4px double rgb(212 178 94 / .6); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); } .ds-mark { display:inline-flex; align-items:center; gap:12px; color:#d4b25e; text-decoration:none; } .ds-mark-box { display:grid; place-items:center; height:36px; padding:0 6px; border:1px solid currentColor; font-variant-numeric:oldstyle-nums; } .ds-mark-box span { border-block:1px solid currentColor; padding:4px; line-height:1; } .ds-mark-name { text-transform:uppercase; letter-spacing:.18em; font-size:.95rem; } .ds-nav { display:flex; align-items:center; gap:4px; } .ds-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 12px; color:#e9e3d2; text-decoration:none; text-underline-offset:6px; } .ds-nav a:hover { color:#d4b25e; text-decoration:underline; } .ds-nav a.ds-signin { margin-left:8px; padding:0 20px; color:#d4b25e; border:1px solid rgb(212 178 94 / .7); border-radius:0.1875rem; } .ds-nav a.ds-signin:hover { background:rgb(255 255 255 / .1); text-decoration:none; } .ds-nav a:focus-visible, .ds-mark:focus-visible { outline:3px solid #d4b25e; outline-offset:2px; }"
+      "refersTo": null,
+      "description": "Sticky white bar with the open-Bible wordmark, muted links and a secondary Sign in.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-nav-logo\" href=\"#\"><svg width=\"36\" height=\"36\" viewBox=\"0 0 36 36\" aria-hidden=\"true\"><rect width=\"36\" height=\"36\" rx=\"9\" fill=\"#2350cc\"/><path d=\"M18 11.5c-2.6-1.7-5.7-2.3-9-2v15c3.3-.3 6.4.3 9 2 2.6-1.7 5.7-2.3 9-2v-15c-3.3-.3-6.4.3-9 2Z\" fill=\"#fff\"/><path d=\"M18 11.5v15\" stroke=\"#2350cc\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><path d=\"M22.5 9.6v8.6l1.7-1.4 1.7 1.4V9.9\" fill=\"#f2b23a\"/></svg>Everyday Devotional</a><nav class=\"ds-nav-links\"><a href=\"#\">How it works</a><a href=\"#\">Classroom mode</a><a href=\"#\">Founding schools</a><a class=\"ds-nav-signin\" href=\"#\">Sign in</a></nav></header>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:64px;padding:0 1.5rem;background:rgb(255 255 255/.95);border-bottom:1px solid var(--color-line,#dde3ec);font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif)}.ds-nav-logo{display:inline-flex;align-items:center;gap:.625rem;color:var(--color-ink,#1d2433);font-weight:600;font-size:1.05rem;text-decoration:none}.ds-nav-links{display:flex;align-items:center;gap:.25rem}.ds-nav-links a{display:grid;place-items:center;min-height:44px;padding:0 .75rem;border-radius:.625rem;color:var(--color-muted,#4e5668);font-weight:500;font-size:.95rem;text-decoration:none}.ds-nav-links a:hover{background:var(--color-brand-soft,#e9eefc);color:var(--color-brand,#2350cc)}.ds-nav-links a:focus-visible{outline:3px solid var(--color-brand,#2350cc);outline-offset:2px}.ds-nav-links .ds-nav-signin{margin-left:.5rem;padding:0 20px;color:var(--color-brand,#2350cc);font-weight:600;border:1px solid #b8c6ea;background:#fff}"
     },
     {
-      "name": "Ruled Order List",
+      "name": "Lesson Step Tabs",
       "kind": "custom",
-      "refersTo": "colors.rubric",
-      "description": "Double-rule-opened list with red roman numerals and red italic rubrics.",
-      "html": "<ol class=\"ds-order\"><li><span class=\"ds-num\">I</span><div><p class=\"ds-name\">The title</p><p class=\"ds-rubric\">Read it aloud. The week's theme sits beneath it.</p></div></li><li><span class=\"ds-num\">II</span><div><p class=\"ds-name\">Scripture</p><p class=\"ds-rubric\">The class reads together.</p></div></li></ol>",
-      "css": ".ds-order { list-style:none; margin:0; padding:0; border-top:4px double rgb(27 26 23 / .7); font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); background:#fbfaf6; } .ds-order li { display:grid; grid-template-columns:3rem 1fr; column-gap:12px; padding:16px 0; border-bottom:1px solid #d9d4c7; } .ds-num { font-size:1.25rem; color:#a31d16; } .ds-name { margin:0; font-size:1.25rem; color:#1b1a17; } .ds-rubric { margin:4px 0 0; font-style:italic; color:#a31d16; }"
+      "refersTo": "step-tab-current",
+      "description": "Read, Talk, Do, Pray: current step white and blue, passed steps gold-checked, later steps grey.",
+      "html": "<ol class=\"ds-steps\"><li><button class=\"ds-step ds-step-done\"><span class=\"ds-step-n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span>Read</button></li><li><button class=\"ds-step ds-step-here\" aria-current=\"step\"><span class=\"ds-step-n\">2</span>Talk</button></li><li><button class=\"ds-step\"><span class=\"ds-step-n\">3</span>Do</button></li><li><button class=\"ds-step\"><span class=\"ds-step-n\">4</span>Pray</button></li></ol>",
+      "css": ".ds-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:0;padding:.375rem;list-style:none;background:var(--color-parchment,#f8f6f0);border-radius:.625rem;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif)}.ds-step{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:44px;padding:0 .5rem;border:0;border-radius:.5rem;background:transparent;color:var(--color-muted,#4e5668);font:600 1rem var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);cursor:pointer;transition:background-color .15s,color .15s}.ds-step:hover{background:rgb(255 255 255/.7);color:var(--color-ink,#1d2433)}.ds-step:focus-visible{outline:3px solid var(--color-brand,#2350cc);outline-offset:2px}.ds-step-n{display:grid;place-items:center;width:24px;height:24px;border-radius:9999px;font-size:.75rem;background:var(--color-line,#dde3ec);color:var(--color-muted,#4e5668)}.ds-step-here{background:#fff;color:var(--color-brand,#2350cc);box-shadow:0 1px 2px rgb(29 36 51/.06),0 6px 16px -4px rgb(29 36 51/.1)}.ds-step-here .ds-step-n{background:var(--color-brand,#2350cc);color:#fff}.ds-step-done .ds-step-n{background:var(--color-gilt,#f2b23a);color:var(--color-ink,#1d2433)}"
     },
     {
-      "name": "Day Number",
-      "kind": "custom",
-      "refersTo": "typography.display",
-      "description": "Red-letter calendar day: display figure with tracked month beneath, beside the title.",
-      "html": "<div class=\"ds-day\"><p class=\"ds-daynum\"><span>14</span><span class=\"ds-month\">Nov</span></p><div><h1 class=\"ds-title\">Wait for the Lord</h1><p class=\"ds-meter\">Patience · Day 3 of 5</p></div></div>",
-      "css": ".ds-day { display:flex; align-items:flex-start; gap:28px; font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); background:#fbfaf6; padding:16px; } .ds-daynum { display:grid; justify-items:center; margin:0; color:#a31d16; } .ds-daynum span:first-child { font-size:6rem; line-height:.8; font-variant-numeric:tabular-nums; } .ds-month { margin-top:8px; font-size:.875rem; text-transform:uppercase; letter-spacing:.2em; } .ds-title { margin:4px 0 0; font-size:2.75rem; font-weight:400; line-height:1.12; color:#1b1a17; } .ds-meter { margin:8px 0 0; font-style:italic; color:#55524b; }"
-    },
-    {
-      "name": "Back Cover Frame",
+      "name": "Workbook Sheet",
       "kind": "card",
-      "refersTo": "colors.gilt",
-      "description": "Gilt double rule with inset gilt rule on bookcloth, for the founding section.",
-      "html": "<div class=\"ds-cover\"><div class=\"ds-cover-frame\"><div class=\"ds-cover-inner\"><h2>Become a founding school</h2><h3>What we ask</h3><p>Honest feedback, including “not yet” if that is the answer.</p></div></div></div>",
-      "css": ".ds-cover { background:#1c2a47; color:#e9e3d2; padding:24px; font-family:var(--font-serif, 'Libre Caslon Text', Georgia, serif); } .ds-cover-frame { border:4px double rgb(212 178 94 / .7); padding:6px; } .ds-cover-inner { border:1px solid rgb(212 178 94 / .4); padding:40px 24px; } .ds-cover-inner h2 { margin:0; font-size:2.25rem; font-weight:400; color:#d4b25e; } .ds-cover-inner h3 { margin:28px 0 0; font-size:.875rem; font-weight:400; text-transform:uppercase; letter-spacing:.16em; color:#d4b25e; } .ds-cover-inner p { margin:12px 0 0; font-size:1.125rem; line-height:1.6; }"
+      "refersTo": "lesson-card",
+      "description": "Ruled lesson paper: 2rem blue ruling, red margin line, a step tag leading each heading, Literata on the lines, the step medallion in the margin from sm.",
+      "html": "<article class=\"ds-sheet\"><span class=\"ds-sheet-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z\"/><path d=\"M12 6v13.5\"/></svg></span><h3 class=\"ds-sheet-title\"><span class=\"ds-pill\">Read</span>Scripture</h3><p class=\"ds-sheet-tip\">Read it aloud together. Announce the reference first.</p><p class=\"ds-sheet-verse\"><sup>1</sup> The LORD is my shepherd; I shall not want.</p></article>",
+      "css": ".ds-sheet{--m:2.75rem;position:relative;padding:2rem 2rem 2rem 4rem;border:1px solid var(--color-line,#dde3ec);border-radius:1rem;box-shadow:0 1px 2px rgb(29 36 51/.06),0 6px 16px -4px rgb(29 36 51/.1);background-color:#fff;background-image:linear-gradient(to right,transparent var(--m),#efb0a8 var(--m),#efb0a8 calc(var(--m) + 1.5px),transparent calc(var(--m) + 1.5px)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(2rem - 1px),#d5e0f3 calc(2rem - 1px),#d5e0f3 2rem);background-position:0 0,0 -.2rem;color:var(--color-ink,#1d2433);font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif)}.ds-sheet-icon{position:absolute;left:.375rem;top:2rem;display:grid;place-items:center;width:2rem;height:2rem;border-radius:9999px;background:#e9eefc;color:#2350cc}.ds-sheet-title{margin:0;font-size:1.25rem;font-weight:600;line-height:2rem}.ds-pill{display:inline-flex;align-items:center;margin-right:.5rem;white-space:nowrap;vertical-align:middle;padding:2px .625rem;border-radius:9999px;background:#f8f6f0;color:#4e5668;font-size:.875rem;font-weight:500;line-height:1.5rem}.ds-sheet-tip{margin:0;line-height:2rem;color:#4e5668}.ds-sheet-verse{margin:0;font-family:var(--font-serif, \"Literata\", Georgia, serif);font-size:1.4rem;line-height:2rem}.ds-sheet-verse sup{font-size:.6em;color:var(--color-rubric,#b42318)}"
     },
     {
-      "name": "Dialog",
-      "kind": "card",
-      "refersTo": "dialog",
-      "description": "Modal dialog as a ruled frame: ink border, offset hairline keyline, navy backdrop, no shadow.",
-      "html": "<div class=\"ds-dialog\"><h2>Delete this draft?</h2><p>This cannot be undone.</p><div class=\"ds-dialog-actions\"><button class=\"ds-dialog-btn\">Cancel</button></div></div>",
-      "css": ".ds-dialog { max-width: 32rem; margin: 8px; background: var(--color-surface, #fff); color: var(--color-ink, #1b1a17); border: 1px solid rgb(27 26 23 / 0.7); border-radius: var(--radius-card, 0.25rem); outline: 1px solid var(--color-line, #d9d4c7); outline-offset: 4px; padding: 24px; } .ds-dialog h2 { font-family: var(--font-serif, 'Libre Caslon Text', Georgia, serif); font-size: 1.5rem; margin: 0; } .ds-dialog p { color: var(--color-muted, #55524b); margin: 8px 0 0; } .ds-dialog-actions { display: flex; justify-content: flex-end; margin-top: 24px; } .ds-dialog-btn { min-height: 44px; padding: 0 12px; border: 1px solid rgb(107 102 92 / 0.6); border-radius: var(--radius-control, 0.1875rem); background: #fff; font: 600 1rem ui-sans-serif, system-ui, sans-serif; } .ds-dialog-btn:hover { background: var(--color-brand-soft, #e7e9ef); } .ds-dialog-btn:focus-visible { outline: 3px solid var(--color-brand, #1c2a47); outline-offset: 2px; }"
-    },
-    {
-      "name": "Badge",
+      "name": "Date Chip and Progress Dots",
       "kind": "chip",
-      "refersTo": "badge",
-      "description": "Square-cut badge or chip; no pills.",
-      "html": "<span class=\"ds-badge\">Grades 3–5</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-control, 0.1875rem); background: var(--color-brand-soft, #e7e9ef); color: var(--color-brand, #1c2a47); font: 600 0.75rem ui-sans-serif, system-ui, sans-serif; }"
+      "refersTo": "date-chip",
+      "description": "Today's date in a blue-wash pill; the week's five days as dots, gold for done, blue for today, followed by visible \"Day n of 5\".",
+      "html": "<div class=\"ds-dayrow\"><span class=\"ds-chip\">Today</span><span class=\"ds-week\">This week: <b>Patience</b></span><span class=\"ds-dots\" aria-hidden=\"true\"><i class=\"done\"></i><i class=\"done\"></i><i class=\"here\"></i><i></i><i></i></span><span class=\"ds-week\">Day 3 of 5</span></div>",
+      "css": ".ds-dayrow{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);font-size:.875rem}.ds-chip{display:inline-flex;align-items:center;height:28px;padding:0 .75rem;border-radius:9999px;background:var(--color-brand-soft,#e9eefc);color:var(--color-brand,#2350cc);font-weight:600}.ds-week{color:#4e5668}.ds-week b{color:#1d2433}.ds-dots{display:flex;gap:.25rem}.ds-dots i{width:10px;height:10px;border-radius:9999px;background:#dde3ec}.ds-dots i.done{background:#f2b23a}.ds-dots i.here{background:#2350cc;box-shadow:0 0 0 2px rgb(35 80 204/.25)}"
+    },
+    {
+      "name": "Benefit Card",
+      "kind": "card",
+      "refersTo": "lesson-card",
+      "description": "White card on paper with gold check badges, for benefits and what a school receives.",
+      "html": "<aside class=\"ds-card\"><h3>A short devotional for every school day</h3><ul><li><span class=\"ds-check\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span>Ready to present in about a minute</li><li><span class=\"ds-check\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span>No student accounts and no advertising</li></ul></aside>",
+      "css": ".ds-card{max-width:19rem;padding:1.5rem;background:#fff;border:1px solid #dde3ec;border-radius:1rem;box-shadow:0 1px 2px rgb(29 36 51/.06),0 6px 16px -4px rgb(29 36 51/.1);font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);color:#1d2433}.ds-card h3{margin:0 0 1.25rem;font-size:1.125rem;font-weight:600;line-height:1.375}.ds-card ul{display:grid;gap:.75rem;margin:0;padding:0;list-style:none}.ds-card li{display:flex;gap:.75rem}.ds-check{display:grid;place-items:center;flex-shrink:0;width:24px;height:24px;margin-top:2px;border-radius:9999px;background:var(--color-gold-soft,#fdf3dc);color:var(--color-gold-ink,#7a4d00)}"
     }
   ],
   "narrative": {
-    "northStar": "The School Hymnal",
-    "overview": "The site is a well-made hymnal, a numbered book for every school day. Inside, the page is bright, thin Bible paper with true ink black and red rubrics; outside, whole regions are bound in navy bookcloth with gilt stamping. The masthead is the front board, the founding section and colophon are the back cover. Everything between them reads as printed matter: Caslon set at regular weight, square-cut corners, hairline and double rules where another product would put cards.\n\nDensity is that of a well-leaded book page, not a dashboard. Sections are separated by rules and paper, not by boxes and shadows. The red is the red-letter tradition: it marks what the teacher does (instructions set in italic) and what you count by (day numbers, roman order numerals, verse figures), never decoration. Gilt only ever appears on cloth.\n\nThis world replaces an earlier cream-parchment, teal, Source Serif look with rounded cards; that look is retired and nothing of it is current.",
+    "northStar": "The Classroom Workbook",
+    "overview": "Each school day is a lesson page in a workbook: a friendly edtech course page set on bright paper with faint blue ruling and a red margin line, with the Bible written onto those lines in a book serif. The interface speaks in Lexend, a face built for reading fluency, with confident classroom blue for anything you can press. Scripture, titles and devotional text are set in Literata, so the Word reads like a printed book on the workbook page.\n\nThe system is clean and calm rather than ornamental. Colour is functional and sparse: blue means \"act here\" or \"you are here\", gold means \"done\" or \"progress\", and Bible red appears only on verse numbers. Surfaces are white lesson cards with friendly rounded corners and soft blurred shadows, lifted slightly off warm workbook paper. Density is moderate: generous section spacing on the marketing page, tight 2rem line rhythm on the ruled sheets.\n\nThe world deliberately replaces an earlier hymnal-and-letterpress costume, and refuses the generic SaaS landing page (centred hero, card grid, dark call-to-action band). It reads as a classroom material, not a church bulletin and not a startup.",
     "keyCharacteristics": [
-      "Bible paper (#fbfaf6) inside, navy bookcloth (#1c2a47) for the masthead, back cover and colophon.",
-      "Red italic rubrics as the signature: instructions to the teacher, day numbers, order numerals.",
-      "Libre Caslon Text throughout, regular weight even at display sizes.",
-      "Printed rules instead of containers: 4px double rules open lists and sections, hairlines divide items, dotted leaders run index entries.",
-      "Square-cut corners (3px and 4px); no shadows on the page."
+      "Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules; the large title gets its own 4rem title ruling.",
+      "Two faces with clear jobs: Lexend for the interface and small headings, Literata for titles, Scripture and devotional text.",
+      "Classroom blue for actions, links and the current step; gold for progress and done; Bible red only for verse numbers.",
+      "The four-step lesson (Read, Talk, Do, Pray) as the recurring structure, with rounded stroke icons.",
+      "Friendly rounded controls (0.625rem) and cards (1rem), soft blurred shadows only."
     ],
     "rules": [
       {
         "name": "The Red-Letter Rule",
-        "body": "Rubric red marks only what the teacher does or what is counted: instructions, day numbers, order numerals, section figures, verse figures. It never fills a surface, a button or a heading, and numbers are bare figures, never set in discs or badges.",
+        "body": "Bible red is for verse numbers and nothing else. Errors use danger; the margin line uses its own pale pink.",
         "section": "colors"
       },
       {
-        "name": "The Gilt-on-Cloth Rule",
-        "body": "Gilt appears only on bookcloth navy. On paper it has no contrast and no meaning.",
+        "name": "The Gold Star Rule",
+        "body": "Gold marks progress and completion: done steps, done days, earlier dots, check marks in benefit lists. It never marks an action.",
         "section": "colors"
       },
       {
-        "name": "The Binding Rule",
-        "body": "Navy either carries a whole region (masthead, back cover, colophon) or the single primary action in view. It is never a tinted card in the middle of the page.",
+        "name": "The Blue Means Here Rule",
+        "body": "Classroom blue marks what you can press and where you are now. Do not spend it on decoration.",
         "section": "colors"
       },
       {
-        "name": "The Regular-Weight Display Rule",
-        "body": "Caslon is set at 400 at every display size, as a hymnal sets its titles. Bold is reserved for small headings (h4, rich-text h3). The one stated exception at display size is the projected discussion question on slides (the emphasis block), set semibold so it carries across a classroom; nowhere else does Caslon pair with a heavier weight.",
+        "name": "The Two Jobs Rule",
+        "body": "Lexend does the interface; Literata carries the Word and the day's title. Never set Scripture in Lexend or buttons in Literata.",
         "section": "typography"
       },
       {
-        "name": "The Stated Substitution Rule",
-        "body": "Libre Caslon Text has no true small capitals, so tracked full capitals (0.16em to 0.2em) stand in for them: the wordmark, the month abbreviation, the founding sub-heads. Never synthesize small caps with `font-variant: small-caps` or scaled capitals.",
+        "name": "The No Kicker Rule",
+        "body": "No small label line above a heading. Context (date, week, step) sits in chips and progress dots beside or above the title row, not as letter-spaced capitals.",
         "section": "typography"
       },
       {
-        "name": "The Figures Rule",
-        "body": "Counted numbers use tabular figures; the wordmark's \"180\" and the index ranges use old-style figures.",
-        "section": "typography"
+        "name": "The On-the-Lines Rule",
+        "body": "Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.",
+        "section": "layout"
       },
       {
-        "name": "The Printed-Depth Rule",
-        "body": "No shadows on paper or cloth. Separation comes from rules, keylines and the paper/cloth boundary.",
+        "name": "The Soft Shadow Rule",
+        "body": "Every shadow is blurred. No zero-blur offset shadows, no hard outlines standing in for elevation.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** separate sections and list items with printed rules: a 4px double rule to open, 1px hairlines between entries, dotted leaders in indexes.",
-      "**Do** set every reading and display line in Libre Caslon Text at regular weight; reserve bold for h4 and rich-text h3, plus the projected discussion question on slides.",
-      "**Do** put instructions to the teacher in red italic rubrics, and number things (days, order steps) in rubric red.",
-      "**Do** keep gilt on bookcloth only, and let navy cloth carry whole regions or the single primary action.",
-      "**Do** use tracked full capitals (0.16em to 0.2em) wherever small capitals would be set, because the face has none.",
-      "**Do** keep every projector theme at 7:1 or better for text, muted and accent colours, and add any new theme to the contrast test.",
-      "**Do** keep controls at least 44px and square-cut (3px), badges and chips included.",
-      "**Do** mark a split slide with \"…, continued\" and a muted italic \"continues on the next slide\", never a page count."
+      "**Do** set every line on a ruled sheet to the 2rem grid, or give the block a solid white panel that clears the ruling.",
+      "**Do** use classroom blue for actions, links, the current step and focus, and nothing else.",
+      "**Do** mark progress and completion with gold: fills in gilt, text and checks in gold ink on gold wash.",
+      "**Do** set Scripture, titles and devotional text in Literata and the interface in Lexend.",
+      "**Do** keep every interactive target at least 44px and every presentation theme at 7:1.",
+      "**Do** keep the four-step lesson (Read, Talk, Do, Pray) and its icons consistent wherever the devotional appears."
     ],
     "donts": [
-      "**Don't** synthesize small capitals with `font-variant: small-caps` or scaled-down capitals.",
-      "**Don't** use cards, icon tiles, pills or shadows anywhere, dialogs included; frame with rules and keylines instead. Only dots and avatars are round.",
-      "**Don't** use rubric red for fills, buttons or decorative headings.",
-      "**Don't** put gilt on paper.",
-      "**Don't** bring back the retired look: cream parchment ground with teal accents, Source Serif, rounded cards.",
-      "**Don't** add uppercase semibold label lines above headings; the only tracked capitals are the wordmark, the month and the back-cover sub-heads."
+      "**Don't** use Bible red for anything but verse numbers.",
+      "**Don't** put a label line or kicker above a heading.",
+      "**Don't** use zero-blur offset shadows; every shadow is soft and blurred.",
+      "**Don't** let ruling lines cross glyphs: text off the grid sits on a solid panel or a margin-only sheet.",
+      "**Don't** bring back the hymnal costume (bookcloth navy, gilt rules, letterpress capitals) or the SaaS landing template (centred hero, card grid, dark call-to-action band).",
+      "**Don't** lead with \"180 days\"; one devotional for every school day is the promise, the count stays in the background."
     ]
   }
 }

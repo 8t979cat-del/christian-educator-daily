@@ -2,27 +2,36 @@
 
 /* Design tokens from the approved design system. */
 @theme {
-  /* The hymnal: bright thin Bible paper, ink, red rubrics, bookcloth navy with gilt stamping. */
-  --color-parchment: #fbfaf6; /* paper */
-  --color-surface: #ffffff;
-  --color-ink: #1b1a17;
-  --color-muted: #55524b;
-  --color-line: #d9d4c7;
-  --color-line-strong: #6b665c;
-  --color-brand: #1c2a47; /* bookcloth navy: primary actions, cover fields */
-  --color-brand-hover: #121c31;
-  --color-brand-soft: #e7e9ef;
-  --color-rubric: #a31d16; /* red-letter rubrics: numbers, instructions, verse figures */
-  --color-gilt: #d4b25e;
+  /* The classroom workbook: bright paper with blue ruling, ink navy, classroom blue for actions,
+     gold for progress, Bible red only for verse numbers. */
+  --color-parchment: #f8f6f0; /* the page: warm workbook paper */
+  --color-surface: #ffffff; /* lesson cards and fields */
+  --color-ink: #1d2433;
+  --color-muted: #4e5668;
+  --color-line: #dde3ec;
+  --color-line-strong: #687286;
+  --color-brand: #2350cc; /* classroom blue: actions, links, the current step */
+  --color-brand-hover: #1a3ea3;
+  --color-brand-soft: #e9eefc;
+  --color-rubric: #b42318; /* Bible red: verse numbers and nothing else decorative */
+  --color-gilt: #f2b23a; /* gold: progress, done, this week */
+  --color-gold-ink: #7a4d00; /* gold as text on paper */
+  --color-gold-soft: #fdf3dc;
+  --color-ruling: #d5e0f3; /* the workbook's blue ruled lines */
+  --color-margin: #efb0a8; /* the red margin line */
   --color-danger: #b3261e;
   --color-danger-soft: #fbeae8;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-caslon), "Libre Caslon Text", "Big Caslon", "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-lexend), "Lexend", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-serif: var(--font-literata), "Literata", "Iowan Old Style", Georgia, serif;
 
-  /* Printed matter: square-cut corners. */
-  --radius-control: 0.1875rem;
-  --radius-card: 0.25rem;
+  /* Friendly, rounded classroom materials. */
+  --radius-control: 0.625rem;
+  --radius-card: 1rem;
+
+  /* Lesson cards sit a little above the paper. */
+  --shadow-card: 0 1px 2px rgb(29 36 51 / 0.06), 0 6px 16px -4px rgb(29 36 51 / 0.1);
+  --shadow-lift: 0 2px 4px rgb(29 36 51 / 0.06), 0 12px 28px -8px rgb(29 36 51 / 0.18);
 }
 
 @layer base {
@@ -47,15 +56,54 @@
     outline-offset: 2px;
   }
 
-  /* On bookcloth the focus ring is gilt. */
   .on-dark :focus-visible {
     outline-color: var(--color-gilt);
   }
 
   ::selection {
-    background: var(--color-brand-soft);
+    background: #c9d6f7;
+    color: var(--color-ink);
   }
+
+  /* The caret and checkbox/radio accents follow the classroom blue. */
+  input, textarea, select { caret-color: var(--color-brand); accent-color: var(--color-brand); }
+
+  /* Thin, paper-coloured scrollbars. */
+  * { scrollbar-color: #c3ccdb transparent; scrollbar-width: thin; }
+
+  a { text-underline-offset: 0.2em; }
 }
+
+/* A workbook page: faint blue ruling every 2rem with a red margin line (close to the edge on phones).
+   Each rule sits 1.8rem into its 2rem band, just under the baseline of text set on a 2rem line
+   (or 4rem for large titles), so writing sits on the lines. Blocks that cannot keep to the
+   2rem grid clear the ruling with a solid background instead of letting rules cross glyphs. */
+:root { --wb-margin: 0.625rem; }
+@media (min-width: 40rem) { :root { --wb-margin: 2.75rem; } }
+@utility workbook-paper {
+  background-color: var(--color-surface);
+  background-image:
+    linear-gradient(to right, transparent var(--wb-margin), var(--color-margin) var(--wb-margin), var(--color-margin) calc(var(--wb-margin) + 1.5px), transparent calc(var(--wb-margin) + 1.5px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(2rem - 1px), var(--color-ruling) calc(2rem - 1px), var(--color-ruling) 2rem);
+  background-position: 0 0, 0 -0.2rem;
+}
+/* Title lines: wider ruling (4rem) for a large heading, each rule just under its baseline. The block
+   is a whole number of 2rem bands tall, so the page's 2rem ruling carries on below it. */
+@utility title-lines {
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(3.05rem - 1px), var(--color-ruling) calc(3.05rem - 1px), var(--color-ruling) 3.05rem, transparent 3.05rem, transparent 4rem);
+}
+/* The margin line alone, for sheets whose text does not keep to the ruling. */
+@utility workbook-margin {
+  background-color: var(--color-surface);
+  background-image: linear-gradient(to right, transparent var(--wb-margin), var(--color-margin) var(--wb-margin), var(--color-margin) calc(var(--wb-margin) + 1.5px), transparent calc(var(--wb-margin) + 1.5px));
+}
+/* Rich text written on the rules: every line 2rem, paragraphs indented rather than spaced. */
+.on-rules .rich-text, .on-rules.rich-text { line-height: 2rem; }
+.on-rules .rich-text > * + * { margin-top: 0; }
+.on-rules .rich-text p + p { text-indent: 1.5em; }
+.on-rules .rich-text h3, .on-rules .rich-text h4 { margin-top: 2rem; line-height: 2rem; }
+.on-rules .rich-text li + li, .on-rules .rich-text li > * + * { margin-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -71,7 +119,7 @@
 /* Rich text (editor and reader share the same look) */
 .rich-text > * + * { margin-top: 0.85em; }
 .rich-text { line-height: 1.7; }
-.rich-text h3 { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; margin-top: 1.4em; }
+.rich-text h3 { font-family: var(--font-sans); font-size: 1.2rem; font-weight: 600; margin-top: 1.4em; }
 .rich-text h4 { font-weight: 700; margin-top: 1.2em; }
 .rich-text ul { list-style: disc; padding-left: 1.5rem; }
 .rich-text ol { list-style: decimal; padding-left: 1.5rem; }
@@ -80,7 +128,7 @@
 .rich-text blockquote { border-left: 3px solid var(--color-brand); padding-left: 1rem; color: var(--color-muted); font-style: italic; }
 
 /* Classroom presentation: type scales with the slide (em), colours come from the chosen theme */
-/* Slides are set in Caslon throughout, like the page; controls keep the interface face. */
+/* Slides are set in Literata, the reading face; controls keep the interface face. */
 .present-stage [data-fit] { font-family: var(--font-serif); }
 .present-stage .rich-text { line-height: 1.4; }
 .present-stage .rich-text > * + * { margin-top: 0.6em; }

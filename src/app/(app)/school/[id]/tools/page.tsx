@@ -84,7 +84,7 @@ export default async function SchoolToolsPage({ params }: { params: Promise<{ id
               {collections.map((c) => (
                 <section key={c.id} aria-label={c.name} className="rounded-control border border-line p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-serif text-lg font-normal">{c.name}</h3>
+                    <h3 className="font-serif text-lg font-semibold">{c.name}</h3>
                     {manager ? <RemoveButton kind="collection" schoolId={id} id={c.id} name={c.name} /> : null}
                   </div>
                   {c.description ? <Text size="sm" muted>{c.description}</Text> : null}
@@ -114,7 +114,7 @@ export default async function SchoolToolsPage({ params }: { params: Promise<{ id
               <>
                 <dl className="mt-4 grid grid-cols-3 gap-4 text-center">
                   {[["Faculty counted", engagement.counted_members], ["Devotionals completed", engagement.devotionals_completed], ["Faculty who completed one", engagement.members_active]].map(([k, v]) => (
-                    <div key={String(k)} className="rounded-control bg-brand-soft p-3"><dt className="text-xs text-muted">{k}</dt><dd className="font-serif text-2xl font-normal">{v}</dd></div>
+                    <div key={String(k)} className="rounded-control bg-brand-soft p-3"><dt className="text-xs text-muted">{k}</dt><dd className="font-serif text-2xl font-semibold">{v}</dd></div>
                   ))}
                 </dl>
                 <Text size="sm" muted className="mt-4">Combined totals only. Prayers, reflections, notes and individual activity are never shown here.</Text>

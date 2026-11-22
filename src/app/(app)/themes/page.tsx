@@ -24,7 +24,7 @@ export default async function ThemesPage() {
             <li key={t.id}>
               <Link href={`/themes/${t.id}`} className="block rounded-card border border-line bg-surface p-5 hover:border-brand hover:bg-brand-soft/40">
                 <p className="text-sm font-semibold text-brand">Week of {formatDate(t.week_start, "short")}{t.category_slug ? ` · ${categoryName(t.category_slug)}` : ""}</p>
-                <h2 className="mt-1 font-serif text-xl font-normal">{t.title}</h2>
+                <h2 className="mt-1 font-serif text-xl font-semibold">{t.title}</h2>
                 {t.summary ? <p className="mt-1 text-muted">{t.summary}</p> : null}
               </Link>
             </li>

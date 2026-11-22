@@ -110,7 +110,7 @@ export default async function ArchivePage({ searchParams }: { searchParams: Prom
           <ResultList hits={hits} hrefFor={(id) => `/devotional/${id}`} states={states} />
           {teasers.length > 0 ? (
             <section aria-labelledby="older" className="mt-10">
-              <h2 id="older" className="font-serif text-xl font-normal">Older devotionals</h2>
+              <h2 id="older" className="font-serif text-xl font-semibold">Older devotionals</h2>
               <p className="mt-1 text-sm text-muted">The free plan includes the last {archiveDays} days. These are part of the full archive in Educator Plus.</p>
               <ul className="mt-3 divide-y divide-line rounded-card border border-line bg-surface">
                 {teasers.map((t) => (

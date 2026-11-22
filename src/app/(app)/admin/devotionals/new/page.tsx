@@ -63,7 +63,7 @@ export default async function NewDevotionalPage({ searchParams }: { searchParams
       <PageHeader title="New devotional" description="Saved as a draft. It is never published from this page." />
       <AdminNav current="/admin/devotionals" />
       {submission ? (
-        <p className="mb-6 border-y-4 border-double border-ink/70 py-4 font-serif italic">
+        <p className="mb-6 rounded-card border border-brand/30 bg-brand-soft p-4">
           Started from {submission.author ? `${submission.author}’s` : "a teacher’s"} submission. Saving this draft accepts the submission;
           set the date, theme and grades, then send it through review as usual.
         </p>

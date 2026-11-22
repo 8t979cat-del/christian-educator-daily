@@ -51,14 +51,14 @@ export default async function ThemePage({
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
         <section aria-labelledby="days-heading" className="grid gap-4">
-          <h2 id="days-heading" className="font-serif text-2xl font-normal">Five devotionals</h2>
+          <h2 id="days-heading" className="font-serif text-2xl font-semibold">Five devotionals</h2>
           <ol className="grid gap-3">
             {days.map(({ date, devotional }) => (
               <li key={date} className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-surface p-4">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-brand">{formatDate(date)}</p>
                   {devotional ? (
-                    <Link href={`/admin/devotionals/${devotional.id}`} className="font-serif text-lg font-normal underline-offset-2 hover:underline">
+                    <Link href={`/admin/devotionals/${devotional.id}`} className="font-serif text-lg font-semibold underline-offset-2 hover:underline">
                       {devotional.title || "Untitled devotional"}
                     </Link>
                   ) : (
