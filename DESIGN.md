@@ -22,7 +22,7 @@ colors:
 typography:
   display:
     fontFamily: "Literata, Iowan Old Style, Georgia, serif"
-    fontSize: "2.5rem"
+    fontSize: "2.75rem"
     fontWeight: 600
     lineHeight: "4rem"
     letterSpacing: "-0.01em"
@@ -131,7 +131,7 @@ The system is clean and calm rather than ornamental. Colour is functional and sp
 The world deliberately replaces an earlier hymnal-and-letterpress costume, and refuses the generic SaaS landing page (centred hero, card grid, dark call-to-action band). It reads as a classroom material, not a church bulletin and not a startup.
 
 **Key Characteristics:**
-- Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules.
+- Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules; the large title gets its own 4rem title ruling.
 - Two faces with clear jobs: Lexend for the interface and small headings, Literata for titles, Scripture and devotional text.
 - Classroom blue for actions, links and the current step; gold for progress and done; Bible red only for verse numbers.
 - The four-step lesson (Read, Talk, Do, Pray) as the recurring structure, with rounded stroke icons.
@@ -177,7 +177,7 @@ A bright, mostly neutral paper palette with one action blue, one progress gold a
 **Character:** Lexend is round, open and plainly classroom; Literata is a warm screen-reading book serif that gives Scripture and titles the weight of a printed Bible without costume. Both are self-hosted variable fonts so they load on school networks that block font services.
 
 ### Hierarchy
-- **Display** (Literata 600, 1.75rem on a 2rem line on phones, 2.5rem on a 4rem line from md): the day's devotional title on ruled paper.
+- **Display** (Literata 600, 1.75rem on a 2rem line on phones, 2.75rem on a 4rem line from md): the day's devotional title on ruled paper, written on the 4rem title ruling from md.
 - **Headline** (Literata 600, 1.875rem to 2.4rem, line-height 1.25): section headings on the marketing page and page titles.
 - **Title** (Lexend 600, 1.25rem on a 2rem line): lesson part titles (Scripture, Reflection), step names, card headings at 1.125rem.
 - **Scripture** (Literata 400, 1.25rem to 1.4rem on a 2rem line): passages on the reading page, with superscript verse numbers at 0.6em in Bible red.
@@ -194,12 +194,12 @@ A bright, mostly neutral paper palette with one action blue, one progress gold a
 
 Content sits in a centred container. The home page opens with today's lesson sheet beside a 19rem "why schools use it" panel on large screens (`minmax(0,1fr) 19rem`, gap 2rem), stacking below on phones. Following sections alternate full-width bands of paper and white, separated by faint rules, with 3.5rem vertical padding growing to 5rem from md. Text blocks hold to about 42rem; two-column sections split 5:7.
 
-Ruled sheets follow a strict 2rem vertical rhythm. The margin line sits at 0.625rem on phones and 2.75rem from 40rem; text on a sheet starts at 4rem from the left on wider screens and 1.25rem on phones, with the step icon centred in the margin. The reading page is a single column up to 48rem, widening to a two-column layout with a 17rem side card at lg.
+Ruled sheets follow a strict 2rem vertical rhythm. Three paper treatments exist: **workbook paper** (2rem blue ruling, each rule 1.8rem into its band just under the baseline, plus the red margin line), **title lines** (a 4rem ruling for the large title from md, each rule at 3.05rem just under its baseline; the block is always a whole number of 2rem bands tall so the 2rem ruling continues below it), and **margin only** (the red margin line without ruling, for sheets whose text does not keep to the grid). The margin line sits at 0.625rem on phones and 2.75rem from 40rem; text on a sheet starts at 4rem from the left on wider screens and 1.25rem on phones, with the step icon centred in the margin. The reading page is a single column up to 48rem, widening to a two-column layout with a 17rem side card at lg.
 
 Touch targets are at least 44px everywhere (buttons, nav links, step tabs).
 
 ### Named Rules
-**The On-the-Lines Rule.** Text on ruled paper keeps to the 2rem grid (titles may take 4rem), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.
+**The On-the-Lines Rule.** Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.
 
 ## Elevation & Depth
 
@@ -229,7 +229,9 @@ Clear and confident, like a classroom app.
 
 ### Chips
 - **Date chip:** blue wash pill with blue Lexend 600 label and a sun or calendar icon.
-- **Step and topic pills:** paper-coloured pills with muted text.
+- **Step tag:** an inline, non-wrapping paper-coloured pill with muted Lexend 500 text (Read, Talk, Do, Pray) that leads the part's heading, so it never wraps away from the title; on phones it carries a small blue step icon.
+- **Topic pills:** paper-coloured pills with muted text.
+- **Week progress:** five 10px dots (gold for days done, blue with a soft blue ring for today, faint rule for later days) always followed by the visible text "Day n of 5".
 - **Reading-level chip:** solid blue pill with white label (K–2, 9–12).
 
 ### Cards / Containers
@@ -246,7 +248,7 @@ A sticky white app bar (95% opacity with a light blur), 64px tall, with the word
 The four steps of every lesson, Read, Talk, Do, Pray, as a four-column tab strip on a paper-coloured track. The current step is a white tab with blue text, the card shadow and a blue numbered circle; steps already passed show a gold circle with a check; later steps show a grey number. On phones the number gives way to the step's icon. Each tab jumps the presenter to that part of the devotional.
 
 ### Workbook Sheet (signature)
-A white sheet with 2rem blue ruling and a red margin line, 1rem corners and the card shadow. On the reading page each lesson part has its step icon in a blue-wash circle in the margin, a Lexend title with a step pill, a muted teacher tip, then Literata text on the lines. Today's lesson on the home page uses the same sheet for the date row, title and reference, with the inline presenter pasted on as a clear white panel.
+A white sheet with 2rem blue ruling and a red margin line, 1rem corners and the card shadow. On the reading page each lesson part opens with a Lexend heading led by its step tag, then a muted teacher tip, then Literata text on the lines. From sm the step icon sits as a 2rem blue-wash medallion centred in the margin column; on phones the icon moves into the step tag instead. Today's lesson on the home page uses the same sheet for the date row (date chip, week theme, dots and "Day n of 5"), the title on its title ruling, and the reference, with the inline presenter pasted on as a clear white panel.
 
 ### Inline Presenter
 A 16:9 slide frame with the card shadow and a 4px progress bar along its bottom edge, set in Literata from the projector theme. Controls below: Back, Next, slide count, A− / A+, and the primary "Present full screen". Projector themes are White, Paper, Classroom navy and High contrast, each tested at 7:1.

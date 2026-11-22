@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-22T00:41:56+00:00",
+  "generatedAt": "2026-11-22T00:43:41+00:00",
   "title": "Design System: Everyday Devotional",
   "extensions": {
     "colorMeta": {
@@ -263,7 +263,7 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "The day's devotional title on ruled paper; 1.75rem on a 2rem line on phones, 2.5rem on a 4rem line from md."
+        "purpose": "The day's devotional title on ruled paper; 1.75rem on a 2rem line on phones, 2.75rem on a 4rem line on its own 4rem title ruling from md."
       },
       "headline": {
         "displayName": "Headline",
@@ -327,6 +327,23 @@
       {
         "name": "lg",
         "value": "64rem"
+      }
+    ],
+    "paper": [
+      {
+        "name": "workbook-paper",
+        "value": "2rem blue ruling, each rule 1.8rem into its band, plus the red margin line at --wb-margin (0.625rem, 2.75rem from 40rem)",
+        "purpose": "Sheets whose text keeps to the 2rem grid."
+      },
+      {
+        "name": "title-lines",
+        "value": "4rem ruling, each rule at 3.05rem just under the baseline",
+        "purpose": "The large title from md; the block is a whole number of 2rem bands so the 2rem ruling continues below."
+      },
+      {
+        "name": "workbook-margin",
+        "value": "the red margin line only",
+        "purpose": "Sheets whose text does not keep to the ruling."
       }
     ],
     "presentThemes": {
@@ -405,16 +422,16 @@
       "name": "Workbook Sheet",
       "kind": "card",
       "refersTo": "lesson-card",
-      "description": "Ruled lesson paper: 2rem blue ruling, red margin line, Literata on the lines, step icon in the margin.",
-      "html": "<article class=\"ds-sheet\"><span class=\"ds-sheet-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z\"/><path d=\"M12 6v13.5\"/></svg></span><h3 class=\"ds-sheet-title\">Scripture <span class=\"ds-pill\">Read</span></h3><p class=\"ds-sheet-tip\">Read it aloud together. Announce the reference first.</p><p class=\"ds-sheet-verse\"><sup>1</sup> The LORD is my shepherd; I shall not want.</p></article>",
-      "css": ".ds-sheet{--m:2.75rem;position:relative;padding:2rem 2rem 2rem 4rem;border:1px solid var(--color-line,#dde3ec);border-radius:1rem;box-shadow:0 1px 2px rgb(29 36 51/.06),0 6px 16px -4px rgb(29 36 51/.1);background-color:#fff;background-image:linear-gradient(to right,transparent var(--m),#efb0a8 var(--m),#efb0a8 calc(var(--m) + 1.5px),transparent calc(var(--m) + 1.5px)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(2rem - 1px),#d5e0f3 calc(2rem - 1px),#d5e0f3 2rem);background-position:0 0,0 -.2rem;color:var(--color-ink,#1d2433);font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif)}.ds-sheet-icon{position:absolute;left:.375rem;top:2rem;display:grid;place-items:center;width:2rem;height:2rem;border-radius:9999px;background:#e9eefc;color:#2350cc}.ds-sheet-title{display:flex;align-items:center;gap:.75rem;margin:0;font-size:1.25rem;font-weight:600;line-height:2rem}.ds-pill{padding:0 .625rem;border-radius:9999px;background:#f8f6f0;color:#4e5668;font-size:.875rem;font-weight:500;line-height:1.5rem}.ds-sheet-tip{margin:0;line-height:2rem;color:#4e5668}.ds-sheet-verse{margin:0;font-family:var(--font-serif, \"Literata\", Georgia, serif);font-size:1.4rem;line-height:2rem}.ds-sheet-verse sup{font-size:.6em;color:var(--color-rubric,#b42318)}"
+      "description": "Ruled lesson paper: 2rem blue ruling, red margin line, a step tag leading each heading, Literata on the lines, the step medallion in the margin from sm.",
+      "html": "<article class=\"ds-sheet\"><span class=\"ds-sheet-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z\"/><path d=\"M12 6v13.5\"/></svg></span><h3 class=\"ds-sheet-title\"><span class=\"ds-pill\">Read</span>Scripture</h3><p class=\"ds-sheet-tip\">Read it aloud together. Announce the reference first.</p><p class=\"ds-sheet-verse\"><sup>1</sup> The LORD is my shepherd; I shall not want.</p></article>",
+      "css": ".ds-sheet{--m:2.75rem;position:relative;padding:2rem 2rem 2rem 4rem;border:1px solid var(--color-line,#dde3ec);border-radius:1rem;box-shadow:0 1px 2px rgb(29 36 51/.06),0 6px 16px -4px rgb(29 36 51/.1);background-color:#fff;background-image:linear-gradient(to right,transparent var(--m),#efb0a8 var(--m),#efb0a8 calc(var(--m) + 1.5px),transparent calc(var(--m) + 1.5px)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(2rem - 1px),#d5e0f3 calc(2rem - 1px),#d5e0f3 2rem);background-position:0 0,0 -.2rem;color:var(--color-ink,#1d2433);font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif)}.ds-sheet-icon{position:absolute;left:.375rem;top:2rem;display:grid;place-items:center;width:2rem;height:2rem;border-radius:9999px;background:#e9eefc;color:#2350cc}.ds-sheet-title{margin:0;font-size:1.25rem;font-weight:600;line-height:2rem}.ds-pill{display:inline-flex;align-items:center;margin-right:.5rem;white-space:nowrap;vertical-align:middle;padding:2px .625rem;border-radius:9999px;background:#f8f6f0;color:#4e5668;font-size:.875rem;font-weight:500;line-height:1.5rem}.ds-sheet-tip{margin:0;line-height:2rem;color:#4e5668}.ds-sheet-verse{margin:0;font-family:var(--font-serif, \"Literata\", Georgia, serif);font-size:1.4rem;line-height:2rem}.ds-sheet-verse sup{font-size:.6em;color:var(--color-rubric,#b42318)}"
     },
     {
       "name": "Date Chip and Progress Dots",
       "kind": "chip",
       "refersTo": "date-chip",
-      "description": "Today's date in a blue-wash pill; the week's five days as dots, gold for done, blue for today.",
-      "html": "<div class=\"ds-dayrow\"><span class=\"ds-chip\">Today</span><span class=\"ds-week\">This week: <b>Patience</b></span><span class=\"ds-dots\" aria-label=\"Day 3 of 5\"><i class=\"done\"></i><i class=\"done\"></i><i class=\"here\"></i><i></i><i></i></span></div>",
+      "description": "Today's date in a blue-wash pill; the week's five days as dots, gold for done, blue for today, followed by visible \"Day n of 5\".",
+      "html": "<div class=\"ds-dayrow\"><span class=\"ds-chip\">Today</span><span class=\"ds-week\">This week: <b>Patience</b></span><span class=\"ds-dots\" aria-hidden=\"true\"><i class=\"done\"></i><i class=\"done\"></i><i class=\"here\"></i><i></i><i></i></span><span class=\"ds-week\">Day 3 of 5</span></div>",
       "css": ".ds-dayrow{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;font-family:var(--font-sans, \"Lexend\", ui-sans-serif, system-ui, sans-serif);font-size:.875rem}.ds-chip{display:inline-flex;align-items:center;height:28px;padding:0 .75rem;border-radius:9999px;background:var(--color-brand-soft,#e9eefc);color:var(--color-brand,#2350cc);font-weight:600}.ds-week{color:#4e5668}.ds-week b{color:#1d2433}.ds-dots{display:flex;gap:.25rem}.ds-dots i{width:10px;height:10px;border-radius:9999px;background:#dde3ec}.ds-dots i.done{background:#f2b23a}.ds-dots i.here{background:#2350cc;box-shadow:0 0 0 2px rgb(35 80 204/.25)}"
     },
     {
@@ -430,7 +447,7 @@
     "northStar": "The Classroom Workbook",
     "overview": "Each school day is a lesson page in a workbook: a friendly edtech course page set on bright paper with faint blue ruling and a red margin line, with the Bible written onto those lines in a book serif. The interface speaks in Lexend, a face built for reading fluency, with confident classroom blue for anything you can press. Scripture, titles and devotional text are set in Literata, so the Word reads like a printed book on the workbook page.\n\nThe system is clean and calm rather than ornamental. Colour is functional and sparse: blue means \"act here\" or \"you are here\", gold means \"done\" or \"progress\", and Bible red appears only on verse numbers. Surfaces are white lesson cards with friendly rounded corners and soft blurred shadows, lifted slightly off warm workbook paper. Density is moderate: generous section spacing on the marketing page, tight 2rem line rhythm on the ruled sheets.\n\nThe world deliberately replaces an earlier hymnal-and-letterpress costume, and refuses the generic SaaS landing page (centred hero, card grid, dark call-to-action band). It reads as a classroom material, not a church bulletin and not a startup.",
     "keyCharacteristics": [
-      "Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules.",
+      "Workbook paper: 2rem blue ruling with a red margin line, and text that sits on the rules; the large title gets its own 4rem title ruling.",
       "Two faces with clear jobs: Lexend for the interface and small headings, Literata for titles, Scripture and devotional text.",
       "Classroom blue for actions, links and the current step; gold for progress and done; Bible red only for verse numbers.",
       "The four-step lesson (Read, Talk, Do, Pray) as the recurring structure, with rounded stroke icons.",
@@ -464,7 +481,7 @@
       },
       {
         "name": "The On-the-Lines Rule",
-        "body": "Text on ruled paper keeps to the 2rem grid (titles may take 4rem), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.",
+        "body": "Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs are indented rather than spaced, and every rule sits just under a baseline. A block that cannot keep the grid (the inline presenter, a card) clears the ruling with a solid white panel instead of letting lines cross glyphs; a sheet whose text does not keep the grid uses the margin line alone.",
         "section": "layout"
       },
       {
