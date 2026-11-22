@@ -59,8 +59,8 @@ export async function completeOnboardingAction(_previous: FormState, formData: F
   if (!saved) return errorState(SAVE_FAILED, { values: parsed.echo });
 
   revalidatePath("/", "layout");
-  // New educators land on the short welcome tour; a saved destination still wins.
-  redirect(safeNextPath(formData.get("next"), "/welcome"));
+  // New educators go straight to today's devotional; a saved destination still wins.
+  redirect(safeNextPath(formData.get("next"), "/today"));
 }
 
 export async function updateProfileAction(_previous: FormState, formData: FormData): Promise<FormState> {

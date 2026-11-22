@@ -42,7 +42,7 @@ export default async function PilotPage() {
               Pilot access is free and ends on that date without any action from you. Nothing is charged automatically, and nothing here asks you to pay.
               {pilot.conversion_note ? ` ${pilot.conversion_note}` : ""}
             </Text>
-            <p className="mt-3 text-sm"><Link className="underline" href="/welcome">A short tour of what is here</Link> · <Link className="underline" href="/feedback">Share feedback or report a problem</Link></p>
+            <p className="mt-3 text-sm"><Link className="underline" href="/feedback">Share feedback or report a problem</Link></p>
           </Card>
         ) : (
           <Card>
