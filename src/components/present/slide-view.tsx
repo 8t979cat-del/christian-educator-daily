@@ -3,7 +3,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { RichTextView } from "@/components/content/rich-text-view";
 import type { GradeBand } from "@/lib/content/levels";
-import { PRESENT_THEMES, SIZE_SCALES, bandScale, isYoungest, type Slide, type Stage, type ThemeId } from "@/lib/content/present";
+import { MAX_ABOVE_FIRST, MAX_STEP_UP, PRESENT_THEMES, SIZE_SCALES, bandScale, isYoungest, type Slide, type Stage, type ThemeId } from "@/lib/content/present";
 import { FitText } from "./fit-text";
 
 export function themeVars(theme: ThemeId): CSSProperties {
@@ -15,16 +15,11 @@ const accent: CSSProperties = { color: "var(--p-accent)" };
 const muted: CSSProperties = { color: "var(--p-muted)" };
 
 /** One slide, filling whatever box it is placed in. Used full screen, in the presenter window, and as the "next slide" preview. */
-/** How much larger the discussion question is set than the text slide before it. */
-const QUESTION_STEP = 1.15;
-
 export function SlideView({ slide, size, band, onFit }: { slide: Slide; size: number; band: GradeBand | null; onFit?: (px: number) => void }) {
   const simple = isYoungest(band);
   const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
   const b = slide.body;
   const fitKey = `${slide.key}|${size}|${band}`;
-  // Section labels: sentence case, never letter-spaced capitals, so early readers can read them too.
-  const label_ = "font-serif italic text-[0.58em] leading-tight";
 
   // A passage or section that runs on to the next slide says so, as a printed page would.
   const continues = slide.page < slide.pageCount - 1;
@@ -48,7 +43,7 @@ export function SlideView({ slide, size, band, onFit }: { slide: Slide; size: nu
       // Later pages say "continued" rather than "2 of 3": the controls already count slides.
       const label = slide.page > 0 ? `${b.reference ?? "Scripture"}, continued` : b.reference;
       return (
-        <FitText fitKey={fitKey} scale={scale} align="center">
+        <FitText fitKey={fitKey} scale={scale} align="center" onFit={onFit}>
           <figure className="mx-auto max-w-[36em]">
             {/* The reference leads: it is what the teacher says aloud before reading. */}
             {label || continues ? (
@@ -97,68 +92,63 @@ export function SlideView({ slide, size, band, onFit }: { slide: Slide; size: nu
       );
     case "rich":
       if (b.sizeFrom) return <MatchedSlide slide={slide} size={size} band={band} onFit={onFit} />;
-      return (
-        <FitText fitKey={fitKey} scale={scale} ratio={b.emphasis ? 1.15 : 1} align="center" onFit={onFit}>
-          <div className={`mx-auto grid gap-[1.3em] ${b.emphasis ? "max-w-[26em] text-center" : "max-w-[34em]"}`}>
-            {b.parts.map((part, i) => (
-              <section key={part.section}>
-                {/* One heading level for every section label, so a slide with two parts reads as two sections. */}
-                <div className="mb-[0.6em] flex items-baseline justify-between gap-[1em]">
-                  <h2 className={label_} style={accent}>
-                    {part.heading}{i === 0 && slide.page > 0 ? ", continued" : ""}
-                  </h2>
-                  {i === 0 && continues ? <ContinuesNote /> : null}
-                </div>
-                <RichTextView doc={part.doc} className={b.emphasis ? "font-serif font-semibold [text-wrap:balance]" : "[text-wrap:pretty]"} />
-              </section>
-            ))}
-          </div>
-        </FitText>
-      );
+      return <RichSlide slide={slide} size={size} band={band} onFit={onFit} />;
   }
 }
 
 /**
- * A question slide sized from the slide before it: that slide is laid out unseen in the same
- * box to learn its text size, and the question is set a little larger than that, never filling
- * the screen on its own. Until the size is known the slide stays invisible, so it never jumps.
+ * A text slide sized from the slide before it: that slide is laid out unseen in the same box
+ * to learn its type size (itself capped the same way), and this one may be at most MAX_STEP_UP
+ * larger than it, and at most MAX_ABOVE_FIRST larger than the lesson's first text slide. It may still be smaller when its text is long.
+ * Until the size is known the slide stays invisible, so it never visibly jumps.
  */
 function MatchedSlide({ slide, size, band, onFit }: { slide: Slide; size: number; band: GradeBand | null; onFit?: (px: number) => void }) {
   const b = slide.body;
-  const [cap, setCap] = useState<number | null>(null);
-  const measure = useCallback((px: number) => setCap((c) => (c !== null && Math.abs(c - px) < 0.5 ? c : px)), []);
+  const [prev, setPrev] = useState<number | null>(null);
+  const [first, setFirst] = useState<number | null>(null);
+  const keep = (set: typeof setPrev) => (px: number) => set((c) => (c !== null && Math.abs(c - px) < 0.5 ? c : px));
+  const measurePrev = useCallback(keep(setPrev), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const measureFirst = useCallback(keep(setFirst), []); // eslint-disable-line react-hooks/exhaustive-deps
   if (b.kind !== "rich" || !b.sizeFrom) return null;
-  const own: Slide = { ...slide, body: { ...b, sizeFrom: undefined } };
+  const own: Slide = { ...slide, body: { ...b, sizeFrom: undefined, anchor: undefined } };
+  const ready = prev !== null && (!b.anchor || first !== null);
+  const cap = ready ? Math.min(prev! * MAX_STEP_UP, b.anchor ? first! * MAX_ABOVE_FIRST : Infinity) : undefined;
   return (
     <div className="relative h-full w-full">
       <div aria-hidden="true" inert className="invisible absolute inset-0">
-        <SlideView slide={b.sizeFrom} size={size} band={band} onFit={measure} />
+        <SlideView slide={b.sizeFrom} size={size} band={band} onFit={measurePrev} />
       </div>
-      <div className={`h-full w-full ${cap === null ? "invisible" : ""}`}>
-        <MaxedSlide slide={own} size={size} band={band} maxPx={cap === null ? undefined : cap * QUESTION_STEP} onFit={onFit} />
+      {b.anchor ? (
+        <div aria-hidden="true" inert className="invisible absolute inset-0">
+          <SlideView slide={b.anchor} size={size} band={band} onFit={measureFirst} />
+        </div>
+      ) : null}
+      <div className={`h-full w-full ${ready ? "" : "invisible"}`}>
+        <RichSlide slide={own} size={size} band={band} maxPx={cap} onFit={onFit} />
       </div>
     </div>
   );
 }
 
-/** A rich slide with a ceiling on its text size. */
-function MaxedSlide({ slide, size, band, maxPx, onFit }: { slide: Slide; size: number; band: GradeBand | null; maxPx?: number; onFit?: (px: number) => void }) {
+/** A text slide (reflection, question, practice, prayer), optionally with a ceiling on its type size. */
+function RichSlide({ slide, size, band, maxPx, onFit }: { slide: Slide; size: number; band: GradeBand | null; maxPx?: number; onFit?: (px: number) => void }) {
   const b = slide.body;
   if (b.kind !== "rich") return null;
   const scale = (SIZE_SCALES[size] ?? 1) * bandScale(band);
   const continues = slide.page < slide.pageCount - 1;
   return (
-    <FitText fitKey={`${slide.key}|${size}|${band}|${Math.round(maxPx ?? 0)}`} scale={scale} ratio={1.15} align="center" maxPx={maxPx} onFit={onFit}>
-      <div className="mx-auto grid max-w-[26em] gap-[1.3em] text-center">
+    <FitText fitKey={`${slide.key}|${size}|${band}|${Math.round(maxPx ?? 0)}`} scale={scale} ratio={b.emphasis ? 1.15 : 1} align="center" maxPx={maxPx} onFit={onFit}>
+      <div className={`mx-auto grid gap-[1.3em] ${b.emphasis ? "max-w-[26em] text-center" : "max-w-[34em]"}`}>
         {b.parts.map((part, i) => (
           <section key={part.section}>
+            {/* One heading level for every section label, so a slide with two parts reads as two sections. */}
             <div className="mb-[0.6em] flex items-baseline justify-between gap-[1em]">
               <h2 className="font-serif italic text-[0.58em] leading-tight" style={accent}>
                 {part.heading}{i === 0 && slide.page > 0 ? ", continued" : ""}
               </h2>
               {i === 0 && continues ? <ContinuesNote /> : null}
             </div>
-            <RichTextView doc={part.doc} className="font-serif font-semibold [text-wrap:balance]" />
+            <RichTextView doc={part.doc} className={b.emphasis ? "font-serif font-semibold [text-wrap:balance]" : "[text-wrap:pretty]"} />
           </section>
         ))}
       </div>

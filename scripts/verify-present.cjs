@@ -44,7 +44,8 @@ async function totalSlides(page) {
 /** Facts about the slide currently showing. */
 async function slideFacts(page) {
   return page.evaluate(() => {
-    const outer = document.querySelector("main [data-fit]");
+    // The visible slide: a slide sized from the one before it also holds an unseen copy of that one.
+    const outer = [...document.querySelectorAll("main [data-fit]")].find((el) => !el.closest("[aria-hidden=true]"));
     const main = document.querySelector("main");
     const inner = outer && outer.firstElementChild;
     const o = outer.getBoundingClientRect();

@@ -320,11 +320,13 @@ export type SlideBody =
   | {
       kind: "rich"; parts: SlidePart[]; emphasis: boolean;
       /**
-       * Emphasis slides (the discussion question): the ordinary text slide just before it. The
-       * question is set only a little larger than that slide's text, instead of filling the
-       * screen, so the jump in size from one slide to the next stays gentle.
+       * The slide just before this one, when it is Scripture or text. This slide's type is set no
+       * more than a little larger than that slide's (MAX_STEP_UP), instead of filling the screen
+       * on its own, so the size never jumps from one slide to the next.
        */
       sizeFrom?: Slide;
+      /** The lesson's first text slide (the reflection): no text slide grows past MAX_ABOVE_FIRST times its type. */
+      anchor?: Slide;
     };
 
 export type Slide = {
@@ -349,6 +351,11 @@ export type Stage = { width: number; height: number };
  * Larger text settings and the young-students mode raise it.
  */
 /** Younger readers get larger letters: early readers need bigger type, and their versions are shorter. */
+/** The most a text slide's type may grow over the slide before it (15%). */
+export const MAX_STEP_UP = 1.15;
+/** ...and over the lesson's first text slide (20%), so small steps never add up to a large one. */
+export const MAX_ABOVE_FIRST = 1.2;
+
 export const BAND_TYPE_SCALE: Record<GradeBand, number> = { k2: 1.25, g35: 1.1, g68: 1, g912: 1 };
 export const bandScale = (band: GradeBand | null): number => (band ? BAND_TYPE_SCALE[band] : 1);
 /** The youngest band gets the friendlier headings. */
@@ -484,11 +491,17 @@ export function buildSlides(content: PresentContent, settings: PresentSettings, 
   // Do and Pray each get their own slide, so the lesson's four steps (Read, Talk, Do, Pray) map one to one.
   richSection("practice", text.practical_application, H.practice, false);
   richSection("prayer", text.prayer, H.prayer, false);
-  // Tie each question slide's size to the text slide before it (usually the reflection).
+  // Tie each text slide's size to the slide before it (Scripture or text), so a short reflection,
+  // question, practice or prayer is never set far larger than what the class just read.
+  const first = slides.find((s) => s.body.kind === "rich");
   for (let i = 1; i < slides.length; i++) {
     const body = slides[i]!.body;
     const before = slides[i - 1]!;
-    if (body.kind === "rich" && body.emphasis && before.body.kind === "rich" && !before.body.emphasis) body.sizeFrom = before;
+    if (body.kind === "rich" && (before.body.kind === "rich" || before.body.kind === "scripture")) {
+      body.sizeFrom = before;
+      // The anchor is measured as it is shown: itself sized from the slide before it.
+      if (first && first !== slides[i] && first !== before) body.anchor = first;
+    }
   }
   return slides;
 }
