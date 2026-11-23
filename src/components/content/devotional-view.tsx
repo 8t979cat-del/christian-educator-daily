@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { SITE } from "@/lib/site";
+import { AuthorPhoto } from "@/components/content/author-photo";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
 import { passageLookupUrl, scriptureDisplay, type TranslationLicense } from "@/lib/content/scripture";
@@ -20,7 +21,10 @@ export function DevotionalView({
   theme,
   actions,
   credited = false,
+  authorPhoto = null,
 }: {
+  /** The author's small photo, when a contributor with the Author field's name has one. */
+  authorPhoto?: string | null;
   devotional: DevotionalRecord;
   translation: TranslationLicense | null;
   theme?: ThemeInfo | null;
@@ -35,8 +39,8 @@ export function DevotionalView({
   const date = new Date(`${d.devotional_date}T00:00:00Z`);
   const weekday = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
   const kinds = [d.category_slug ? categoryName(d.category_slug) : null, d.educational_category ? label(EDUCATIONAL_CATEGORIES, d.educational_category) : null].filter(Boolean);
+  const byline = !credited && d.author_name ? `Written by ${d.author_name}` : null;
   const colophon = [
-    !credited && d.author_name ? `Written by ${d.author_name}` : null,
     d.audience ? `For ${label(AUDIENCES, d.audience).toLowerCase()}` : null,
     grades || null,
   ].filter(Boolean);
@@ -149,8 +153,16 @@ export function DevotionalView({
         </Part>
       </ol>
 
-      {colophon.length ? (
-        <p className="mt-6 text-sm text-muted">{colophon.join(" · ")}</p>
+      {byline || colophon.length ? (
+        <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+          {byline ? (
+            <span className="inline-flex items-center gap-2 font-semibold text-ink">
+              <AuthorPhoto src={authorPhoto} />
+              {byline}
+            </span>
+          ) : null}
+          {colophon.length ? <span>{byline ? "· " : ""}{colophon.join(" · ")}</span> : null}
+        </p>
       ) : null}
       </div>
       </div>

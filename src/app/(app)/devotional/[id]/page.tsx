@@ -8,6 +8,7 @@ import { LockedDevotional } from "@/components/billing/locked-devotional";
 import { canUse, getEntitlements, getLockInfo } from "@/lib/billing/queries";
 import { createClient } from "@/lib/supabase/server";
 import { DevotionalView } from "@/components/content/devotional-view";
+import { AuthorPhoto } from "@/components/content/author-photo";
 import { NotesEditor } from "@/components/content/notes-editor";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requireAccess } from "@/lib/auth/session";
@@ -56,13 +57,20 @@ export default async function DevotionalPage({
     getNeighbors(d.devotional_date, today),
   ]);
 
+  // Without an author credit, the Author field's name may still match a contributor with a photo.
+  const credited = credits.some((c) => c.role === "author");
+  const authorPhoto = !credited && d.author_name
+    ? (((await (await createClient()).rpc("contributor_photo_for", { p_name: d.author_name })).data as string | null) ?? null)
+    : null;
+
   return (
     <div className="grid gap-10">
       <DevotionalView
         devotional={d}
         translation={translation}
         theme={theme}
-        credited={credits.some((c) => c.role === "author")}
+        credited={credited}
+        authorPhoto={authorPhoto}
         actions={
           <div className="flex flex-wrap gap-2">
             <PresentLink href={`/devotional/${id}/present`} variant="primary" />
@@ -77,9 +85,12 @@ export default async function DevotionalPage({
         <section aria-label="Credits" className="mx-auto w-full max-w-3xl lg:max-w-5xl lg:pr-[19rem] text-sm text-muted print:hidden">
           <ul className="grid gap-1">
             {credits.map((c) => (
-              <li key={`${c.contributor_id}-${c.role}`}>
-                <span className="font-semibold text-ink">{c.role === "author" ? "Written by" : c.role === "reviewer" ? "Reviewed by" : "With contributions from"} {c.name}</span>
-                {c.bio ? ` · ${c.bio}` : ""}
+              <li key={`${c.contributor_id}-${c.role}`} className="flex items-center gap-2">
+                <AuthorPhoto src={c.photo} />
+                <span>
+                  <span className="font-semibold text-ink">{c.role === "author" ? "Written by" : c.role === "reviewer" ? "Reviewed by" : "With contributions from"} {c.name}</span>
+                  {c.bio ? ` · ${c.bio}` : ""}
+                </span>
               </li>
             ))}
           </ul>

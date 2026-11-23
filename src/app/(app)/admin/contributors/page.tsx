@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminNav } from "@/components/content/admin-nav";
 import { ContributorForm } from "@/components/governance/forms";
+import { AuthorPhoto } from "@/components/content/author-photo";
 import { PageHeader } from "@/components/layout/container";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/feedback";
@@ -28,6 +29,7 @@ export default async function ContributorsPage() {
             <li key={c.id}>
               <Card padding="lg">
                 <div className="flex items-center gap-2">
+                  <AuthorPhoto src={c.photo} />
                   <Heading level={2} size={4}>{c.name}</Heading>
                   {c.active ? null : <Badge className="bg-canvas text-muted ring-1 ring-line">Not available for new credits</Badge>}
                 </div>

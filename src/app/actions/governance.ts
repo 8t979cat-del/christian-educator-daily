@@ -233,16 +233,23 @@ export async function saveContributorAction(_prev: FormState, formData: FormData
       name: z.string().trim().min(1, "Enter a name.").max(120, "Keep the name under 120 characters."),
       bio: z.string().trim().max(500, "Keep the bio under 500 characters.").default(""),
       active: z.preprocess((v) => v === "on" || v === undefined, z.boolean()),
+      // "" keeps the current photo, "remove" deletes it, a small JPEG data URL (made in the browser) replaces it.
+      photo: z.union([
+        z.literal(""),
+        z.literal("remove"),
+        z.string().max(60000, "That photo is too large.").regex(/^data:image\/(jpeg|webp);base64,[A-Za-z0-9+/=]+$/, "That photo could not be read."),
+      ]).default(""),
     }),
     formData,
   );
   if (!parsed.ok) return parsed.state;
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
-  const { id, name, bio, active } = parsed.data;
+  const { id, name, bio, active, photo } = parsed.data;
+  const photoChange = photo === "" ? {} : { photo: photo === "remove" ? null : photo };
   const { error } = id
-    ? await supabase.from("contributors").update({ name, bio, active }).eq("id", id)
-    : await supabase.from("contributors").insert({ name, bio, active });
+    ? await supabase.from("contributors").update({ name, bio, active, ...photoChange }).eq("id", id)
+    : await supabase.from("contributors").insert({ name, bio, active, ...photoChange });
   if (error) return errorState("That could not be saved. Only content editors can manage contributors.", { values: parsed.echo });
   done(["/admin/contributors"]);
   return successState(id ? "Saved." : "Added.");
