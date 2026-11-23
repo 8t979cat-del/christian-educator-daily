@@ -341,7 +341,8 @@ export async function writeWeekAction(input: { themeId: string; translation?: st
       const p = plans[day];
       return `${day}: ${e ? `"${e.title}" (${e.reference})` : p ? `"${p.title}" (${p.reference})` : "(not planned)"}`;
     });
-    const author = [ctx.profile.first_name, ctx.profile.last_name].map((x) => x?.trim()).filter(Boolean).join(" ") || ctx.profile.display_name?.trim() || null;
+    // The column is required: an editor whose profile has no name leaves it empty, to fill in later.
+    const author = ([ctx.profile.first_name, ctx.profile.last_name].map((x) => x?.trim()).filter(Boolean).join(" ") || ctx.profile.display_name?.trim() || "").slice(0, 120);
     const supabase = await createClient();
     const label = (day: Weekday) => day.charAt(0).toUpperCase() + day.slice(1);
 
@@ -369,7 +370,11 @@ export async function writeWeekAction(input: { themeId: string; translation?: st
         educational_category: "classroom",
         author_name: author,
       });
-      if (error) throw new AiError(error.code === "23505" ? "another devotional already uses that day" : "it could not be saved");
+      if (error) {
+        console.error("writeWeekAction: saving", day, error.code, error.message);
+        // Editors only: the database's own reason helps them (or us) fix it.
+        throw new AiError(error.code === "23505" ? "another devotional already uses that day" : `it could not be saved: ${error.message}`);
+      }
       return day;
     }));
 
