@@ -155,3 +155,22 @@ describe("status and notice wording", () => {
     expect(noticeText("mystery", null, null)).toBeNull();
   });
 });
+
+describe("billing idempotency keys", async () => {
+  const { idempotencyKey } = await import("@/lib/billing/idempotency");
+  const at = Date.UTC(2026, 10, 23, 10, 30);
+  it("repeat within the window, so a double-click cannot start two changes", () => {
+    expect(idempotencyKey("checkout-user-u1-plus-month-1", 3_600_000, { status: "idle" }, at))
+      .toBe(idempotencyKey("checkout-user-u1-plus-month-1", 3_600_000, { status: "success" }, at + 60_000));
+  });
+  it("change in the next window", () => {
+    expect(idempotencyKey("k", 3_600_000, { status: "idle" }, at)).not.toBe(idempotencyKey("k", 3_600_000, { status: "idle" }, at + 3_600_000));
+  });
+  it("are fresh after a failed attempt, so a retry reaches Stripe instead of replaying the failure", () => {
+    const failed = { status: "error" as const, message: "We could not reach the payment provider." };
+    const a = idempotencyKey("k", 3_600_000, failed, at);
+    const b = idempotencyKey("k", 3_600_000, failed, at);
+    expect(a).not.toBe(b);
+    expect(a.startsWith(idempotencyKey("k", 3_600_000, { status: "idle" }, at))).toBe(true);
+  });
+});
