@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { grantPlanAction, revokeGrantAction, saveFeatureRowAction, savePriceAction, saveSettingAction, updatePlanAction } from "@/app/actions/billing-admin";
+import { grantPlanAction, linkSchoolCustomerAction, revokeGrantAction, saveFeatureRowAction, savePriceAction, saveSettingAction, updatePlanAction } from "@/app/actions/billing-admin";
 import { FormMessage, SubmitButton } from "@/components/forms/shared";
 import { Button } from "@/components/ui/button";
-import { TextField } from "@/components/ui/form";
+import { SelectField, TextField } from "@/components/ui/form";
 import { idleState } from "@/lib/auth/form-state";
 
 const PLANS = ["free", "plus", "school"] as const;
@@ -92,5 +92,19 @@ export function RevokeButton({ id }: { id: string }) {
   const [state, action] = useActionState(revokeGrantAction, idleState);
   return (
     <form action={action} className="inline-grid gap-1"><input type="hidden" name="id" value={id} /><SubmitButton variant="ghost">Revoke</SubmitButton>{state.status === "error" ? <span role="alert" className="text-sm text-danger">{state.message}</span> : null}</form>
+  );
+}
+
+/** Link a school to the Stripe customer its license is billed under (quotes and Dashboard invoices). */
+export function LinkSchoolCustomerForm({ schools }: { schools: Array<{ id: string; name: string }> }) {
+  const [state, action] = useActionState(linkSchoolCustomerAction, idleState);
+  return (
+    <form action={action} className="grid gap-3 sm:grid-cols-2">
+      <div className="sm:col-span-2"><FormMessage state={state} /></div>
+      <SelectField label="School" name="schoolId" error={state.fieldErrors?.schoolId}
+        options={[{ value: "", label: "Choose a school" }, ...schools.map((s) => ({ value: s.id, label: s.name }))]} />
+      <TextField label="Stripe customer id" name="customerId" placeholder="cus_…" error={state.fieldErrors?.customerId} hint="Stripe Dashboard > Customers > the school > copy its id." />
+      <div className="sm:col-span-2"><SubmitButton variant="secondary">Link school</SubmitButton></div>
+    </form>
   );
 }

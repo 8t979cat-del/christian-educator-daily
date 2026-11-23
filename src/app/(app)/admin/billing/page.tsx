@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AdminNav } from "@/components/content/admin-nav";
-import { FeatureRow, GrantForm, PlanForm, PriceForm, RevokeButton, SettingsForm } from "@/components/billing/admin-forms";
+import { FeatureRow, GrantForm, LinkSchoolCustomerForm, PlanForm, PriceForm, RevokeButton, SettingsForm } from "@/components/billing/admin-forms";
 import { PageHeader } from "@/components/layout/container";
 import { Alert } from "@/components/ui/feedback";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { requirePlatformRole } from "@/lib/auth/session";
 import { formatMoney } from "@/lib/billing/format";
 import { getCatalog } from "@/lib/billing/queries";
 import { isBillingConfigured } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Plans and billing (admin)" };
@@ -27,6 +28,8 @@ export default async function AdminBillingPage() {
   ]);
   const priceRows = (prices.data ?? []) as PriceRow[];
   const values = Object.fromEntries(((settings.data ?? []) as { key: string; value: unknown }[]).map((s) => [s.key, Number(s.value)]));
+  // Schools, for linking one to its Stripe customer (read with the service key: this page is platform admins only).
+  const schoolRows = ((await createAdminClient()?.from("schools").select("id, name").order("name"))?.data ?? []) as Array<{ id: string; name: string }>;
   const grantRows = (grants.data ?? []) as { id: string; user_id: string; plan_key: string; reason: string; expires_at: string | null; revoked_at: string | null }[];
 
   return (
@@ -53,6 +56,14 @@ export default async function AdminBillingPage() {
           <div className="grid gap-4 lg:grid-cols-2">
             {priceRows.map((p) => <PriceForm key={`${p.plan_key}${p.plan_interval}`} plan={p.plan_key} interval={p.plan_interval} stripePriceId={p.stripe_price_id ?? ""} active={p.active} note={p.display_note} display={formatMoney(p.unit_amount, p.currency) ?? ""} />)}
           </div>
+        </Card>
+        <Card padding="lg">
+          <Heading level={2} size={4}>Schools billed by quote or invoice</Heading>
+          <Text size="sm" muted className="mt-1 mb-4">
+            When you sell a school license with a Stripe quote or a Dashboard invoice, Stripe creates the customer, not this site. Link that
+            customer to its school here as soon as it exists, so the subscription and its invoices reach the right school.
+          </Text>
+          <LinkSchoolCustomerForm schools={schoolRows} />
         </Card>
         <Card padding="lg"><Heading level={2} size={4} className="mb-4">Timing and privacy thresholds</Heading><SettingsForm values={values} /></Card>
         <Card padding="lg">

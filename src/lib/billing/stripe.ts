@@ -8,6 +8,12 @@ import { getStripeEnv } from "@/lib/env";
  */
 
 const API = "https://api.stripe.com/v1";
+/**
+ * Every request names its API version, so a change to the account's default can never change what
+ * we send or receive. Create the webhook endpoint with the same version (Stripe Dashboard >
+ * Developers > Webhooks), so event payloads have the shape billing_apply_event reads.
+ */
+export const STRIPE_API_VERSION = "2026-11-18.endive";
 
 export class StripeError extends Error {
   constructor(message: string, readonly status: number, readonly code?: string) {
@@ -43,6 +49,7 @@ async function call<T>(
     method,
     headers: {
       Authorization: `Bearer ${env.secretKey}`,
+      "Stripe-Version": STRIPE_API_VERSION,
       ...(body ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
       ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
     },
@@ -136,4 +143,6 @@ export const stripe = {
     ),
 
   getPrice: (id: string) => call<StripePrice>("GET", `/prices/${encodeURIComponent(id)}`),
+
+  getCustomer: (id: string) => call<{ id: string; deleted?: boolean; name?: string | null; email?: string | null }>("GET", `/customers/${encodeURIComponent(id)}`),
 };
