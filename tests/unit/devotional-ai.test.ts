@@ -54,7 +54,10 @@ describe("AI teaching tools", () => {
     parse.mockResolvedValue({ stop_reason: "end_turn", parsed_output: { title: "Brave", topic: "Courage", scripture_reference: "Joshua 1:9", reflection: ["Be brave."], discussion_question: "When?", practical_application: "Try.", prayer: "Amen." } });
     const d = await writeDevotional(["courage", "new school"], "g68", ["Psalm 23"]);
     expect(d.reference).toBe("Joshua 1:9");
-    expect(parse.mock.calls[0]![0].messages[0].content).toMatch(/courage, new school[\s\S]*Do not use these passages: Psalm 23/);
+    const prompt = parse.mock.calls[0]![0].messages[0].content as string;
+    expect(prompt).toMatch(/courage, new school[\s\S]*already used in other devotionals[\s\S]*Psalm 23/);
+    expect(prompt).toMatch(/across the whole Bible/);
+    expect(prompt).toMatch(/Open the reflection with /);
   });
 });
 
@@ -72,7 +75,7 @@ describe("writing a week (editors)", () => {
     expect(req.model).toBe("claude-opus-5-5");
     expect(req.output_config.effort).toBe("medium");
     expect(req.fallbacks).toBe("default");
-    expect(req.messages[0].content).toMatch(/Plan these days: tuesday, friday[\s\S]*monday: "Fear not" \(Isaiah 41:10\)[\s\S]*Do not use these passages: Psalm 27:1/);
+    expect(req.messages[0].content).toMatch(/Plan these days: tuesday, friday[\s\S]*monday: "Fear not" \(Isaiah 41:10\)[\s\S]*already used in other devotionals[\s\S]*Psalm 27:1/);
     expect(plan).toEqual({
       tuesday: { title: "Brave words", topic: "Speaking up", reference: "Joshua 1:9" },
       friday: { title: "Brave together", topic: "Courage in community", reference: "Deuteronomy 31:6" },
@@ -101,5 +104,12 @@ describe("drafting a resource (editors)", () => {
     expect(req.system).toMatch(/teachers and leaders of Christian schools/);
     expect(req.messages[0].content).toMatch(/10-minute opener[\s\S]*"Gratitude"[\s\S]*Made on Purpose[\s\S]*Focus: grading season/);
     expect(r).toEqual({ title: "Thanks in the hard weeks", summary: "For teachers.", body: "Welcome.\n\nRead: Luke 17:11-19\n\nPray: Amen." });
+  });
+});
+
+describe("variety", () => {
+  it("picks a way in at random", async () => {
+    const { pickAngle } = await import("@/lib/ai/devotional-ai");
+    expect(pickAngle(() => 0)).not.toBe(pickAngle(() => 0.99));
   });
 });
