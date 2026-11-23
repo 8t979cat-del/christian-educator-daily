@@ -9,7 +9,6 @@ const LINKS = [
   { href: "/admin/themes", label: "Weekly themes" },
   { href: "/admin/translations", label: "Translations" },
   { href: "/admin/contributors", label: "Contributors" },
-  { href: "/admin/resources", label: "Resources" },
   { href: "/admin/billing", label: "Plans and billing", adminOnly: true },
   { href: "/admin/analytics", label: "Analytics", adminOnly: true },
   { href: "/admin/launch", label: "Launch", adminOnly: true },

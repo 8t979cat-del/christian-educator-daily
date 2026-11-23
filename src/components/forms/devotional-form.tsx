@@ -11,7 +11,7 @@ import { CheckboxGroup } from "@/components/ui/choices";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/form";
 import { Heading } from "@/components/ui/typography";
 import { idleState } from "@/lib/auth/form-state";
-import { AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORIES, GRADE_BANDS } from "@/lib/content/options";
+import { AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORY_CHOICES, GRADE_BANDS } from "@/lib/content/options";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import type { DevotionalRecord } from "@/lib/content/types";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
@@ -296,7 +296,7 @@ export function DevotionalForm({
                 key={`educationalCategory:${v("educationalCategory", initial.educational_category)}`}
                 defaultValue={v("educationalCategory", initial.educational_category)}
                 error={fe.educationalCategory}
-                options={[{ value: "", label: "Choose a category" }, ...EDUCATIONAL_CATEGORIES]}
+                options={[{ value: "", label: "Choose a category" }, ...EDUCATIONAL_CATEGORY_CHOICES]}
               />
             </div>
             <CheckboxGroup

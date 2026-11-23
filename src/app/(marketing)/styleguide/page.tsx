@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { PresentLink } from "@/components/content/devotional-actions";
+import { ResultList } from "@/components/content/result-list";
 import { Container } from "@/components/layout/container";
 import { DevotionalView } from "@/components/content/devotional-view";
 import { EditorDemo } from "@/components/marketing/editor-demo";
@@ -149,6 +150,16 @@ export default function StyleguidePage() {
         <EditorDemo />
       </Section>
 
+      <Section title="Archive list">
+        <ResultList
+          hrefFor={() => "#"}
+          faculty={new Set(["sg-faculty"])}
+          hits={[
+            { id: "sg-class", title: "Made on Purpose", devotional_date: "2026-11-23", daily_topic: "You were made with care and for good things", category_slug: "purpose", scripture_reference: "Ephesians 2:8–10", theme_id: null, status: "published", author_name: "", excerpt: "Have you ever wondered, why am I here?", total: 2 },
+            { id: "sg-faculty", title: "Thanks in the Hard Weeks", devotional_date: "2026-11-23", daily_topic: "Gratitude for the students who test our patience", category_slug: "gratitude", scripture_reference: "Luke 17:11–19", theme_id: null, status: "published", author_name: "", excerpt: "Grading season has a way of narrowing what we see.", total: 2 },
+          ]}
+        />
+      </Section>
       <Section title="Classroom mode">
         <p className="mb-4 max-w-prose text-muted">A demo of the full-screen presentation with sample content and a public-domain passage. Add <code>?p=long</code> for 1 Corinthians 13 or <code>?text=no</code> for a reference-only translation.</p>
         <PresentLink href="/classroom-demo" variant="primary" />
