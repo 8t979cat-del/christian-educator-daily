@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CompleteButton, PresentLink } from "@/components/content/devotional-actions";
+import { CompleteButton, EditAndSaveLink, PresentLink } from "@/components/content/devotional-actions";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { PageHeader } from "@/components/layout/container";
 import { ButtonLink } from "@/components/ui/button";
@@ -104,6 +104,7 @@ export default async function TodayPage() {
           <ButtonLink href={`/devotional/${d.id}`} size="lg">Read devotional</ButtonLink>
           <PresentLink href={`/devotional/${d.id}/present`} />
           <CompleteButton devotionalId={d.id} initial={Boolean(state?.completed_at)} />
+          <EditAndSaveLink devotionalId={d.id} />
         </div>
       </section>
 
