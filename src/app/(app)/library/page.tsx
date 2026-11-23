@@ -8,6 +8,7 @@ import { UpgradeNotice } from "@/components/billing/upgrade-notice";
 import { Card } from "@/components/ui/card";
 import { canUse } from "@/lib/billing/queries";
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/content/dates";
 
 export const metadata: Metadata = { title: "Library" };
 
@@ -19,16 +20,43 @@ export default async function LibraryPage({ searchParams }: LibraryProps) {
   const query = raw?.trim().slice(0, 200) ?? "";
 
   const supabase = await createClient();
-  const [hasCollections, collectionsRes] = await Promise.all([
+  const [hasCollections, collectionsRes, versionsRes] = await Promise.all([
     canUse("collections"),
     supabase.from("user_collections").select("id, name, user_collection_items(devotional_id, devotionals(title))").order("created_at", { ascending: false }),
+    // The teacher's own devotionals: copies made with "Edit and save", blank-page and AI-written ones.
+    supabase.from("presentation_versions").select("id, source, title, scripture, updated_at")
+      .in("source", ["written", "ai_generated"]).order("updated_at", { ascending: false }).limit(50),
   ]);
+  const versions = (versionsRes.data ?? []) as Array<{ id: string; source: "written" | "ai_generated"; title: string; scripture: { reference?: string } | null; updated_at: string }>;
   type Coll = { id: string; name: string; user_collection_items: { devotional_id: string; devotionals: { title: string } | null }[] };
   const collections = (collectionsRes.data ?? []) as unknown as Coll[];
 
   return (
     <>
       <PageHeader title="Library" description="Search devotionals by topic, Scripture reference or keyword." />
+      <section aria-labelledby="own" className="mb-10">
+        <h2 id="own" className="font-serif text-2xl font-semibold">Your own versions</h2>
+        {versions.length === 0 ? (
+          <p className="mt-2 text-muted">
+            Open any devotional and choose <strong>Edit and save</strong> to make it your own. Your versions are kept here, ready to present.
+          </p>
+        ) : (
+          <ul className="mt-3 divide-y divide-line border-y border-line">
+            {versions.map((v) => (
+              <li key={v.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="font-serif text-lg">{v.title || "Untitled"}</p>
+                  <p className="text-sm text-muted">{[v.scripture?.reference, `Saved ${formatDate(v.updated_at.slice(0, 10), "short")}`].filter(Boolean).join(" · ")}</p>
+                </div>
+                <span className="flex gap-4">
+                  {v.source === "written" ? <Link href={`/create?edit=${v.id}`} className="font-semibold text-brand underline">Edit<span className="sr-only"> {v.title}</span></Link> : null}
+                  <Link href={`/create/${v.id}/present`} className="font-semibold text-brand underline">Present<span className="sr-only"> {v.title}</span></Link>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <SearchInput action="/library" defaultValue={query} label="Search the library" placeholder="Try a topic or a verse" />
       <div className="mt-8">
         {query ? (

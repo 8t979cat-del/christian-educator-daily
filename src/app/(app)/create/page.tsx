@@ -13,13 +13,14 @@ import { docToText } from "@/lib/content/editable";
 import { toLevels } from "@/lib/content/levels";
 import { formatDate } from "@/lib/content/dates";
 import { createClient } from "@/lib/supabase/server";
+import { getDevotional } from "@/lib/content/queries";
 
 export const metadata: Metadata = { title: "Write a devotional" };
 export const dynamic = "force-dynamic";
 
 type Mode = "blank" | "ai";
 
-export default async function CreatePage({ searchParams }: { searchParams: Promise<{ mode?: string; edit?: string; saved?: string }> }) {
+export default async function CreatePage({ searchParams }: { searchParams: Promise<{ mode?: string; edit?: string; saved?: string; from?: string }> }) {
   await requireAccess();
   const sp = await searchParams;
   const mode: Mode = sp.mode === "ai" ? "ai" : "blank";
@@ -34,6 +35,8 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
   ]);
   const mine = (data ?? []) as Array<{ id: string; source: "ai_generated" | "written"; title: string; topics: string[]; scripture: { reference?: string } | null; updated_at: string }>;
   const editing = mode === "blank" && sp.edit && uuidSchema.safeParse(sp.edit).success ? await getWritten(sp.edit) : null;
+  // "Edit and save" on a devotional: a new copy of it to change and keep as the teacher's own.
+  const copying = !editing && mode === "blank" && sp.from && uuidSchema.safeParse(sp.from).success ? await copyOf(sp.from) : null;
   // The newest submission of each saved devotional.
   const latest = new Map<string, LatestSubmission>();
   for (const s of (subs ?? []) as Array<{ id: string; version_id: string | null; status: NonNullable<LatestSubmission>["status"]; editor_note: string }>) {
@@ -65,7 +68,14 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
       {mode === "blank" ? (
         <>
           {editing ? <p className="mb-4 text-muted">Editing “{editing.title}”. <Link href="/create" className="font-semibold text-brand underline">Start a new one</Link></p> : null}
-          <BlankWriter key={editing?.id ?? "new"} initial={editing ?? EMPTY_WRITTEN} justSaved={Boolean(editing && sp.saved)} />
+          {copying ? (
+            <p className="mb-4 rounded-control bg-brand-soft p-3">
+              Your own copy of “{copying.draft.title}”. Change anything you like, then <strong>Save devotional</strong>. It is kept in your
+              Library and under Your devotionals below, ready to present. The original stays as it is.
+              {copying.translationNote ? <span className="mt-1 block text-sm text-muted">{copying.translationNote}</span> : null}
+            </p>
+          ) : null}
+          <BlankWriter key={editing?.id ?? (copying ? `copy-${sp.from}` : "new")} initial={editing ?? copying?.draft ?? EMPTY_WRITTEN} justSaved={Boolean(editing && sp.saved)} />
         </>
       ) : (
         <CreateStudio allowed={allowed} configured={isAiConfigured()} quota={allowed ? quota : null} />
@@ -117,5 +127,30 @@ async function getWritten(id: string): Promise<WrittenDraft | null> {
       practical_application: text.practical_application ? docToText(text.practical_application) : "",
       prayer: text.prayer ? docToText(text.prayer) : "",
     },
+  };
+}
+
+/** A published devotional as the starting values of a new copy the teacher can change and save. */
+async function copyOf(id: string): Promise<{ draft: WrittenDraft; translationNote: string | null } | null> {
+  // Read as the teacher: row-level security returns only devotionals they can open.
+  const d = await getDevotional(id);
+  if (!d || !["published", "scheduled"].includes(d.status)) return null;
+  const bundled = isBibleCode(d.translation_code);
+  return {
+    draft: {
+      id: null,
+      title: d.title,
+      topic: d.daily_topic,
+      reference: d.scripture_reference,
+      translation: bundled ? (d.translation_code as WrittenDraft["translation"]) : "kjv",
+      text: {
+        reflection: docToText(d.reflection),
+        discussion_question: docToText(d.discussion_question),
+        practical_application: docToText(d.practical_application),
+        prayer: docToText(d.prayer),
+      },
+    },
+    // Your copy shows the passage from a bundled public-domain Bible; other translations are not stored.
+    translationNote: d.translation_code && !bundled ? `The passage is shown in the King James Version, because the ${d.translation_code.toUpperCase()} cannot be stored here. You can choose WEB or ASV instead.` : null,
   };
 }
