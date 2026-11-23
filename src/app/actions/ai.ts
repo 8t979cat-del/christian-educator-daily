@@ -128,9 +128,9 @@ export type GeneratedDraft = {
  * comes from the chosen bundled public-domain Bible (KJV, WEB or ASV). If the AI names a passage that is not valid or too long,
  * it is asked once more for a different one.
  */
-export async function writeDevotionalAction(input: { topics: string[]; band: string; translation?: string }): Promise<Result<{ draft: GeneratedDraft; remaining: number }>> {
+export async function writeDevotionalAction(input: { topics: string[]; band: string; translation?: string; audience?: string }): Promise<Result<{ draft: GeneratedDraft; remaining: number }>> {
   await requireAccess();
-  const parsed = z.object({ topics: z.array(z.string().trim().min(2).max(40)).min(1).max(6), band, translation: bible }).safeParse(input);
+  const parsed = z.object({ topics: z.array(z.string().trim().min(2).max(40)).min(1).max(6), band, translation: bible, audience: z.enum(["students", "educators"]).default("students") }).safeParse(input);
   if (!parsed.success) return fail("Choose between one and six topics.");
   const spent = await consume();
   if (spent.error !== null) return fail(spent.error);
@@ -141,7 +141,7 @@ export async function writeDevotionalAction(input: { topics: string[]; band: str
     const tried: string[] = describeUsed(used);
     let fallback: { draft: Awaited<ReturnType<typeof writeDevotional>>; passage: NonNullable<ReturnType<typeof biblePassage>> } | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      const draft = await writeDevotional(parsed.data.topics, parsed.data.band, tried);
+      const draft = await writeDevotional(parsed.data.topics, parsed.data.band, tried, parsed.data.audience);
       const passage = biblePassage(parsed.data.translation, draft.reference);
       if (passage && !findOverlap(passage.reference, used)) { fallback = { draft, passage }; break; }
       if (passage) fallback ??= { draft, passage };

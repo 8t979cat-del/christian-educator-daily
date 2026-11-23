@@ -101,3 +101,15 @@ describe("variety", () => {
     expect(pickAngle(() => 0)).not.toBe(pickAngle(() => 0.99));
   });
 });
+
+describe("faculty devotionals", () => {
+  it("writes for educators with its own grounded voice, not the classroom brief", async () => {
+    parse.mockResolvedValue({ stop_reason: "end_turn", parsed_output: { title: "Ordinary Faithfulness", topic: "Work done well", scripture_reference: "Colossians 3:23-24", reflection: ["One.", "Two."], discussion_question: "Where?", practical_application: "Try.", prayer: "Amen." } });
+    await writeDevotional(["perseverance"], "g68", [], "educators");
+    const req = parse.mock.calls[0]![0];
+    expect(req.system).toMatch(/faculty and staff of Christian schools/);
+    expect(req.system).toMatch(/Do not flatter or pander/);
+    expect(req.messages[0].content).toMatch(/for the faculty and staff[\s\S]*For educators, not students/);
+    expect(req.messages[0].content).not.toMatch(/Grades 6 to 8/);
+  });
+});
