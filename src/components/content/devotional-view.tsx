@@ -154,16 +154,17 @@ export function DevotionalView({
       </ol>
 
       {byline || colophon.length ? (
-        <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+        // The byline on its own line, then who it is for: no separator dot left stranded where the line wraps.
+        <div className="mt-6 grid justify-items-start gap-2 text-sm text-muted">
           {byline ? (
             author ? (
               <ContributorCard profile={author}>{byline}</ContributorCard>
             ) : (
-              <span className="font-semibold text-ink">{byline}</span>
+              <p className="font-semibold text-ink">{byline}</p>
             )
           ) : null}
-          {colophon.length ? <span>{byline ? "· " : ""}{colophon.join(" · ")}</span> : null}
-        </p>
+          {colophon.length ? <p>{colophon.join(" · ")}</p> : null}
+        </div>
       ) : null}
       </div>
       </div>
