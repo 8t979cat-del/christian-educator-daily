@@ -22,6 +22,7 @@ import {
   setThreadControlsAction,
 } from "@/app/actions/governance";
 import { FormMessage, SubmitButton } from "@/components/forms/shared";
+import { PhotoPicker } from "./photo-picker";
 import { CheckboxField } from "@/components/ui/choices";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/form";
 import { idleState, type FormState } from "@/lib/auth/form-state";
@@ -244,13 +245,14 @@ export function RetentionForm() {
   );
 }
 
-export function ContributorForm({ contributor }: { contributor?: { id: string; name: string; bio: string; active: boolean } }) {
+export function ContributorForm({ contributor }: { contributor?: { id: string; name: string; bio: string; active: boolean; photo?: string | null } }) {
   const [state, run] = useActionState(saveContributorAction, idleState);
   return (
     <form action={run} className="grid gap-3">
       <input type="hidden" name="id" value={contributor?.id ?? ""} />
       <TextField name="name" label="Name" defaultValue={contributor?.name ?? ""} required maxLength={120} error={state.fieldErrors?.name} />
       <TextAreaField name="bio" label="Short bio (shown with the devotional)" rows={2} maxLength={500} defaultValue={contributor?.bio ?? ""} error={state.fieldErrors?.bio} />
+      <PhotoPicker key={contributor?.photo ?? "none"} current={contributor?.photo} />
       <CheckboxField name="active" defaultChecked={contributor?.active ?? true} label="Available to credit on new devotionals" />
       <FormMessage state={state} />
       <div><SubmitButton variant={contributor ? "secondary" : "primary"}>{contributor ? "Save" : "Add contributor"}</SubmitButton></div>

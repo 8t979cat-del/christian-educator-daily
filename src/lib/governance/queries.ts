@@ -72,14 +72,14 @@ export const governanceSettings = async (): Promise<Record<string, unknown>> => 
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 };
 
-export type Contributor = { id: string; name: string; bio: string; active: boolean };
+export type Contributor = { id: string; name: string; bio: string; active: boolean; photo: string | null };
 export async function listContributors(): Promise<Contributor[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("contributors").select("id, name, bio, active").order("name");
+  const { data } = await supabase.from("contributors").select("id, name, bio, active, photo").order("name");
   return (data ?? []) as Contributor[];
 }
 
-export type Credit = { contributor_id: string; name: string; bio: string; role: "author" | "contributor" | "reviewer" };
+export type Credit = { contributor_id: string; name: string; bio: string; role: "author" | "contributor" | "reviewer"; photo: string | null };
 export const devotionalCredits = (devotionalId: string) => rpc<Credit>("devotional_credits", { p_devotional: devotionalId });
 
 export type Metrics = {
