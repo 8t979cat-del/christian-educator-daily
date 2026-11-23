@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { COMMUNITY_ENABLED } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { AdminNav } from "@/components/content/admin-nav";
 import { StatusBadge } from "@/components/content/status-badge";
@@ -114,6 +115,8 @@ export default async function EditDevotionalPage({
             </div>
           </Card>
 
+          {/* Discussion settings are hidden while community features are off (COMMUNITY_ENABLED in src/lib/site.ts). */}
+          {COMMUNITY_ENABLED ? (
           <Card padding="lg">
             <Heading level={2} size={4}>Discussion</Heading>
             <Text size="sm" muted className="mt-1">Reflect Together appears only on a published devotional. Settings here apply as soon as it is live.</Text>
@@ -122,6 +125,7 @@ export default async function EditDevotionalPage({
               <PinnedQuestionForm devotionalId={d.id} question={discussion.pinned_question ?? ""} />
             </div>
           </Card>
+          ) : null}
 
           <Card padding="lg">
             <Heading level={2} size={4}>Credits</Heading>
