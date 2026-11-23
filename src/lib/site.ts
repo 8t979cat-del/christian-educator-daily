@@ -18,6 +18,12 @@ export type NavItem = { href: string; label: string; icon: IconName };
  */
 export const COMMUNITY_ENABLED = false;
 
+/**
+ * The class comment board in presentations (typed on screen, never saved). Off until comments
+ * are launched; set to true to offer it again in the presentation settings.
+ */
+export const CLASS_COMMENTS_ENABLED = false;
+
 /** Primary navigation inside the signed-in application shell. */
 export const APP_NAV: NavItem[] = ([
   { href: "/today", label: "Today", icon: "sun" },

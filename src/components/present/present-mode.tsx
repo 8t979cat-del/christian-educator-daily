@@ -1,5 +1,6 @@
 "use client";
 
+import { CLASS_COMMENTS_ENABLED } from "@/lib/site";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
@@ -165,9 +166,11 @@ export function PresentMode({
     setIndex(equivalentIndex(was, slides));
   }, [slides]);
 
+  // Class comments are switched off site-wide until comments launch (CLASS_COMMENTS_ENABLED).
+  const commentsOn = CLASS_COMMENTS_ENABLED && settings.comments;
   const safeIndex = Math.min(index, Math.max(slides.length - 1, 0));
   const slide = slides[safeIndex];
-  const slideComments = (settings.comments && slide ? comments[slide.key] : undefined) ?? [];
+  const slideComments = (commentsOn && slide ? comments[slide.key] : undefined) ?? [];
   const total = slides.length;
 
   const go = useCallback((delta: number) => setIndex((i) => Math.min(slides.length - 1, Math.max(0, Math.min(i, slides.length - 1) + delta))), [slides.length]);
@@ -259,14 +262,14 @@ export function PresentMode({
         case "b": case "B": case ".": setBlank((v) => !v); break;
         case "n": case "N": if (notesSlot) setPanel((p) => (p === "notes" ? "none" : "notes")); break;
         case "s": case "S": setPanel("settings"); break;
-        case "c": case "C": if (tools && settings.comments) { e.preventDefault(); setComposing(true); } break;
+        case "c": case "C": if (tools && commentsOn) { e.preventDefault(); setComposing(true); } break;
         case "Tab": poke(); return;
         default: return;
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke, tools, settings.comments]);
+  }, [go, goTo, slides.length, panel, leave, toggleFullscreen, changeSize, notesSlot, poke, tools, commentsOn]);
 
   // Presenter window: this screen reports its state and obeys commands.
   const stateRef = useRef<ClassMessage>({ type: "empty" });
@@ -339,7 +342,7 @@ export function PresentMode({
           <div className={bar}>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Smaller text" onClick={() => changeSize(-1)} disabled={settings.size === 0}>A−</button>
             <button type="button" className={`${btn} max-sm:hidden`} aria-label="Larger text" onClick={() => changeSize(1)} disabled={settings.size === SIZE_SCALES.length - 1}>A+</button>
-            {tools && settings.comments ? <button type="button" className={btn} onClick={() => setComposing(true)}>Comment</button> : null}
+            {tools && commentsOn ? <button type="button" className={btn} onClick={() => setComposing(true)}>Comment</button> : null}
             {tools ? <button type="button" className={`${btn} max-sm:hidden`} onClick={() => setPanel("edit")}>Edit</button> : null}
             {notesSlot ? <button type="button" className={`${btn} max-sm:hidden`} aria-pressed={panel === "notes"} onClick={() => setPanel((p) => (p === "notes" ? "none" : "notes"))}>Notes</button> : null}
             <button type="button" className={btn} onClick={() => setPanel("settings")}>Settings</button>
@@ -363,7 +366,7 @@ export function PresentMode({
         {slideComments.length ? (
           <CommentRail comments={slideComments} onRemove={(id) => slide && setComments((c) => ({ ...c, [slide.key]: (c[slide.key] ?? []).filter((x) => x.id !== id) }))} />
         ) : null}
-        {composing && settings.comments ? (
+        {composing && commentsOn ? (
           <CommentComposer
             onClose={() => setComposing(false)}
             onPost={(text, emoji) => {
@@ -442,7 +445,7 @@ export function PresentMode({
             hasPassageText={hasPassageText}
             writtenBands={writtenBands}
             bandLabels={bandLabels}
-            allowComments={Boolean(tools)}
+            allowComments={CLASS_COMMENTS_ENABLED && Boolean(tools)}
             onOpenPresenter={openPresenter}
           />
         ) : null}
