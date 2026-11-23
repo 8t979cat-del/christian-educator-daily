@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/container";
 import { NoticeBanner } from "@/components/layout/notice-banner";
-import { CreateSchoolForm, InviteForm } from "@/components/forms/school-forms";
+import { InviteForm } from "@/components/forms/school-forms";
 import { MemberRow } from "@/components/school/member-row";
 import { deleteSchoolAction, leaveSchoolAction, revokeInvitationAction } from "@/app/actions/school";
 import Link from "next/link";
@@ -36,20 +36,12 @@ export default async function SchoolPage({ searchParams }: Props) {
 
       {memberships.length === 0 ? (
         <div className="grid gap-6">
+          {/* Schools are set up by Everyday Devotional staff (Admin → Founding-school pilot), never by teachers here. */}
           <EmptyState
             icon="building"
             title="You are not in a school yet"
-            description="If your administrator invited you, open the invitation link they sent you, signed in with the email address they used. Or, if you lead a school, create it below."
+            description="Schools are set up by Everyday Devotional. If your school invited you, open the invitation link they sent you, signed in with the email address they used. If you lead a school, write to us from the home page."
           />
-          <Card padding="lg">
-            <Heading level={2} size={4}>
-              Create a school
-            </Heading>
-            <Text size="sm" muted className="mt-1 mb-5">
-              You become its owner and can invite teachers. Your school&apos;s data is visible only to its members.
-            </Text>
-            <CreateSchoolForm />
-          </Card>
         </div>
       ) : null}
 

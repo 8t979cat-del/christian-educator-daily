@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({ children }: { children: ReactNode }) {
   // Signed in, email verified and onboarding complete, or this redirects.
   // Each page and server action re-checks its own permissions as well.
-  const { profile, platformRoles, user } = await requireAccess();
+  const { profile, platformRoles, user, memberships } = await requireAccess();
   await touchActive();
   const name = profile.display_name || user.email;
   const plans = (await getEntitlements()).plans;
@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     : null;
 
   return (
-    <AppShell userName={name} isStaff={platformRoles.length > 0} planLabel={planLabel}>
+    <AppShell userName={name} isStaff={platformRoles.length > 0} planLabel={planLabel} inSchool={memberships.length > 0}>
       {pilotNote ? (
         <Alert tone="info" className="mb-6">
           {pilotNote} <Link className="underline" href="/pilot">See what happens next</Link>
