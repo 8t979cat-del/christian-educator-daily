@@ -250,7 +250,7 @@ export async function saveContributorAction(_prev: FormState, formData: FormData
   const { error } = id
     ? await supabase.from("contributors").update({ name, bio, active, ...photoChange }).eq("id", id)
     : await supabase.from("contributors").insert({ name, bio, active, ...photoChange });
-  if (error) return errorState("That could not be saved. Only content editors can manage contributors.", { values: parsed.echo });
+  if (error) return errorState(contributorSaveError(error), { values: parsed.echo });
   done(["/admin/contributors"]);
   return successState(id ? "Saved." : "Added.");
 }
@@ -282,4 +282,15 @@ export async function setGroupPostLockedAction(formData: FormData): Promise<void
   const supabase = await createClient();
   await supabase.rpc("set_group_post_locked", { p_post: parsed.data.postId, p_locked: parsed.data.locked === "true" });
   revalidatePath(`/community/groups/${parsed.data.groupId}`);
+}
+
+/** Say what actually went wrong when a contributor is not saved, instead of always blaming permissions. */
+function contributorSaveError(error: { code?: string; message?: string }): string {
+  const text = `${error.code ?? ""} ${error.message ?? ""}`;
+  if (/PGRST204|42703|photo/i.test(text) && /column|schema cache|does not exist/i.test(text))
+    return "Photos are not set up in the database yet. Run migration 0020_contributor_photos.sql in the Supabase SQL editor, then save again.";
+  if (error.code === "23514") return "That photo could not be stored. Choose the photo again and save.";
+  if (error.code === "23505") return "A contributor with that name already exists.";
+  if (error.code === "42501") return "That could not be saved. Only content editors can manage contributors.";
+  return "That could not be saved. Please try again.";
 }
