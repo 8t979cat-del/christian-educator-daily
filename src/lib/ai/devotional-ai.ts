@@ -151,7 +151,40 @@ export async function relevelDevotional(input: LevelInput, band: GradeBand): Pro
 export type NewDevotionalDraft = Required<LevelVersion> & { title: string; topic: string; reference: string };
 
 /** Writes a new devotional about the chosen topics, for one age band. The caller looks up the passage text. */
-export async function writeDevotional(topics: string[], band: GradeBand, avoidReferences: string[] = []): Promise<NewDevotionalDraft> {
+/** Who a new devotional is for: a class of students (at a reading level), or the educators themselves. */
+export type DevotionalAudience = "students" | "educators";
+
+const FACULTY_VOICE = `You write devotionals for the faculty and staff of Christian schools (Everyday Devotional): teachers, aides, coaches, administrators and office staff, read on their own or together before the day starts.
+Speak to them as capable adults and colleagues. Be grounded and plain: name the real texture of the work (planning, grading, meetings, parents, tired afternoons, a student who finally gets it) without exaggerating it.
+Do not flatter or pander ("you are a hero", "your calling is so important"), do not dramatise burnout, and do not pile on guilt or urgency. No clichés, no exclamation marks, no sermonising. Understatement over intensity; let the passage carry the weight.
+Stay broadly Christian and ecumenical: no denominational positions, no contested doctrine, no political content.
+Never write or paraphrase Scripture as if quoting it; you may refer to what the passage says in your own words.
+Never invent facts, statistics, quotations or stories about real people. Never use real student or staff names.
+The prayer speaks to God simply, in the first person plural, and ends with "Amen."`;
+
+const FACULTY_GUIDE = "For educators, not students. Reflection: 3 to 4 paragraphs, 220 to 320 words, connecting the passage honestly to the work and life of people who serve in a school. Question: one question for personal reflection or for colleagues to discuss, with no single right answer. Practice: one small, concrete thing to try today or this week at school, realistic for a busy day. Prayer: 3 to 5 sentences.";
+
+const FACULTY_ANGLES = [
+  "an ordinary moment in a school day (the copier, a hallway at passing time, an empty classroom after the bell)",
+  "the rhythm of the school year (the first week, report cards, the stretch before a break)",
+  "a conversation with a colleague, a parent or a student",
+  "a detail in the passage itself that is easy to miss",
+  "a question educators quietly carry",
+  "something learned slowly over years of teaching",
+] as const;
+
+export async function writeDevotional(topics: string[], band: GradeBand, avoidReferences: string[] = [], audience: DevotionalAudience = "students"): Promise<NewDevotionalDraft> {
+  if (audience === "educators") {
+    const result = await ask(NewDevotional, [
+      `Write a new devotional for the faculty and staff of a Christian school about: ${topics.join(", ")}.`,
+      `Choose one Bible passage that genuinely speaks to these topics, at most 12 verses, and build the devotional on it.`,
+      VARIETY,
+      usedLine(avoidReferences),
+      `Open the reflection with ${FACULTY_ANGLES[Math.floor(Math.random() * FACULTY_ANGLES.length)]}.`,
+      `Guidance: ${FACULTY_GUIDE}`,
+    ].filter(Boolean).join("\n"), { system: FACULTY_VOICE });
+    return { ...toVersion(result), title: result.title.trim().slice(0, 140), topic: result.topic.trim().slice(0, 140), reference: result.scripture_reference.trim() };
+  }
   const result = await ask(NewDevotional, [
     `Write a new classroom devotional for ${BAND_LONG[band].toLowerCase()} about: ${topics.join(", ")}.`,
     `Choose one Bible passage that genuinely speaks to these topics, at most 12 verses, and build the devotional on it.`,

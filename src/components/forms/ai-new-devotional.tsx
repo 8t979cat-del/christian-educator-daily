@@ -37,6 +37,8 @@ export function NewDevotionalWithAi({
   // The standard text is written for grades 6 to 8; the other ages are drafted from it under Reading levels.
   const band: GradeBand = STANDARD_BAND;
   const [bible, setBible] = useState<BibleCode>("kjv");
+  // Students: a classroom devotional at the grades 6 to 8 standard. Educators: a faculty devotional for the staff themselves.
+  const [audience, setAudience] = useState<"students" | "educators">("students");
   const [quota, setQuota] = useState<AiQuota | null>(ai.quota);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -53,7 +55,7 @@ export function NewDevotionalWithAi({
     setDone(null);
     start(async () => {
       const names = slugs.map((s) => CATEGORIES.find((c) => c.slug === s)?.name ?? s);
-      const result = await writeDevotionalAction({ topics: names, band, translation: bible });
+      const result = await writeDevotionalAction({ topics: names, band, translation: bible, audience });
       if (!result.ok) {
         setError(result.error);
         if (/used today/.test(result.error) && quota) setQuota({ ...quota, remaining: 0 });
@@ -76,6 +78,10 @@ export function NewDevotionalWithAi({
           prayer: d.version.prayer,
           discussion_question: d.version.discussion_question,
           practical_application: d.version.practical_application,
+          // A faculty devotional is marked for the staff: it shows "For faculty" in the Archive.
+          ...(audience === "educators"
+            ? { audience: "all_staff", educational_category: "faculty_community", grade_levels: [] }
+            : { audience: initial.audience ?? "teachers", educational_category: initial.educational_category ?? "classroom" }),
         },
       }));
       setDone(`Draft written on ${d.reference}. Review it below, then save. It is saved as a draft.`);
@@ -99,9 +105,27 @@ export function NewDevotionalWithAi({
           {ai.configured && quota ? <AiCounter quota={quota} /> : null}
         </div>
         <p className="mt-1 max-w-[40rem] text-muted">
-          Choose up to {MAX} categories and a reading level. The AI fills in the form below: title, topic, a Bible passage in the translation you choose and
+          Choose who it is for and up to {MAX} categories. The AI fills in the form below: title, topic, a Bible passage in the translation you choose and
           all four parts. You review and edit it before saving. Or skip this and write it yourself.
         </p>
+
+        <fieldset className="mt-5">
+          <legend className="text-sm font-semibold">Write it for</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {([
+              ["students", "Students", "A classroom devotional, written at grades 6 to 8. Other reading levels can be drafted below."],
+              ["educators", "Educators", "A faculty devotional for teachers and staff themselves. Marked Faculty community, so it shows “For faculty” in the Archive."],
+            ] as const).map(([value, title, hint]) => (
+              <label key={value} className="relative">
+                <input type="radio" name="ai-audience" className="peer sr-only" checked={audience === value} onChange={() => setAudience(value)} />
+                <span className="block h-full rounded-control border border-line-strong/50 bg-surface p-3 peer-checked:border-brand peer-checked:bg-brand-soft peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
+                  <span className="block font-semibold">{title}</span>
+                  <span className="block text-sm text-muted">{hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <fieldset className="mt-5">
           <legend className="text-sm font-semibold">Categories <span className="font-normal text-muted">({chosen.length} of {MAX})</span></legend>
