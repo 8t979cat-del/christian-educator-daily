@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { annualSavingsPercent, describeSubscription, formatMoney, noticeText, priceLabel } from "@/lib/billing/format";
 import { verifyStripeSignature } from "@/lib/billing/signature";
-import { encodeForm, stripe, StripeError } from "@/lib/billing/stripe";
+import { encodeForm, stripe, STRIPE_API_VERSION, StripeError } from "@/lib/billing/stripe";
 import type { PlanPrice, SubscriptionRow } from "@/lib/billing/types";
 
 const SECRET = "whsec_test_secret";
@@ -82,6 +82,14 @@ describe("Stripe client", () => {
     expect(form.get("metadata[owner_type]")).toBe("user");
     await stripe.createCheckoutSession({ customer: "cus_1", price: "price_1", quantity: 1, ownerType: "user", ownerId: "u1", successUrl: "https://x/s", cancelUrl: "https://x/c", idempotencyKey: "k2" });
     expect(new URLSearchParams(String(calls[1]!.init.body)).has("subscription_data[trial_period_days]")).toBe(false);
+  });
+
+  it("pins the API version on every request, reads and writes alike", async () => {
+    await stripe.getCustomer("cus_1");
+    await stripe.createPortalSession({ customer: "cus_1", returnUrl: "https://x/r" });
+    for (const { init } of calls) expect((init.headers as Record<string, string>)["Stripe-Version"]).toBe(STRIPE_API_VERSION);
+    expect(STRIPE_API_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}\.[a-z]+$/);
+    expect(calls[0]!.url).toBe("https://api.stripe.com/v1/customers/cus_1");
   });
 
   it("changes seats with proration and reads subscriptions with GET", async () => {

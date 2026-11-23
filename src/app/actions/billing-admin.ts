@@ -149,3 +149,37 @@ export async function revokeGrantAction(_prev: FormState, formData: FormData): P
   done();
   return successState("Revoked.");
 }
+
+/**
+ * Links a school to a Stripe customer created outside the app, as happens when a school license is
+ * sold with a Stripe quote or invoiced from the Dashboard. Until a customer is linked, the webhook
+ * cannot tell which school a subscription or invoice belongs to (it answers "try again", and Stripe
+ * retries for up to three days), so link it as soon as the customer exists.
+ */
+export async function linkSchoolCustomerAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  await requirePlatformRole(["platform_admin"]);
+  const parsed = parseForm(z.object({
+    schoolId: z.string().uuid("Choose a school."),
+    customerId: z.string().trim().regex(/^cus_[A-Za-z0-9]{6,}$/, "Paste the customer id from Stripe; it starts with cus_."),
+  }), formData);
+  if (!parsed.ok) return parsed.state;
+  const admin = createAdminClient();
+  if (!admin) return errorState("This server has no SUPABASE_SERVICE_ROLE_KEY, which linking needs.");
+  try {
+    const customer = await stripe.getCustomer(parsed.data.customerId);
+    if (customer.deleted) return errorState("That Stripe customer has been deleted.");
+  } catch (error) {
+    return errorState(error instanceof StripeError && error.status === 404 ? "Stripe has no customer with that id (check test or live mode)." : "Stripe could not be reached. Try again.");
+  }
+  const { data: existing } = await admin.from("billing_customers").select("school_id, user_id, stripe_customer_id")
+    .or(`stripe_customer_id.eq.${parsed.data.customerId},school_id.eq.${parsed.data.schoolId}`);
+  for (const row of (existing ?? []) as Array<{ school_id: string | null; user_id: string | null; stripe_customer_id: string }>) {
+    if (row.stripe_customer_id === parsed.data.customerId && row.school_id === parsed.data.schoolId) return successState("Already linked.");
+    if (row.stripe_customer_id === parsed.data.customerId) return errorState("That Stripe customer is already linked to another account.");
+    if (row.school_id === parsed.data.schoolId) return errorState(`This school is already linked to ${row.stripe_customer_id}. Bill the school under that customer.`);
+  }
+  const { error } = await admin.from("billing_customers").insert({ owner_type: "school", school_id: parsed.data.schoolId, stripe_customer_id: parsed.data.customerId });
+  if (error) return errorState("The link could not be saved. Try again.");
+  revalidatePath("/admin/billing");
+  return successState("Linked. Stripe's next retry of any waiting event will now apply it to this school.");
+}

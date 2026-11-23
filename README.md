@@ -253,6 +253,9 @@ Nothing here sells or shares prayer, reflection or group content, and no adverti
 
 ### Stripe setup (external)
 
+The full, current guide (sandbox to live, school quotes and invoices, Customer Portal, Smart Retries,
+tax monitoring, API version) is [docs/STRIPE.md](docs/STRIPE.md). The short version:
+
 1. In Stripe, create products and recurring prices: Educator Plus monthly and annual; School License monthly and annual (per seat, quantity-based).
 2. Apply migration `0006_billing.sql`.
 3. Sign in as a platform administrator, open `/admin/billing`, paste each Stripe price id and press "Save and read amount from Stripe", then tick "Offer this price".
