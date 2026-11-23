@@ -15,7 +15,7 @@ vi.mock("@anthropic-ai/sdk", () => {
   return { default: Anthropic };
 });
 
-const { relevelDevotional, writeDevotional, planWeek, writeWeekDay, AiError } = await import("@/lib/ai/devotional-ai");
+const { relevelDevotional, writeDevotional, planWeek, writeWeekDay, writeResource, AiError } = await import("@/lib/ai/devotional-ai");
 const { richTextToPlain } = await import("@/lib/content/richtext");
 const doc = (t: string) => ({ type: "doc" as const, content: [{ type: "paragraph" as const, content: [{ type: "text" as const, text: t }] }] });
 const standard = { reflection: doc("Standard reflection."), discussion_question: doc("Q?"), practical_application: doc("Do this."), prayer: doc("Amen.") };
@@ -89,5 +89,17 @@ describe("writing a week (editors)", () => {
     expect(richTextToPlain(day.standard.prayer)).toBe("Std. Amen.");
     expect(Object.keys(day.levels).sort()).toEqual(["g35", "g912", "k2"]);
     expect(richTextToPlain(day.levels.k2.discussion_question)).toBe("K2?");
+  });
+});
+
+describe("drafting a resource (editors)", () => {
+  it("writes for educators with Claude Opus 5.5, follows the kind's guide and the theme, and joins paragraphs", async () => {
+    parse.mockResolvedValue({ stop_reason: "end_turn", parsed_output: { title: "Thanks in the hard weeks", summary: "For teachers.", paragraphs: ["Welcome.", "Read: Luke 17:11-19", "Pray: Amen."] } });
+    const r = await writeResource("staff_meeting", { title: "Gratitude", summary: "Thankful hearts.", days: ["Made on Purpose (Ephesians 2:8-10)"] }, "grading season");
+    const req = parse.mock.calls[0]![0];
+    expect(req.model).toBe("claude-opus-5-5");
+    expect(req.system).toMatch(/teachers and leaders of Christian schools/);
+    expect(req.messages[0].content).toMatch(/10-minute opener[\s\S]*"Gratitude"[\s\S]*Made on Purpose[\s\S]*Focus: grading season/);
+    expect(r).toEqual({ title: "Thanks in the hard weeks", summary: "For teachers.", body: "Welcome.\n\nRead: Luke 17:11-19\n\nPray: Amen." });
   });
 });
