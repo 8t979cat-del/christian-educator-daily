@@ -16,7 +16,10 @@ export function AppShell({
   userName,
   isStaff,
   planLabel,
+  inSchool = false,
 }: {
+  /** "My School" is in the menu only for members of a school: schools are set up by staff, not by teachers. */
+  inSchool?: boolean;
   children: ReactNode;
   userName: string;
   isStaff: boolean;
@@ -25,7 +28,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh md:pl-20 lg:pl-60 print:pl-0">
-      <div className="print:hidden"><AppSidebar /></div>
+      <div className="print:hidden"><AppSidebar inSchool={inSchool} /></div>
       <header className="sticky top-0 z-20 print:hidden flex h-16 items-center justify-between gap-2 border-b border-line bg-parchment/95 px-4 backdrop-blur md:justify-end md:px-8">
         <span className="md:hidden">
           <Logo />
@@ -66,7 +69,7 @@ export function AppShell({
       <main id="main" className="mx-auto w-full max-w-5xl px-4 pb-28 pt-6 md:px-8 md:pb-12 md:pt-10 print:p-0">
         {children}
       </main>
-      <div className="print:hidden"><BottomTabs /></div>
+      <div className="print:hidden"><BottomTabs inSchool={inSchool} /></div>
     </div>
   );
 }

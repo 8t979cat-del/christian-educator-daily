@@ -16,7 +16,10 @@ function useActive() {
  * Side navigation for tablet and desktop.
  * Tablet (md): a narrow rail with icon above label. Desktop (lg): full width, icon beside label.
  */
-export function AppSidebar() {
+/** The menu: "My School" only for members of a school. */
+const navFor = (inSchool: boolean) => APP_NAV.filter((item) => inSchool || item.href !== "/school");
+
+export function AppSidebar({ inSchool = false }: { inSchool?: boolean }) {
   const isActive = useActive();
 
   return (
@@ -30,7 +33,7 @@ export function AppSidebar() {
         </span>
       </div>
       <nav aria-label="Primary" className="flex flex-1 flex-col gap-1 overflow-y-auto p-2 lg:p-3">
-        {APP_NAV.map((item) => {
+        {navFor(inSchool).map((item) => {
           const active = isActive(item.href);
           return (
             <Link
@@ -53,16 +56,17 @@ export function AppSidebar() {
 }
 
 /** Tab bar for phones. Today is first so the daily devotional is one tap away. */
-export function BottomTabs() {
+export function BottomTabs({ inSchool = false }: { inSchool?: boolean }) {
   const isActive = useActive();
+  const nav = navFor(inSchool);
 
   return (
     <nav
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <ul className="grid grid-cols-6">
-        {APP_NAV.map((item) => {
+      <ul className="grid grid-flow-col auto-cols-fr">
+        {nav.map((item) => {
           const active = isActive(item.href);
           return (
             <li key={item.href}>
