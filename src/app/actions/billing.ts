@@ -6,6 +6,7 @@ import { z } from "zod";
 import { errorState, parseForm, successState, type FormState } from "@/lib/auth/form-state";
 import { requireAccess } from "@/lib/auth/session";
 import { findCustomerId, ensureCustomer, findLiveSubscription, findPrice, resolveOwner, type BillingOwner } from "@/lib/billing/owner";
+import { idempotencyKey } from "@/lib/billing/idempotency";
 import { stripe, StripeError } from "@/lib/billing/stripe";
 import { communityError } from "@/lib/community/errors";
 import { getPublicEnv, isBillingConfigured } from "@/lib/env";
@@ -32,7 +33,7 @@ function stripeMessage(error: unknown): string {
   return "We could not reach the payment provider. Nothing was changed. Please try again.";
 }
 
-export async function startCheckoutAction(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function startCheckoutAction(prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireAccess();
   if (!isBillingConfigured()) return errorState(NOT_CONFIGURED);
   // Launch switch: paid checkout stays closed until an administrator opens it. (Stripe cannot be gated in the database.)
@@ -68,8 +69,8 @@ export async function startCheckoutAction(_prev: FormState, formData: FormData):
       trialDays: !customer.hadTrial && price.trialDays > 0 ? price.trialDays : undefined,
       successUrl: `${site}${billingPath(owner)}?checkout=success`,
       cancelUrl: `${site}${billingPath(owner)}?checkout=cancelled`,
-      // Same inputs within the hour reuse the same session instead of creating duplicates.
-      idempotencyKey: `checkout-${owner.type}-${owner.id}-${plan}-${period}-${seats}-${Math.floor(Date.now() / 3_600_000)}`,
+      // Same inputs within the hour reuse the same session instead of creating duplicates, unless the last attempt failed.
+      idempotencyKey: idempotencyKey(`checkout-${owner.type}-${owner.id}-${plan}-${period}-${seats}`, 3_600_000, prev),
     });
     url = session.url;
   } catch (error) {
@@ -97,7 +98,7 @@ export async function openPortalAction(_prev: FormState, formData: FormData): Pr
 }
 
 /** Switch between monthly and annual on the current plan. Stripe prorates. */
-export async function changeIntervalAction(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function changeIntervalAction(prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireAccess();
   if (!isBillingConfigured()) return errorState(NOT_CONFIGURED);
   const resolved = resolveOwner(ctx, formData);
@@ -116,7 +117,7 @@ export async function changeIntervalAction(_prev: FormState, formData: FormData)
     if (!item) return errorState("The subscription could not be read. Nothing was changed.");
     await stripe.updateSubscriptionItem({
       subscriptionId: sub.stripe_subscription_id, itemId: item.id, price: price.priceId,
-      idempotencyKey: `interval-${sub.stripe_subscription_id}-${parsed.data.interval}-${Math.floor(Date.now() / 600_000)}`,
+      idempotencyKey: idempotencyKey(`interval-${sub.stripe_subscription_id}-${parsed.data.interval}`, 600_000, prev),
     });
   } catch (error) {
     return errorState(stripeMessage(error));
@@ -126,7 +127,7 @@ export async function changeIntervalAction(_prev: FormState, formData: FormData)
 }
 
 /** A school changes how many seats it licenses. */
-export async function changeSeatsAction(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function changeSeatsAction(prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireAccess();
   if (!isBillingConfigured()) return errorState(NOT_CONFIGURED);
   const resolved = resolveOwner(ctx, formData);
@@ -143,7 +144,7 @@ export async function changeSeatsAction(_prev: FormState, formData: FormData): P
     if (!item) return errorState("The subscription could not be read. Nothing was changed.");
     await stripe.updateSubscriptionItem({
       subscriptionId: sub.stripe_subscription_id, itemId: item.id, quantity: parsed.data.seats,
-      idempotencyKey: `seats-${sub.stripe_subscription_id}-${parsed.data.seats}-${Math.floor(Date.now() / 600_000)}`,
+      idempotencyKey: idempotencyKey(`seats-${sub.stripe_subscription_id}-${parsed.data.seats}`, 600_000, prev),
     });
   } catch (error) {
     return errorState(stripeMessage(error));
@@ -153,7 +154,7 @@ export async function changeSeatsAction(_prev: FormState, formData: FormData): P
 }
 
 /** Cancel at the end of the paid period, or undo a pending cancellation. */
-export async function setCancellationAction(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function setCancellationAction(prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireAccess();
   if (!isBillingConfigured()) return errorState(NOT_CONFIGURED);
   const resolved = resolveOwner(ctx, formData);
@@ -166,7 +167,7 @@ export async function setCancellationAction(_prev: FormState, formData: FormData
   try {
     await stripe.setCancelAtPeriodEnd({
       subscriptionId: sub.stripe_subscription_id, cancel,
-      idempotencyKey: `cancel-${sub.stripe_subscription_id}-${cancel}-${Math.floor(Date.now() / 600_000)}`,
+      idempotencyKey: idempotencyKey(`cancel-${sub.stripe_subscription_id}-${cancel}`, 600_000, prev),
     });
   } catch (error) {
     return errorState(stripeMessage(error));
