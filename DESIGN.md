@@ -133,7 +133,7 @@ Rules:
 - The Blue Means Here Rule. Classroom blue marks what you can press and where you are now.
 - The Two Jobs Rule. Lexend does the interface; Literata carries the Word and the day's title.
 - The No Kicker Rule. No small label line above a heading.
-- The On-the-Lines Rule. Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs are indented rather than spaced, and every rule sits just under a baseline.
+- The On-the-Lines Rule. Text on ruled paper keeps to the 2rem grid (the large title takes 4rem on its own title ruling, in whole 2rem bands), paragraphs start flush with one empty ruled line between them (never indented), and every rule sits just under a baseline.
 - The Soft Shadow Rule. Every shadow is blurred.
 Elevation:
 - Card: 0 1px 2px rgb(29 36 51 / 0.06), 0 6px 16px -4px rgb(29 36 51 / 0.1)
