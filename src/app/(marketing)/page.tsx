@@ -247,7 +247,6 @@ export default async function LandingPage() {
               {contact ? (
                 <>
                   <ButtonLink href={contactHref} size="lg">Write to us about your school</ButtonLink>
-                  <p className="mt-3 text-sm text-muted">Opens an email to {contact}.</p>
                 </>
               ) : (
                 <p className="text-muted">Founding places are by invitation. Ask the person who shared this page with you.</p>
