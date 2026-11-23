@@ -72,7 +72,7 @@ async function ask<T extends z.ZodType>(
   schema: T,
   prompt: string,
   // Short writing at a set length: low effort keeps thinking (billed as output) and the wait small.
-  { model = MODEL, effort = "low" as "low" | "medium" | "high" } = {},
+  { model = MODEL, effort = "low" as "low" | "medium" | "high", system = VOICE } = {},
 ): Promise<z.infer<T>> {
   if (!isAiConfigured()) throw new AiError("The AI tools are not set up on this server yet.");
   try {
@@ -83,7 +83,7 @@ async function ask<T extends z.ZodType>(
       // If a safety classifier declines, let the API retry on a suitable model instead of failing outright.
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      system: VOICE,
+      system,
       messages: [{ role: "user", content: prompt }],
     });
     if (response.stop_reason === "refusal") throw new AiError("The AI declined to write this one. Try different topics or wording.");
@@ -210,4 +210,48 @@ export async function writeWeekDay(theme: WeekTheme, day: Weekday, plan: WeekDay
     `g912: ${BAND_GUIDE.g912}`,
   ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium" });
   return { standard: toVersion(result.standard), levels: { k2: toVersion(result.k2), g35: toVersion(result.g35), g912: toVersion(result.g912) } };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Resources for educators (editors): faculty devotionals, staff meeting guides, classroom guides.
+// ---------------------------------------------------------------------------------------------
+
+const STAFF_VOICE = `You write resources for the teachers and leaders of Christian schools (Everyday Devotional): devotionals for faculty, staff meeting guides, practical guides and classroom materials.
+Voice: warm, calm, clear, quietly scholarly and encouraging. Speak to educators as respected professionals and fellow believers who are often tired; never preachy, guilt-inducing or saccharine.
+Stay broadly Christian and ecumenical: no denominational positions, no contested doctrine, no political content.
+Never quote Scripture at length or invent quotations; name passages by reference and describe what they say in your own words.
+Never invent facts, statistics, studies, quotations or stories about real people. Never use real student or staff names.
+Prayers speak to God simply and end with "Amen."`;
+
+export const RESOURCE_GUIDES = {
+  faculty_devotional: "A weekly devotional for the teachers themselves (not for students). Open with a short, honest picture of a real moment in school life, name one passage by reference and draw out what it says, then a reflection of 250 to 400 words, one question for personal reflection, and a short prayer for teachers.",
+  staff_meeting: "A 10-minute opener a principal can lead at a staff meeting. Structure it with short labelled parts on their own lines: Welcome (one or two sentences), Read (a passage by reference, with a sentence on what to listen for), Reflect (a 150 to 250 word reflection to read aloud), Discuss (three numbered questions for small groups), Pray (a short prayer to close). Add a one-line note for the leader on timing.",
+  educator_resource: "A practical guide for classroom teachers, 500 to 900 words. Short sections with plain labels on their own lines, concrete steps and examples a teacher could use tomorrow, and a brief closing encouragement.",
+  presentation_material: "Ready-to-use classroom material that extends a week of devotionals: a memory verse given by reference with a simple way to practise it, five short journal or exit-ticket prompts (one per day), and one or two simple activities with materials and steps. Mark which grade bands each idea suits (K-2, 3-5, 6-8, 9-12).",
+} as const;
+export type ResourceGuideKind = keyof typeof RESOURCE_GUIDES;
+
+const ResourceDraft = z.object({
+  title: z.string().describe("A clear title, at most 90 characters."),
+  summary: z.string().describe("One or two sentences saying what it is and who it is for, at most 300 characters. Shown even to people whose plan does not include it."),
+  paragraphs: z.array(z.string()).describe("The text, in order. One paragraph, labelled heading line or list item per entry."),
+});
+
+/** Drafts one resource for editors to review. Optionally on a weekly theme (and its days), and with a focus they type. */
+export async function writeResource(
+  kind: ResourceGuideKind,
+  theme: { title: string; summary: string; days: string[] } | null,
+  focus: string,
+): Promise<{ title: string; summary: string; body: string }> {
+  const result = await ask(ResourceDraft, [
+    `Write this resource: ${RESOURCE_GUIDES[kind]}`,
+    theme ? `It goes with the weekly theme "${theme.title}"${theme.summary ? `: ${theme.summary}` : ""}.` : "",
+    theme && theme.days.length ? `The students' devotionals this week: ${theme.days.join("; ")}.` : "",
+    focus ? `Focus: ${focus}` : "",
+  ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium", system: STAFF_VOICE });
+  return {
+    title: result.title.trim().slice(0, 200),
+    summary: result.summary.trim().slice(0, 600),
+    body: result.paragraphs.map((p) => p.trim()).filter(Boolean).join("\n\n").slice(0, 12000),
+  };
 }

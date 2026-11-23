@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { listThemes } from "@/lib/content/queries";
+import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { AdminNav } from "@/components/content/admin-nav";
 import { ResourceForm, StatusButton } from "@/components/billing/resource-forms";
 import { PageHeader } from "@/components/layout/container";
@@ -16,6 +18,7 @@ export default async function AdminResourcesPage() {
   const { platformRoles } = await requirePlatformRole(["platform_admin", "content_editor"]);
   const supabase = await createClient();
   const { data } = await supabase.from("resources").select("id, kind, title, status, week_of, required_feature").order("created_at", { ascending: false }).limit(100);
+  const themes = await listThemes();
   const rows = (data ?? []) as { id: string; kind: string; title: string; status: string; week_of: string | null; required_feature: string }[];
   return (
     <>
@@ -38,7 +41,7 @@ export default async function AdminResourcesPage() {
             </ul>
           )}
         </Card>
-        <Card padding="lg"><Heading level={2} size={4} className="mb-4">New resource</Heading><ResourceForm /></Card>
+        <Card padding="lg"><Heading level={2} size={4} className="mb-4">New resource</Heading><ResourceForm themes={themes.map((t) => ({ id: t.id, title: t.title, week_start: t.week_start }))} ai={{ configured: isAiConfigured() }} /></Card>
       </div>
     </>
   );
