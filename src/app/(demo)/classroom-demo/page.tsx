@@ -69,7 +69,7 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
     discussion: doc("When did someone's patience with you make a real difference, and what did it feel like?"),
     practice: doc("Before you answer the next question today, pause for three slow breaths."),
     prayer: doc("Lord, give us unhurried hearts. Help us to wait well, to listen first, and to love the people in front of us as you have loved us. Amen."),
-    // Sample versions for two age bands, to show reading levels. The other bands use the text above.
+    // Sample versions for every age band, to show reading levels. With no level chosen, the standard text above is used.
     levels: {
       k2: {
         reflection: doc(
@@ -79,6 +79,25 @@ export default async function PresentDemo({ searchParams }: { searchParams: Prom
         discussion_question: doc("When did someone wait for you to finish something?"),
         practical_application: doc("Today, when a friend is slow, wait kindly."),
         prayer: doc("Dear God, thank you for being patient with me. Help me be patient with my friends. Amen."),
+      },
+      g35: {
+        reflection: doc(
+          "Have you ever been stuck on a math problem while everyone else seemed to be done? It can feel like the whole class is waiting for you. A good shepherd never leaves a sheep behind. He walks at the pace of the slowest one, so the whole flock gets to the green grass and the quiet water together.",
+          "God is patient with us in the same way. He does not get tired of helping us learn. When a classmate needs more time, we can be patient too, like the shepherd.",
+        ),
+        discussion_question: doc("Tell about a time someone was patient with you. How did it help?"),
+        practical_application: doc("Today, if a classmate needs help or more time, wait kindly or offer to help instead of rushing them."),
+        prayer: doc("Dear God, thank you for being patient with me every day. Help me to wait kindly and to help my friends when they are learning. Amen."),
+      },
+      g68: {
+        reflection: doc(
+          "In Psalm 23, the shepherd sets the pace for the whole flock. He leads them to green pastures and still waters, and he does not rush the ones that fall behind.",
+          "Most of us know what it is like to be rushed. A group project where one person does everything because they cannot wait for the rest. A friend who finishes your sentences. Someone who sighs when you ask a question twice. It can make you feel like you are in the way.",
+          "Patience is choosing to stay with someone while they catch up. It is how God treats us, and it is a way of showing that a person matters more than the clock.",
+        ),
+        discussion_question: doc("Is it ever right to be impatient with someone? When does patience help, and when might it get in the way?"),
+        practical_application: doc("In your next group activity, let someone else finish their idea before you add yours."),
+        prayer: doc("Lord, thank you that you never give up on us. When we feel rushed or ignored, remind us that we matter to you. Help us slow down and make room for the people around us. Amen."),
       },
       g912: {
         reflection: doc(
