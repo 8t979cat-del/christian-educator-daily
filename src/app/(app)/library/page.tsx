@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DeleteSavedButton } from "@/components/create/delete-saved";
 import { PageHeader } from "@/components/layout/container";
 import { EmptyState } from "@/components/ui/feedback";
 import { SearchInput } from "@/components/ui/search-input";
@@ -51,6 +52,7 @@ export default async function LibraryPage({ searchParams }: LibraryProps) {
                 <span className="flex gap-4">
                   {v.source === "written" ? <Link href={`/create?edit=${v.id}`} className="font-semibold text-brand underline">Edit<span className="sr-only"> {v.title}</span></Link> : null}
                   <Link href={`/create/${v.id}/present`} className="font-semibold text-brand underline">Present<span className="sr-only"> {v.title}</span></Link>
+                  <DeleteSavedButton id={v.id} title={v.title || "Untitled"} />
                 </span>
               </li>
             ))}

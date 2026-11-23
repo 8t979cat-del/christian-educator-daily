@@ -108,3 +108,20 @@ export async function previewPassageAction(input: { reference: string; translati
   if (!passage) return { ok: false, error: `“${parsed.data.reference}” could not be found in the ${BIBLES[parsed.data.translation].label}. At most ${MAX_VERSES} verses.` };
   return { ok: true, reference: passage.reference, text: passage.text };
 }
+
+/**
+ * Deletes one of the teacher's own saved devotionals (written, AI-written, or an Edit and save copy).
+ * Row-level security limits deleting to the owner. A submission keeps its own copy of the text,
+ * so anything already sent to the editors is unaffected.
+ */
+export async function deleteSavedDevotionalAction(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAccess();
+  const parsed = uuidSchema.safeParse(id);
+  if (!parsed.success) return { ok: false, error: "That devotional was not found." };
+  const { data, error } = await (await createClient()).from("presentation_versions").delete()
+    .eq("id", parsed.data).in("source", ["written", "ai_generated"]).select("id");
+  if (error || !data?.length) return { ok: false, error: "That devotional could not be deleted. Please try again." };
+  revalidatePath("/create");
+  revalidatePath("/library");
+  return { ok: true };
+}

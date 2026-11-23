@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DeleteSavedButton } from "@/components/create/delete-saved";
 import Link from "next/link";
 import { aiQuota } from "@/app/actions/ai";
 import { BlankWriter, EMPTY_WRITTEN, type WrittenDraft } from "@/components/create/blank-writer";
@@ -96,6 +97,7 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
                   <span className="flex gap-4">
                     {d.source === "written" ? <Link href={`/create?edit=${d.id}`} className="font-semibold text-brand underline">Edit<span className="sr-only"> {d.title}</span></Link> : null}
                     <Link href={`/create/${d.id}/present`} className="font-semibold text-brand underline">Present<span className="sr-only"> {d.title}</span></Link>
+                    <DeleteSavedButton id={d.id} title={d.title || "Untitled"} />
                   </span>
                 </div>
                 <SubmitControl versionId={d.id} title={d.title || "Untitled"} latest={latest.get(d.id) ?? null} />

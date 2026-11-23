@@ -76,4 +76,12 @@ describe("devotional submissions", () => {
     await expect(q(free, `insert into presentation_versions (source, title, content, devotional_id) values ('written', 'x', $1::jsonb, $2)`, [content, (await admin<{ id: string }>(`select id from devotionals limit 1`))[0]!.id])).rejects.toThrow(/written_is_standalone/);
     expect((await q<{ submit_devotional: string }>(free, `select submit_devotional($1)`, [id]))[0]!.submit_devotional).toBeTruthy();
   });
+
+  it("let a teacher delete their own saved devotional; only theirs, and any submission keeps its copy", async () => {
+    expect(await q(other, `delete from presentation_versions where id = $1 returning id`, [versionId])).toEqual([]);
+    expect(await q(teacher, `delete from presentation_versions where id = $1 returning id`, [versionId])).toHaveLength(1);
+    const subs = await q<{ version_id: string | null; title: string }>(teacher, `select version_id, title from devotional_submissions`);
+    expect(subs.length).toBeGreaterThan(0);
+    expect(subs.every((s) => s.version_id === null && s.title.length > 0)).toBe(true);
+  });
 });
