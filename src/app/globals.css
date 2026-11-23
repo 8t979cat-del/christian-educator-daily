@@ -98,10 +98,10 @@
   background-color: var(--color-surface);
   background-image: linear-gradient(to right, transparent var(--wb-margin), var(--color-margin) var(--wb-margin), var(--color-margin) calc(var(--wb-margin) + 1.5px), transparent calc(var(--wb-margin) + 1.5px));
 }
-/* Rich text written on the rules: every line 2rem, paragraphs indented rather than spaced. */
+/* Rich text written on the rules: every line 2rem; paragraphs start flush, with one empty ruled line between them. */
 .on-rules .rich-text, .on-rules.rich-text { line-height: 2rem; }
 .on-rules .rich-text > * + * { margin-top: 0; }
-.on-rules .rich-text p + p { text-indent: 1.5em; }
+.on-rules .rich-text p + p { margin-top: 2rem; }
 .on-rules .rich-text h3, .on-rules .rich-text h4 { margin-top: 2rem; line-height: 2rem; }
 .on-rules .rich-text li + li, .on-rules .rich-text li > * + * { margin-top: 0; }
 
