@@ -6,7 +6,10 @@ import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { BIBLES, BIBLE_CODES, biblePassage } from "@/lib/bible/kjv";
 import { BANDS, LEVEL_FIELDS, STANDARD_BAND, type LevelVersion } from "@/lib/content/levels";
-import { getDevotional, getTheme, getTranslation } from "@/lib/content/queries";
+import { getDevotional, getTheme, getTranslation, usedPassages } from "@/lib/content/queries";
+import { describeUsed, findOverlap } from "@/lib/content/passages";
+import { todayIn } from "@/lib/content/dates";
+import { getSiteTimeZone } from "@/lib/env";
 import { addDays } from "@/lib/content/dates";
 import { categoryName } from "@/lib/content/options";
 import { revalidatePath } from "next/cache";
@@ -132,20 +135,29 @@ export async function writeDevotionalAction(input: { topics: string[]; band: str
   const spent = await consume();
   if (spent.error !== null) return fail(spent.error);
   try {
-    const tried: string[] = [];
-    for (let attempt = 0; attempt < 2; attempt++) {
+    // Passages already used (the site's devotionals within a year, and the person's own saved ones) are
+    // named in the request, and the answer is checked against them: a clash is asked again, up to twice.
+    const used = await usedPassages(todayIn(getSiteTimeZone()), { own: true });
+    const tried: string[] = describeUsed(used);
+    let fallback: { draft: Awaited<ReturnType<typeof writeDevotional>>; passage: NonNullable<ReturnType<typeof biblePassage>> } | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
       const draft = await writeDevotional(parsed.data.topics, parsed.data.band, tried);
       const passage = biblePassage(parsed.data.translation, draft.reference);
-      if (passage) {
-        const { reference, title, topic, ...version } = draft;
-        const b = BIBLES[parsed.data.translation];
-        return {
-          ok: true,
-          draft: { title, topic, reference: passage.reference, scriptureText: passage.text, notice: b.notice, translationLabel: b.label, translationCode: b.code, version },
-          remaining: spent.remaining,
-        };
-      }
-      tried.push(draft.reference);
+      if (passage && !findOverlap(passage.reference, used)) { fallback = { draft, passage }; break; }
+      if (passage) fallback ??= { draft, passage };
+      tried.unshift(passage?.reference ?? draft.reference);
+    }
+    if (fallback) {
+      // Three clashes in a row are rare; a familiar passage then is better than nothing.
+      const { draft, passage } = fallback;
+      const { reference: _r, title, topic, ...version } = draft;
+      void _r;
+      const b = BIBLES[parsed.data.translation];
+      return {
+        ok: true,
+        draft: { title, topic, reference: passage.reference, scriptureText: passage.text, notice: b.notice, translationLabel: b.label, translationCode: b.code, version },
+        remaining: spent.remaining,
+      };
     }
     return fail("The AI chose a passage that could not be found. Please try again.");
   } catch (error) {
@@ -324,14 +336,20 @@ export async function writeWeekAction(input: { themeId: string; translation?: st
     // Plan, and plan again for any day whose passage the bundled Bible cannot show.
     const plans: Partial<Record<Weekday, WeekDayPlan & { text: string }>> = {};
     let toPlan = empty;
-    const tried: string[] = existing.map((e) => e.reference);
-    for (let attempt = 0; attempt < 2 && toPlan.length > 0; attempt++) {
+    // Passages used within a year either side of this week (this week's own days are passed as "existing").
+    const weekDates = new Set(WEEK.map((_, i) => dateOf(i)));
+    const used = (await usedPassages(theme.week_start)).filter((u) => !u.date || !weekDates.has(u.date));
+    const tried: string[] = describeUsed(used);
+    for (let attempt = 0; attempt < 3 && toPlan.length > 0; attempt++) {
       const planned = await planWeek(themeInfo, toPlan, [...existing, ...Object.entries(plans).map(([day, p]) => ({ day: day as Weekday, title: p!.title, reference: p!.reference }))], tried);
       for (const day of toPlan) {
         const p = planned[day];
         const passage = p ? biblePassage(t, p.reference) : null;
-        if (p && passage) plans[day] = { ...p, reference: passage.reference, text: passage.text };
-        else if (p) tried.push(p.reference);
+        // Not used before, and not sharing verses with another day of this week.
+        const thisWeek = [...existing, ...Object.values(plans)].map((x) => ({ reference: x!.reference, title: x!.title }));
+        const clash = passage ? findOverlap(passage.reference, [...used, ...thisWeek]) : null;
+        if (p && passage && (!clash || attempt === 2)) plans[day] = { ...p, reference: passage.reference, text: passage.text };
+        else if (p) tried.unshift(passage?.reference ?? p.reference);
       }
       toPlan = toPlan.filter((d) => !plans[d]);
     }
@@ -415,7 +433,8 @@ export async function draftResourceAction(input: { kind: string; themeId?: strin
       summary: found.theme.summary,
       days: found.devotionals.map((d) => `${d.title}${d.scripture_reference ? ` (${d.scripture_reference})` : ""}`),
     } : null;
-    const draft = await writeResource(parsed.data.kind, theme, parsed.data.focus ?? "");
+    const used = describeUsed(await usedPassages(found?.theme.week_start ?? todayIn(getSiteTimeZone())), 60);
+    const draft = await writeResource(parsed.data.kind, theme, parsed.data.focus ?? "", used);
     return { ok: true, ...draft, weekOf: found?.theme.week_start ?? null, remaining: spent.remaining };
   } catch (error) {
     return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");

@@ -40,6 +40,26 @@ const BAND_GUIDE: Record<GradeBand, string> = {
   g912: "Grades 9 to 12 (ages 14 to 18). Thoughtful and honest; can hold nuance and a little context about the passage. Reflection: 2 to 3 paragraphs, 140 to 200 words. Question: one question that invites real reflection or discussion of meaning. Practice: one concrete step. Prayer: 3 to 5 sentences.",
 };
 
+/**
+ * Variety. Models drift toward the same few famous passages and the same openings, so every
+ * request names the passages already used, asks for range across the whole Bible, and gets a
+ * randomly chosen way in.
+ */
+const VARIETY = "Choose passages from across the whole Bible (law, history, wisdom, psalms, prophets, gospels, letters). Prefer a passage teachers will not have seen many times; use a very familiar one (such as Jeremiah 29:11, Philippians 4:13, Proverbs 3:5-6, Psalm 23, John 3:16 or Romans 8:28) only when it is clearly the best fit.";
+const ANGLES = [
+  "an everyday school moment (a hallway, lunch, a test, recess, a group project)",
+  "a vivid image from nature or the seasons",
+  "an honest question a student might really ask",
+  "a small story about an ordinary object",
+  "a moment from the passage's own setting, told simply",
+  "a surprising detail in the passage itself",
+  "a feeling students know (nervous, left out, proud, bored, excited)",
+  "something from sport, music, art or making things",
+] as const;
+export const pickAngle = (random: () => number = Math.random) => ANGLES[Math.floor(random() * ANGLES.length)]!;
+const usedLine = (used: string[]) =>
+  used.length ? `These passages are already used in other devotionals: do not choose any of them or a passage that shares verses with them, and do not reuse their titles: ${used.join("; ")}.` : "";
+
 const Devotional = z.object({
   reflection: z.array(z.string()).describe("Paragraphs of the reflection, in order."),
   discussion_question: z.string(),
@@ -135,7 +155,9 @@ export async function writeDevotional(topics: string[], band: GradeBand, avoidRe
   const result = await ask(NewDevotional, [
     `Write a new classroom devotional for ${BAND_LONG[band].toLowerCase()} about: ${topics.join(", ")}.`,
     `Choose one Bible passage that genuinely speaks to these topics, at most 12 verses, and build the devotional on it.`,
-    avoidReferences.length ? `Do not use these passages: ${avoidReferences.join("; ")}.` : "",
+    VARIETY,
+    usedLine(avoidReferences),
+    `Open the reflection with ${pickAngle()}.`,
     `Age guidance: ${BAND_GUIDE[band]}`,
   ].filter(Boolean).join("\n"));
   return {
@@ -176,7 +198,8 @@ export async function planWeek(theme: WeekTheme, days: Weekday[], existing: Exis
     `Plan these days: ${days.join(", ")}. The five days, Monday to Friday, should build one arc: each day a distinct angle on the theme, Friday drawing it together.`,
     existing.length ? `Already written (keep to these, do not repeat their passages): ${existing.map((e) => `${e.day}: "${e.title}" (${e.reference})`).join("; ")}.` : "",
     `Give each day a different Bible passage that genuinely speaks to its focus, at most 12 verses. Mix Old and New Testament where it fits.`,
-    avoidReferences.length ? `Do not use these passages: ${avoidReferences.join("; ")}.` : "",
+    VARIETY,
+    usedLine(avoidReferences),
   ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium" })) as Record<Weekday, z.infer<typeof DayPlan>>;
   const out: Partial<Record<Weekday, WeekDayPlan>> = {};
   for (const d of days) {
@@ -203,6 +226,7 @@ export async function writeWeekDay(theme: WeekTheme, day: Weekday, plan: WeekDay
     `This week: ${week.join("; ")}.`,
     `Today: "${plan.title}". Focus: ${plan.topic}. Passage: ${plan.reference}.`,
     `The passage (for your understanding; do not quote it at length):\n${scriptureText}`,
+    `Open the reflection with ${pickAngle()}, so the five days of the week do not all begin the same way.`,
     `Write four versions of the same devotional, on the same passage and idea, each fully written for its age:`,
     `standard: ${BAND_GUIDE.g68}`,
     `k2: ${BAND_GUIDE.k2}`,
@@ -242,12 +266,14 @@ export async function writeResource(
   kind: ResourceGuideKind,
   theme: { title: string; summary: string; days: string[] } | null,
   focus: string,
+  used: string[] = [],
 ): Promise<{ title: string; summary: string; body: string }> {
   const result = await ask(ResourceDraft, [
     `Write this resource: ${RESOURCE_GUIDES[kind]}`,
     theme ? `It goes with the weekly theme "${theme.title}"${theme.summary ? `: ${theme.summary}` : ""}.` : "",
     theme && theme.days.length ? `The students' devotionals this week: ${theme.days.join("; ")}.` : "",
     focus ? `Focus: ${focus}` : "",
+    used.length ? `Passages already used in recent devotionals; where you choose a passage, prefer a different one: ${used.join("; ")}.` : "",
   ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium", system: STAFF_VOICE });
   return {
     title: result.title.trim().slice(0, 200),

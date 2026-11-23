@@ -286,3 +286,28 @@ export async function getPublicToday(today: string): Promise<PresentContent | nu
     levels: {},
   };
 }
+
+/**
+ * Passages already used, newest first, to keep AI-written devotionals varied: devotionals dated
+ * within a year either side of `around` (everything the person can see: all states for editors,
+ * live ones for teachers), plus, if asked, the person's own saved devotionals.
+ */
+export async function usedPassages(around: string, options: { own?: boolean; excludeId?: string } = {}): Promise<Array<{ reference: string; title: string; date: string | null }>> {
+  const supabase = await createClient();
+  const shift = (days: number) => new Date(Date.parse(`${around}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+  let query = supabase.from("devotionals").select("id, title, scripture_reference, devotional_date")
+    .gte("devotional_date", shift(-365)).lte("devotional_date", shift(365)).neq("scripture_reference", "")
+    .order("devotional_date", { ascending: false }).limit(400);
+  if (options.excludeId) query = query.neq("id", options.excludeId);
+  const [{ data }, own] = await Promise.all([
+    query,
+    options.own
+      ? supabase.from("presentation_versions").select("title, scripture, updated_at").in("source", ["written", "ai_generated"]).order("updated_at", { ascending: false }).limit(100)
+      : Promise.resolve({ data: [] as Array<{ title: string; scripture: { reference?: string } | null; updated_at: string }> }),
+  ]);
+  const fromDevotionals = ((data ?? []) as Array<{ title: string; scripture_reference: string; devotional_date: string }>)
+    .map((d) => ({ reference: d.scripture_reference, title: d.title, date: d.devotional_date }));
+  const fromOwn = ((own.data ?? []) as Array<{ title: string; scripture: { reference?: string } | null }>)
+    .filter((v) => v.scripture?.reference).map((v) => ({ reference: v.scripture!.reference!, title: v.title, date: null }));
+  return [...fromDevotionals, ...fromOwn];
+}

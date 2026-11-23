@@ -15,9 +15,11 @@ import { Heading, Text } from "@/components/ui/typography";
 import { deleteDevotionalAction } from "@/app/actions/content";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requirePlatformRole } from "@/lib/auth/session";
-import { formatDateTime } from "@/lib/content/dates";
+import { formatDate, formatDateTime } from "@/lib/content/dates";
+import { findOverlap } from "@/lib/content/passages";
+import { Alert } from "@/components/ui/feedback";
 import { editorialStatus, publicationStatus } from "@/lib/content/options";
-import { getDevotional, getEditorNames, getHistory, listThemes, listTranslations } from "@/lib/content/queries";
+import { getDevotional, getEditorNames, getHistory, listThemes, listTranslations, usedPassages } from "@/lib/content/queries";
 import { missingFields } from "@/lib/content/workflow";
 import { getSiteTimeZone } from "@/lib/env";
 import { CreditsForm, DiscussionModeForm, PinnedQuestionForm } from "@/components/governance/forms";
@@ -46,6 +48,9 @@ export default async function EditDevotionalPage({
   const tz = getSiteTimeZone();
   const name = (userId: string | null) => (userId ? (names.get(userId) ?? "Former editor") : "System");
 
+  // A gentle warning when this passage shares verses with another devotional within a year. It never blocks saving.
+  const repeat = d.scripture_reference ? findOverlap(d.scripture_reference, await usedPassages(d.devotional_date, { excludeId: d.id })) : null;
+
   const isAdmin = platformRoles.includes("platform_admin");
   const missing = missingFields(d);
 
@@ -65,6 +70,12 @@ export default async function EditDevotionalPage({
       />
       <AdminNav current="/admin/devotionals" />
       <NoticeBanner code={notice} />
+      {repeat ? (
+        <Alert tone="info" className="mb-6">
+          {d.scripture_reference} shares verses with {repeat.reference} in “{repeat.title || "Untitled"}”{repeat.date ? `, ${formatDate(repeat.date, "short")}` : ""}.
+          That is fine if it is on purpose; otherwise choose a different passage.
+        </Alert>
+      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <DevotionalForm
