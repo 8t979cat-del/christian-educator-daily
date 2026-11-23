@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/container";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requireAccess } from "@/lib/auth/session";
-import { addDays, formatDate, readableThrough, todayIn } from "@/lib/content/dates";
+import { addDays, formatDate, todayIn } from "@/lib/content/dates";
 import { getLiveThemeDevotionals, getUserStates, listThemes } from "@/lib/content/queries";
 import { getSiteTimeZone } from "@/lib/env";
 
@@ -19,7 +19,7 @@ export default async function ThemePage({ params }: { params: Promise<{ id: stri
   if (!theme) notFound();
 
   const today = todayIn(getSiteTimeZone());
-  const live = (await getLiveThemeDevotionals(id)).filter((d) => d.devotional_date <= readableThrough(today));
+  const live = (await getLiveThemeDevotionals(id)).filter((d) => d.devotional_date <= today);
   const states = await getUserStates(live.map((d) => d.id));
   const days = [0, 1, 2, 3, 4].map((n) => {
     const date = addDays(theme.week_start, n);

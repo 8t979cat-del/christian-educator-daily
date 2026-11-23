@@ -72,31 +72,14 @@ export function ThemePublishPanel({
     <div className="grid gap-4">
       <FormMessage state={published} />
       <FormMessage state={unscheduled} />
-      <form action={publish} className="grid gap-3">
+      <form action={publish}>
         <input type="hidden" name="id" value={themeId} />
-        <fieldset className="grid gap-2">
-          <legend className="mb-1 text-sm font-semibold">When can teachers see it?</legend>
-          <label className="flex items-start gap-2">
-            <input type="radio" name="release" value="sunday" defaultChecked className="mt-1 size-4 accent-brand" />
-            <span>
-              <span className="font-medium">All five on the Sunday before</span>
-              <span className="block text-sm text-muted">Released at midnight ({timeZone}) on Sunday, so teachers can read, edit and prepare the whole week. Today still shows Monday&rsquo;s on Monday, Tuesday&rsquo;s on Tuesday, and so on.</span>
-            </span>
-          </label>
-          <label className="flex items-start gap-2">
-            <input type="radio" name="release" value="daily" className="mt-1 size-4 accent-brand" />
-            <span>
-              <span className="font-medium">Each day on its own date</span>
-              <span className="block text-sm text-muted">Each devotional goes live at midnight ({timeZone}) on its day.</span>
-            </span>
-          </label>
-        </fieldset>
-        <div>
-          <SubmitButton>Publish the week</SubmitButton>
-          <p className="mt-2 text-sm text-muted">
-            {ready ? "Days that have already started go live now." : "Needs five approved devotionals, Monday to Friday."}
-          </p>
-        </div>
+        <SubmitButton>Publish the week</SubmitButton>
+        <p className="mt-2 text-sm text-muted">
+          {ready
+            ? `Each day goes live at midnight (${timeZone}) on its own date. Days that have already started go live now.`
+            : "Needs five approved devotionals, Monday to Friday."}
+        </p>
       </form>
       {anyScheduled ? (
         <form action={unschedule}>

@@ -33,16 +33,6 @@ export function mondayOf(isoDate: string): string {
   return addDays(isoDate, 1 - isoWeekday(isoDate));
 }
 
-/**
- * The last date readers can open: the Saturday that ends the current Sunday-to-Saturday week.
- * A week released on Sunday is readable all week ahead; nothing from the week after shows
- * early. Whether a devotional is live at all (published, or its scheduled time has come)
- * is decided separately.
- */
-export function readableThrough(today: string): string {
-  return addDays(today, 6 - (isoWeekday(today) % 7));
-}
-
 export function formatDate(isoDate: string, style: "long" | "short" = "long"): string {
   return new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("en-US", {
     timeZone: "UTC",
