@@ -45,13 +45,13 @@ export async function getLatestLiveOnOrBefore(date: string): Promise<DevotionalR
 
 export type Neighbor = { id: string; title: string; devotional_date: string };
 
-/** The live devotionals just before and just after a date. Never reaches past `through` (the last readable date). */
-export async function getNeighbors(date: string, through: string): Promise<{ prev: Neighbor | null; next: Neighbor | null }> {
+/** The live devotionals just before and just after a date. Never reaches past `today`. */
+export async function getNeighbors(date: string, today: string): Promise<{ prev: Neighbor | null; next: Neighbor | null }> {
   const supabase = await createClient();
   const [prev, next] = await Promise.all([
     supabase.from("devotionals").select("id, title, devotional_date").lt("devotional_date", date).or(liveFilter())
       .order("devotional_date", { ascending: false }).limit(1),
-    supabase.from("devotionals").select("id, title, devotional_date").gt("devotional_date", date).lte("devotional_date", through).or(liveFilter())
+    supabase.from("devotionals").select("id, title, devotional_date").gt("devotional_date", date).lte("devotional_date", today).or(liveFilter())
       .order("devotional_date", { ascending: true }).limit(1),
   ]);
   return { prev: (prev.data?.[0] as Neighbor | undefined) ?? null, next: (next.data?.[0] as Neighbor | undefined) ?? null };
@@ -171,19 +171,6 @@ export async function getThemeInfo(d: { theme_id: string | null; devotional_date
   if (!data) return null;
   const diff = Math.round((Date.parse(`${d.devotional_date}T00:00:00Z`) - Date.parse(`${data.week_start as string}T00:00:00Z`)) / 86_400_000);
   return { id: data.id as string, title: data.title as string, summary: (data.summary as string) ?? "", day: diff >= 0 && diff <= 4 ? diff + 1 : null };
-}
-
-/** Live devotionals dated after `today` and up to `through`: a week released early, ready to prepare. */
-export async function getUpcomingLive(today: string, through: string): Promise<Array<{ id: string; title: string; devotional_date: string; scripture_reference: string }>> {
-  if (through <= today) return [];
-  const supabase = await createClient();
-  const { data } = await supabase.from("devotionals").select("id, title, devotional_date, scripture_reference, access_level")
-    .gt("devotional_date", today).lte("devotional_date", through).or(liveFilter())
-    // One per day: the free daily devotional first, as on the Today page.
-    .order("devotional_date").order("access_level");
-  const seen = new Set<string>();
-  return ((data ?? []) as Array<{ id: string; title: string; devotional_date: string; scripture_reference: string }>)
-    .filter((d) => (seen.has(d.devotional_date) ? false : (seen.add(d.devotional_date), true)));
 }
 
 /** Live devotionals of a theme, for the week strip and theme pages. */

@@ -475,29 +475,6 @@ describe("weekly themes", () => {
     for (const id of ids) expect(await statusOf(id)).toBe("approved");
     expect(await q(teacher, `select 1 from weekly_themes where id = $1`, [t])).toHaveLength(0);
   });
-
-  it("can release all five days together at midnight on the Sunday before the week (0022)", async () => {
-    const week = "2046-04-02"; // Monday in the future
-    const t = await newTheme(week, "Released on Sunday");
-    for (let i = 0; i < 5; i++) await approve(await create(editorA, { theme: t, date: day(week, i) }));
-    await expect(q(teacher, `select release_weekly_theme_sunday($1, 'America/Los_Angeles')`, [t])).rejects.toThrow(/not allowed/);
-    const n = await q<{ release_weekly_theme_sunday: number }>(editorA, `select release_weekly_theme_sunday($1, 'America/Los_Angeles')`, [t]);
-    expect(n[0]!.release_weekly_theme_sunday).toBe(5);
-    const rows = await admin<{ status: string; publish_at: string }>(
-      `select status, to_char(publish_at at time zone 'America/Los_Angeles', 'YYYY-MM-DD HH24:MI') as publish_at
-       from devotionals where theme_id = $1 order by devotional_date`, [t]);
-    expect(rows).toEqual(Array(5).fill({ status: "scheduled", publish_at: "2046-04-01 00:00" }));
-    await q(editorA, `select unschedule_weekly_theme($1)`, [t]);
-  });
-
-  it("releases a week whose Sunday has already begun straight away", async () => {
-    const week = "2020-03-02";
-    const t = await newTheme(week, "Past Sunday release");
-    const ids: string[] = [];
-    for (let i = 0; i < 5; i++) { const id = await create(editorA, { theme: t, date: day(week, i) }); await approve(id); ids.push(id); }
-    await q(editorA, `select release_weekly_theme_sunday($1, 'UTC')`, [t]);
-    for (const id of ids) expect(await statusOf(id)).toBe("published");
-  });
 });
 
 describe("rich text and search", () => {
