@@ -38,3 +38,14 @@ describe("contributor photos", () => {
     expect((await q<{ p: string | null }>(reader, `select contributor_photo_for('Nobody') as p`))[0]!.p).toBeNull();
   });
 });
+
+describe("contributor profiles (0021)", () => {
+  it("return the name, bio and photo of an active contributor by the Author name, for signed-in readers only", async () => {
+    await admin(`update contributors set bio = 'Teaches fifth grade.' where name = 'Andrew Lee'`);
+    expect(await q(reader, `select * from contributor_profile_for('ANDREW LEE ')`)).toEqual([{ name: "Andrew Lee", bio: "Teaches fifth grade.", photo: PHOTO }]);
+    expect(await q(reader, `select * from contributor_profile_for('Nobody')`)).toEqual([]);
+    await admin(`update contributors set active = false where name = 'Andrew Lee'`);
+    expect(await q(reader, `select * from contributor_profile_for('Andrew Lee')`)).toEqual([]);
+    await admin(`update contributors set active = true where name = 'Andrew Lee'`);
+  });
+});

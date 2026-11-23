@@ -80,6 +80,12 @@ export async function listContributors(): Promise<Contributor[]> {
 }
 
 export type Credit = { contributor_id: string; name: string; bio: string; role: "author" | "contributor" | "reviewer"; photo: string | null };
+/** The active contributor whose name matches a devotional's Author field (name, bio, photo), or null. */
+export async function contributorProfileFor(name: string): Promise<{ name: string; bio: string | null; photo: string | null } | null> {
+  const { data } = await (await createClient()).rpc("contributor_profile_for", { p_name: name });
+  return ((data as Array<{ name: string; bio: string | null; photo: string | null }> | null) ?? [])[0] ?? null;
+}
+
 export const devotionalCredits = (devotionalId: string) => rpc<Credit>("devotional_credits", { p_devotional: devotionalId });
 
 export type Metrics = {

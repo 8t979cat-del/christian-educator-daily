@@ -160,7 +160,7 @@ export default function StyleguidePage() {
           reference-only translation shows the reference and a link, even if text were present.
         </p>
         <div className="grid gap-12">
-          <DevotionalView devotional={SAMPLE} translation={SAMPLE_KJV} theme={{ title: "Sample theme", summary: "A one-line summary of the week.", day: 2 }} />
+          <DevotionalView devotional={SAMPLE} translation={SAMPLE_KJV} theme={{ title: "Sample theme", summary: "A one-line summary of the week.", day: 2 }} author={{ name: "Style guide", bio: "A sample contributor. Clicking the name or photo opens this short bio.", photo: null }} />
           <DevotionalView
             devotional={{ ...SAMPLE, translation_code: "niv", scripture_text: "This text must never display." }}
             translation={SAMPLE_NIV}

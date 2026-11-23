@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { SITE } from "@/lib/site";
-import { AuthorPhoto } from "@/components/content/author-photo";
+import { ContributorCard, type ContributorProfile } from "@/components/content/contributor-card";
 import { RichTextView } from "@/components/content/rich-text-view";
 import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
 import { passageLookupUrl, scriptureDisplay, type TranslationLicense } from "@/lib/content/scripture";
@@ -21,10 +21,10 @@ export function DevotionalView({
   theme,
   actions,
   credited = false,
-  authorPhoto = null,
+  author = null,
 }: {
-  /** The author's small photo, when a contributor with the Author field's name has one. */
-  authorPhoto?: string | null;
+  /** The contributor whose name matches the Author field: their photo shows by the byline, and clicking it opens their bio. */
+  author?: ContributorProfile | null;
   devotional: DevotionalRecord;
   translation: TranslationLicense | null;
   theme?: ThemeInfo | null;
@@ -156,10 +156,11 @@ export function DevotionalView({
       {byline || colophon.length ? (
         <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
           {byline ? (
-            <span className="inline-flex items-center gap-2 font-semibold text-ink">
-              <AuthorPhoto src={authorPhoto} />
-              {byline}
-            </span>
+            author ? (
+              <ContributorCard profile={author}>{byline}</ContributorCard>
+            ) : (
+              <span className="font-semibold text-ink">{byline}</span>
+            )
           ) : null}
           {colophon.length ? <span>{byline ? "· " : ""}{colophon.join(" · ")}</span> : null}
         </p>
