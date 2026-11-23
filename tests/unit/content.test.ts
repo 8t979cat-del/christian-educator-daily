@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseForm } from "@/lib/auth/form-state";
 import { devotionalSchema, themeSchema, translationSchema } from "@/lib/content/schemas";
-import { addDays, isMonday, isValidIsoDate, mondayOf, todayIn, zonedTimeToIso } from "@/lib/content/dates";
+import { addDays, isMonday, isValidIsoDate, mondayOf, readableThrough, todayIn, zonedTimeToIso } from "@/lib/content/dates";
 import { CATEGORIES, STATUSES, editorialStatus, publicationStatus } from "@/lib/content/options";
 import {
   EMPTY_DOC, LIMITS, parseRichDoc, richTextToPlain, sanitizeRichDoc, wordCount, type RichDoc,
@@ -248,5 +248,14 @@ describe("devotional form validation", () => {
     expect(t({ licenseType: "reference_only", textAllowed: true })).toBe(false);
     expect(t({ licenseType: "public_domain", textAllowed: true })).toBe(true);
     expect(t({ code: "Bad Code" })).toBe(false);
+  });
+});
+
+describe("readable through (a week released on Sunday)", () => {
+  it("is the Saturday that ends the current Sunday-to-Saturday week", () => {
+    expect(readableThrough("2026-11-22")).toBe("2026-11-28"); // Sunday: the coming Monday to Friday
+    expect(readableThrough("2026-11-23")).toBe("2026-11-28"); // Monday
+    expect(readableThrough("2026-11-27")).toBe("2026-11-28"); // Friday
+    expect(readableThrough("2026-11-28")).toBe("2026-11-28"); // Saturday: next week waits for Sunday
   });
 });
