@@ -15,6 +15,9 @@ import { richTextToPlain, type RichDoc } from "@/lib/content/richtext";
 
 // Claude Sonnet 5.5: about half the price of the Opus model, and ample for short devotionals at a set length.
 const MODEL = "claude-sonnet-5-5";
+// Writing a whole week for editors: Claude Opus 5.5 at medium effort. It is used a few times a week at
+// most, and a week that holds together (one arc, five distinct passages, four reading levels) repays it.
+const WEEK_MODEL = "claude-opus-5-5";
 
 /** The AI tools are available only when the server has an Anthropic API key. */
 export function isAiConfigured(): boolean {
@@ -65,14 +68,18 @@ const toVersion = (d: z.infer<typeof Devotional>): Required<LevelVersion> => ({
 let client: Anthropic | null = null;
 const anthropic = () => (client ??= new Anthropic());
 
-async function ask<T extends z.ZodType>(schema: T, prompt: string): Promise<z.infer<T>> {
+async function ask<T extends z.ZodType>(
+  schema: T,
+  prompt: string,
+  // Short writing at a set length: low effort keeps thinking (billed as output) and the wait small.
+  { model = MODEL, effort = "low" as "low" | "medium" | "high" } = {},
+): Promise<z.infer<T>> {
   if (!isAiConfigured()) throw new AiError("The AI tools are not set up on this server yet.");
   try {
     const response = await anthropic().beta.messages.parse({
-      model: MODEL,
+      model,
       max_tokens: 16000,
-      // Short writing at a set length: low effort keeps thinking (billed as output) and the wait small.
-      output_config: { effort: "low", format: betaZodOutputFormat(schema) },
+      output_config: { effort, format: betaZodOutputFormat(schema) },
       // If a safety classifier declines, let the API retry on a suitable model instead of failing outright.
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
@@ -140,3 +147,67 @@ export async function writeDevotional(topics: string[], band: GradeBand, avoidRe
 }
 
 export type AiQuota = { remaining: number; limit: number };
+
+// ---------------------------------------------------------------------------------------------
+// A whole week for a weekly theme (editors): a plan for the days, then each day at every level.
+// ---------------------------------------------------------------------------------------------
+
+const WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday"] as const;
+export type Weekday = (typeof WEEKDAYS)[number];
+
+const DayPlan = z.object({
+  title: z.string().describe("A short title, at most 70 characters."),
+  topic: z.string().describe("One line naming what this day is about, at most 100 characters."),
+  scripture_reference: z.string().describe("One passage, Book chapter:verse-verse, at most 12 verses, e.g. Philippians 4:6-7."),
+});
+export type WeekDayPlan = { title: string; topic: string; reference: string };
+
+export type WeekTheme = { title: string; summary: string; category: string | null };
+/** Days already written, so the plan builds around them. */
+export type ExistingDay = { day: Weekday; title: string; reference: string };
+
+/** Plans the days of a week that are still empty: a title, a focus and one passage each, building one arc. */
+export async function planWeek(theme: WeekTheme, days: Weekday[], existing: ExistingDay[], avoidReferences: string[] = []): Promise<Partial<Record<Weekday, WeekDayPlan>>> {
+  const schema = z.object(Object.fromEntries(days.map((d) => [d, DayPlan])) as Record<Weekday, typeof DayPlan>);
+  const result = (await ask(schema, [
+    `Plan a school week of classroom devotionals on the weekly theme "${theme.title}".`,
+    theme.summary ? `The theme in a sentence: ${theme.summary}` : "",
+    theme.category ? `Category: ${theme.category}.` : "",
+    `Plan these days: ${days.join(", ")}. The five days, Monday to Friday, should build one arc: each day a distinct angle on the theme, Friday drawing it together.`,
+    existing.length ? `Already written (keep to these, do not repeat their passages): ${existing.map((e) => `${e.day}: "${e.title}" (${e.reference})`).join("; ")}.` : "",
+    `Give each day a different Bible passage that genuinely speaks to its focus, at most 12 verses. Mix Old and New Testament where it fits.`,
+    avoidReferences.length ? `Do not use these passages: ${avoidReferences.join("; ")}.` : "",
+  ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium" })) as Record<Weekday, z.infer<typeof DayPlan>>;
+  const out: Partial<Record<Weekday, WeekDayPlan>> = {};
+  for (const d of days) {
+    const p = result[d];
+    if (p) out[d] = { title: p.title.trim().slice(0, 140), topic: p.topic.trim().slice(0, 140), reference: p.scripture_reference.trim() };
+  }
+  return out;
+}
+
+const AllLevels = z.object({
+  standard: Devotional.describe("The standard text, written for grades 6 to 8."),
+  k2: Devotional.describe("The same devotional for kindergarten to grade 2."),
+  g35: Devotional.describe("The same devotional for grades 3 to 5."),
+  g912: Devotional.describe("The same devotional for grades 9 to 12."),
+});
+
+export type WrittenDay = { standard: Required<LevelVersion>; levels: Record<"k2" | "g35" | "g912", Required<LevelVersion>> };
+
+/** Writes one planned day: the standard text (grades 6 to 8) and its K-2, 3-5 and 9-12 versions, on the same passage. */
+export async function writeWeekDay(theme: WeekTheme, day: Weekday, plan: WeekDayPlan, scriptureText: string, week: string[]): Promise<WrittenDay> {
+  const result = await ask(AllLevels, [
+    `Write the ${day} devotional of a school week on the theme "${theme.title}".`,
+    theme.summary ? `The theme in a sentence: ${theme.summary}` : "",
+    `This week: ${week.join("; ")}.`,
+    `Today: "${plan.title}". Focus: ${plan.topic}. Passage: ${plan.reference}.`,
+    `The passage (for your understanding; do not quote it at length):\n${scriptureText}`,
+    `Write four versions of the same devotional, on the same passage and idea, each fully written for its age:`,
+    `standard: ${BAND_GUIDE.g68}`,
+    `k2: ${BAND_GUIDE.k2}`,
+    `g35: ${BAND_GUIDE.g35}`,
+    `g912: ${BAND_GUIDE.g912}`,
+  ].filter(Boolean).join("\n"), { model: WEEK_MODEL, effort: "medium" });
+  return { standard: toVersion(result.standard), levels: { k2: toVersion(result.k2), g35: toVersion(result.g35), g912: toVersion(result.g912) } };
+}

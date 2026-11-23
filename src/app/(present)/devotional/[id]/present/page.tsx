@@ -4,7 +4,7 @@ import { NotesEditor } from "@/components/content/notes-editor";
 import { PresentMode } from "@/components/present/present-mode";
 import { PresenterView } from "@/components/present/presenter-view";
 import { uuidSchema } from "@/lib/auth/schemas";
-import { formatDate, todayIn } from "@/lib/content/dates";
+import { formatDate, readableThrough, todayIn } from "@/lib/content/dates";
 import type { PresentContent } from "@/lib/content/present";
 import { getDevotional, getThemeInfo, getTranslation, getUserState } from "@/lib/content/queries";
 import { scriptureDisplay } from "@/lib/content/scripture";
@@ -29,7 +29,7 @@ export default async function PresentPage({
 
   // Row-level security hides drafts from readers, so this is "not found" for anything not live.
   const d = await getDevotional(id);
-  if (!d || !["published", "scheduled"].includes(d.status) || d.devotional_date > todayIn(getSiteTimeZone())) notFound();
+  if (!d || !["published", "scheduled"].includes(d.status) || d.devotional_date > readableThrough(todayIn(getSiteTimeZone()))) notFound();
   void recordUsage("presentation_open");
   const [translation, theme, state, aiLevels] = await Promise.all([getTranslation(d.translation_code), getThemeInfo(d), getUserState(id), loadAiLevels(d)]);
   // Editors' versions come first; AI-adapted ones (shared by every teacher) fill the other ages.

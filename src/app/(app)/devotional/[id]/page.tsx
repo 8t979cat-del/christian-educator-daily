@@ -12,7 +12,7 @@ import { ContributorCard } from "@/components/content/contributor-card";
 import { NotesEditor } from "@/components/content/notes-editor";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requireAccess } from "@/lib/auth/session";
-import { formatDate, todayIn } from "@/lib/content/dates";
+import { formatDate, readableThrough, todayIn } from "@/lib/content/dates";
 import { getDevotional, getNeighbors, getThemeInfo, getTranslation, getUserState } from "@/lib/content/queries";
 import { getSiteTimeZone } from "@/lib/env";
 import { contributorProfileFor, devotionalCredits, recordUsage } from "@/lib/governance/queries";
@@ -34,13 +34,14 @@ export default async function DevotionalPage({
   await searchParams;
   if (!uuidSchema.safeParse(id).success) notFound();
 
-  const today = todayIn(getSiteTimeZone());
+  // Readers can open live devotionals up to the end of this week (a week released on Sunday is readable all week).
+  const through = readableThrough(todayIn(getSiteTimeZone()));
   // Row-level security returns only live devotionals to readers; drafts look like "not found".
   const d = await getDevotional(id);
-  if (!d || !["published", "scheduled"].includes(d.status) || d.devotional_date > today) {
+  if (!d || !["published", "scheduled"].includes(d.status) || d.devotional_date > through) {
     // A devotional the person's plan does not include shows only its title and why; anything else is not found.
     const lock = d ? null : await getLockInfo(id);
-    if (!lock || lock.devotional_date > today) notFound();
+    if (!lock || lock.devotional_date > through) notFound();
     const days = (await getEntitlements()).features.devotional_archive_days?.limit ?? null;
     return <LockedDevotional title={lock.title} date={lock.devotional_date} reference={lock.scripture_reference} reason={lock.reason} archiveDays={days} />;
   }
@@ -54,7 +55,7 @@ export default async function DevotionalPage({
     getTranslation(d.translation_code),
     getThemeInfo(d),
     getUserState(id),
-    getNeighbors(d.devotional_date, today),
+    getNeighbors(d.devotional_date, through),
   ]);
 
   // Without an author credit, the Author field's name may still match a contributor (photo and bio).
