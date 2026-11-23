@@ -135,7 +135,7 @@ export async function writeDevotionalAction(input: { topics: string[]; band: str
   const spent = await consume();
   if (spent.error !== null) return fail(spent.error);
   try {
-    // Passages already used (the site's devotionals within a year, and the person's own saved ones) are
+    // Passages already used (the site's devotionals within about 16 months, and the person's own saved ones) are
     // named in the request, and the answer is checked against them: a clash is asked again, up to twice.
     const used = await usedPassages(todayIn(getSiteTimeZone()), { own: true });
     const tried: string[] = describeUsed(used);
@@ -336,7 +336,7 @@ export async function writeWeekAction(input: { themeId: string; translation?: st
     // Plan, and plan again for any day whose passage the bundled Bible cannot show.
     const plans: Partial<Record<Weekday, WeekDayPlan & { text: string }>> = {};
     let toPlan = empty;
-    // Passages used within a year either side of this week (this week's own days are passed as "existing").
+    // Passages used within about 16 months either side of this week (this week's own days are passed as "existing").
     const weekDates = new Set(WEEK.map((_, i) => dateOf(i)));
     const used = (await usedPassages(theme.week_start)).filter((u) => !u.date || !weekDates.has(u.date));
     const tried: string[] = describeUsed(used);

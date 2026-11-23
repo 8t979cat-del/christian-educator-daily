@@ -6,6 +6,9 @@ import { parseReference } from "./scripture";
  * reference parseReference accepts.
  */
 
+/** A passage may be used again once this many days have passed (about 16 months). */
+export const REPEAT_AFTER_DAYS = 487;
+
 export type Span = { book: string; from: number; to: number };
 
 // A position as chapter * 1000 + verse. A whole chapter runs from verse 0 to 999.
@@ -43,5 +46,5 @@ export function findOverlap<T extends UsedPassage>(reference: string, used: T[])
 }
 
 /** The used list as the AI sees it: "Reference (“Title”)", newest first, at most `max` lines. */
-export const describeUsed = (used: UsedPassage[], max = 120): string[] =>
+export const describeUsed = (used: UsedPassage[], max = 200): string[] =>
   used.filter((u) => u.reference).slice(0, max).map((u) => (u.title ? `${u.reference} (“${u.title}”)` : u.reference));

@@ -48,7 +48,7 @@ export default async function EditDevotionalPage({
   const tz = getSiteTimeZone();
   const name = (userId: string | null) => (userId ? (names.get(userId) ?? "Former editor") : "System");
 
-  // A gentle warning when this passage shares verses with another devotional within a year. It never blocks saving.
+  // A gentle warning when this passage shares verses with another devotional within about 16 months. It never blocks saving.
   const repeat = d.scripture_reference ? findOverlap(d.scripture_reference, await usedPassages(d.devotional_date, { excludeId: d.id })) : null;
 
   const isAdmin = platformRoles.includes("platform_admin");

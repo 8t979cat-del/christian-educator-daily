@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "./dates";
+import { REPEAT_AFTER_DAYS } from "./passages";
 import type { PresentContent } from "./present";
 import { EMPTY_DOC, richTextToPlain, sanitizeRichDoc } from "./richtext";
 import { toDevotional, type DevotionalRecord, type SearchHit, type ThemeRecord } from "./types";
@@ -289,15 +290,15 @@ export async function getPublicToday(today: string): Promise<PresentContent | nu
 
 /**
  * Passages already used, newest first, to keep AI-written devotionals varied: devotionals dated
- * within a year either side of `around` (everything the person can see: all states for editors,
+ * within about 16 months either side of `around` (REPEAT_AFTER_DAYS) (everything the person can see: all states for editors,
  * live ones for teachers), plus, if asked, the person's own saved devotionals.
  */
 export async function usedPassages(around: string, options: { own?: boolean; excludeId?: string } = {}): Promise<Array<{ reference: string; title: string; date: string | null }>> {
   const supabase = await createClient();
   const shift = (days: number) => new Date(Date.parse(`${around}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
   let query = supabase.from("devotionals").select("id, title, scripture_reference, devotional_date")
-    .gte("devotional_date", shift(-365)).lte("devotional_date", shift(365)).neq("scripture_reference", "")
-    .order("devotional_date", { ascending: false }).limit(400);
+    .gte("devotional_date", shift(-REPEAT_AFTER_DAYS)).lte("devotional_date", shift(REPEAT_AFTER_DAYS)).neq("scripture_reference", "")
+    .order("devotional_date", { ascending: false }).limit(800);
   if (options.excludeId) query = query.neq("id", options.excludeId);
   const [{ data }, own] = await Promise.all([
     query,
