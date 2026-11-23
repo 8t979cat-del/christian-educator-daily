@@ -1,12 +1,15 @@
 "use server";
 
 import { z } from "zod";
-import { AiError, isAiConfigured, relevelDevotional, writeDevotional, type AiQuota } from "@/lib/ai/devotional-ai";
+import { AiError, isAiConfigured, planWeek, relevelDevotional, writeDevotional, writeWeekDay, type AiQuota, type ExistingDay, type Weekday, type WeekDayPlan } from "@/lib/ai/devotional-ai";
 import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { BIBLES, BIBLE_CODES, biblePassage } from "@/lib/bible/kjv";
 import { BANDS, LEVEL_FIELDS, STANDARD_BAND, type LevelVersion } from "@/lib/content/levels";
-import { getDevotional, getTranslation } from "@/lib/content/queries";
+import { getDevotional, getTheme, getTranslation } from "@/lib/content/queries";
+import { addDays } from "@/lib/content/dates";
+import { categoryName } from "@/lib/content/options";
+import { revalidatePath } from "next/cache";
 import { sanitizeRichDoc } from "@/lib/content/richtext";
 import { scriptureDisplay } from "@/lib/content/scripture";
 import { createClient } from "@/lib/supabase/server";
@@ -275,6 +278,111 @@ export async function ensureAiLevelAction(input: { devotionalId: string; band: s
       return { ok: true, version, kept: !error };
     }
     return { ok: true, version, kept: false };
+  } catch (error) {
+    return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
+  }
+}
+
+const WEEK: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+
+/**
+ * Editors: writes every empty day of a weekly theme with AI and saves each as a draft, with the
+ * standard text (grades 6 to 8) and K-2, 3-5 and 9-12 versions. One plan for the week, then one
+ * request per day, in parallel. Days that already have a devotional are left alone. Drafts go
+ * through review and approval like any other devotional.
+ */
+export async function writeWeekAction(input: { themeId: string; translation?: string }): Promise<Result<{ written: string[]; failed: string[]; remaining: number | null }>> {
+  const ctx = await requirePlatformRole(["content_editor", "platform_admin"]);
+  const parsed = z.object({ themeId: uuidSchema, translation: bible }).safeParse(input);
+  if (!parsed.success) return fail("That theme was not found.");
+  if (!isAiConfigured()) return fail("The AI tools are not set up on this server yet (ANTHROPIC_API_KEY).");
+  const found = await getTheme(parsed.data.themeId);
+  if (!found) return fail("That theme was not found.");
+  const { theme, devotionals } = found;
+
+  const dateOf = (i: number) => addDays(theme.week_start, i);
+  const existing: ExistingDay[] = [];
+  const empty: Weekday[] = [];
+  WEEK.forEach((day, i) => {
+    const d = devotionals.find((x) => x.devotional_date === dateOf(i));
+    if (d) existing.push({ day, title: d.title, reference: d.scripture_reference });
+    else empty.push(day);
+  });
+  if (empty.length === 0) return fail("Every day of this week already has a devotional.");
+
+  // One AI request per day written (the plan comes free with them). Administrators are unlimited.
+  let remaining: number | null = null;
+  for (let i = 0; i < empty.length; i++) {
+    const spent = await consume();
+    if (spent.error !== null) return fail(i === 0 ? spent.error : `${spent.error} Writing the week needs ${empty.length} requests.`);
+    remaining = spent.remaining;
+  }
+
+  const themeInfo = { title: theme.title, summary: theme.summary, category: theme.category_slug ? categoryName(theme.category_slug) : null };
+  const t = parsed.data.translation;
+  try {
+    // Plan, and plan again for any day whose passage the bundled Bible cannot show.
+    const plans: Partial<Record<Weekday, WeekDayPlan & { text: string }>> = {};
+    let toPlan = empty;
+    const tried: string[] = existing.map((e) => e.reference);
+    for (let attempt = 0; attempt < 2 && toPlan.length > 0; attempt++) {
+      const planned = await planWeek(themeInfo, toPlan, [...existing, ...Object.entries(plans).map(([day, p]) => ({ day: day as Weekday, title: p!.title, reference: p!.reference }))], tried);
+      for (const day of toPlan) {
+        const p = planned[day];
+        const passage = p ? biblePassage(t, p.reference) : null;
+        if (p && passage) plans[day] = { ...p, reference: passage.reference, text: passage.text };
+        else if (p) tried.push(p.reference);
+      }
+      toPlan = toPlan.filter((d) => !plans[d]);
+    }
+
+    const week = WEEK.map((day) => {
+      const e = existing.find((x) => x.day === day);
+      const p = plans[day];
+      return `${day}: ${e ? `"${e.title}" (${e.reference})` : p ? `"${p.title}" (${p.reference})` : "(not planned)"}`;
+    });
+    const author = [ctx.profile.first_name, ctx.profile.last_name].map((x) => x?.trim()).filter(Boolean).join(" ") || ctx.profile.display_name?.trim() || null;
+    const supabase = await createClient();
+    const label = (day: Weekday) => day.charAt(0).toUpperCase() + day.slice(1);
+
+    const results = await Promise.allSettled(empty.map(async (day) => {
+      const plan = plans[day];
+      if (!plan) throw new AiError("no passage could be found");
+      const written = await writeWeekDay(themeInfo, day, plan, plan.text, week);
+      const { error } = await supabase.from("devotionals").insert({
+        title: plan.title,
+        devotional_date: dateOf(WEEK.indexOf(day)),
+        theme_id: theme.id,
+        daily_topic: plan.topic,
+        category_slug: theme.category_slug,
+        scripture_reference: plan.reference,
+        translation_code: t,
+        scripture_text: plan.text,
+        reflection: written.standard.reflection,
+        prayer: written.standard.prayer,
+        discussion_question: written.standard.discussion_question,
+        practical_application: written.standard.practical_application,
+        levels: written.levels,
+        audience: "teachers",
+        access_level: "free",
+        grade_levels: ["k2", "g35", "g68", "g912"],
+        educational_category: "classroom",
+        author_name: author,
+      });
+      if (error) throw new AiError(error.code === "23505" ? "another devotional already uses that day" : "it could not be saved");
+      return day;
+    }));
+
+    const ok: string[] = [];
+    const failed: string[] = [];
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") ok.push(label(r.value));
+      else failed.push(`${label(empty[i]!)} (${r.reason instanceof AiError ? r.reason.message : "the AI service could not be reached"})`);
+    });
+    revalidatePath(`/admin/themes/${theme.id}`);
+    revalidatePath("/admin/devotionals");
+    if (ok.length === 0) return fail(`Nothing was written: ${failed.join("; ")}. Please try again.`);
+    return { ok: true, written: ok, failed, remaining };
   } catch (error) {
     return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
   }

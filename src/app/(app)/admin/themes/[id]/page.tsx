@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { AdminNav } from "@/components/content/admin-nav";
 import { StatusBadge } from "@/components/content/status-badge";
 import { ThemeForm, ThemePublishPanel } from "@/components/forms/theme-forms";
+import { WeekWriter } from "@/components/forms/week-writer";
+import { aiQuota } from "@/app/actions/ai";
+import { isAiConfigured } from "@/lib/ai/devotional-ai";
 import { PageHeader } from "@/components/layout/container";
 import { NoticeBanner } from "@/components/layout/notice-banner";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -18,6 +21,8 @@ import { getSiteTimeZone } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Weekly theme" };
 export const dynamic = "force-dynamic";
+// "Write the week with AI" runs on this page: allow it up to five minutes.
+export const maxDuration = 300;
 
 export default async function ThemePage({
   params,
@@ -77,6 +82,11 @@ export default async function ThemePage({
           </ol>
 
           <Card padding="lg" className="mt-2">
+            <Heading level={2} size={4} className="mb-2">Write the week with AI</Heading>
+            <WeekWriter themeId={theme.id} empty={days.filter((d) => !d.devotional).length} configured={isAiConfigured()} quota={await aiQuota()} />
+          </Card>
+
+          <Card padding="lg">
             <Heading level={2} size={4} className="mb-2">Publish the week</Heading>
             {allDone && !anyScheduled ? (
               <Text size="sm" muted>All five devotionals are live.</Text>
