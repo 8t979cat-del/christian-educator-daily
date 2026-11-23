@@ -10,7 +10,7 @@ import { SelectField, TextField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, STATUSES, STATUS_LABELS } from "@/lib/content/options";
 import { readSearchParams } from "@/lib/content/params";
-import { searchDevotionals } from "@/lib/content/queries";
+import { facultyIds, searchDevotionals } from "@/lib/content/queries";
 import { requirePlatformRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -62,7 +62,7 @@ export default async function DevotionalsAdminPage({ searchParams }: { searchPar
           <p className="mb-3 text-sm text-muted" aria-live="polite">
             {total} {total === 1 ? "devotional" : "devotionals"}
           </p>
-          <ResultList hits={hits} hrefFor={(id) => `/admin/devotionals/${id}`} showStatus />
+          <ResultList hits={hits} hrefFor={(id) => `/admin/devotionals/${id}`} showStatus faculty={await facultyIds(hits.map((h) => h.id))} />
           <Pagination basePath="/admin/devotionals" params={{ q: f.query, status: f.status, category: f.category }} page={f.page} pageSize={PAGE_SIZE} total={total} />
         </>
       )}

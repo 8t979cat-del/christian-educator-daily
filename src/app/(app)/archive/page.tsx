@@ -9,7 +9,7 @@ import { requireAccess } from "@/lib/auth/session";
 import { todayIn } from "@/lib/content/dates";
 import { CATEGORIES, GRADE_BANDS } from "@/lib/content/options";
 import { readSearchParams } from "@/lib/content/params";
-import { getBookmarkedHits, getUserStates, listThemes, searchDevotionals } from "@/lib/content/queries";
+import { facultyIds, getBookmarkedHits, getUserStates, listThemes, searchDevotionals } from "@/lib/content/queries";
 import { searchTarget } from "@/lib/content/scripture";
 import Link from "next/link";
 import { NoticesSlot } from "@/components/billing/notices-slot";
@@ -45,7 +45,7 @@ export default async function ArchivePage({ searchParams }: { searchParams: Prom
     listThemes(),
   ]);
   const filtered = Boolean(f.query || f.category || f.grade || f.theme || f.from || f.to);
-  const states = await getUserStates(hits.map((h) => h.id));
+  const [states, faculty] = await Promise.all([getUserStates(hits.map((h) => h.id)), facultyIds(hits.map((h) => h.id))]);
   // Display only: the database already ignores filters and hides content the plan does not include.
   const [advanced, entitlements] = await Promise.all([canUse("archive_advanced_search"), getEntitlements()]);
   const archiveDays = entitlements.features.devotional_archive_days?.limit ?? null;
@@ -107,7 +107,7 @@ export default async function ArchivePage({ searchParams }: { searchParams: Prom
           <p className="mb-3 text-sm text-muted" aria-live="polite">
             {total} {total === 1 ? "devotional" : "devotionals"}{f.query ? ` for “${f.query}”` : ""}
           </p>
-          <ResultList hits={hits} hrefFor={(id) => `/devotional/${id}`} states={states} />
+          <ResultList hits={hits} hrefFor={(id) => `/devotional/${id}`} states={states} faculty={faculty} />
           {teasers.length > 0 ? (
             <section aria-labelledby="older" className="mt-10">
               <h2 id="older" className="font-serif text-xl font-semibold">Older devotionals</h2>

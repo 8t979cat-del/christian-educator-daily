@@ -38,6 +38,14 @@ export const EDUCATIONAL_CATEGORIES = [
   { value: "personal_renewal", label: "Personal renewal" },
 ] as const;
 export const EDUCATIONAL_CATEGORY_VALUES = EDUCATIONAL_CATEGORIES.map((c) => c.value) as [string, ...string[]];
+/**
+ * What editors can choose now: for the classroom, or for the faculty. "Faculty community"
+ * devotionals are marked "For faculty" in the Archive. The other values above remain only so
+ * older devotionals still show a label.
+ */
+export const FACULTY_CATEGORY = "faculty_community";
+export const EDUCATIONAL_CATEGORY_CHOICES = EDUCATIONAL_CATEGORIES.filter((c) => c.value === "classroom" || c.value === FACULTY_CATEGORY);
+export const EDUCATIONAL_CATEGORY_CHOICE_VALUES = EDUCATIONAL_CATEGORY_CHOICES.map((c) => c.value) as [string, ...string[]];
 
 export const GRADE_BANDS = [
   { value: "k2", label: "K to grade 2" },

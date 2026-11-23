@@ -312,3 +312,10 @@ export async function usedPassages(around: string, options: { own?: boolean; exc
     .filter((v) => v.scripture?.reference).map((v) => ({ reference: v.scripture!.reference!, title: v.title, date: null }));
   return [...fromDevotionals, ...fromOwn];
 }
+
+/** Which of these devotionals are written for the faculty (educational category "Faculty community"). */
+export async function facultyIds(ids: string[]): Promise<Set<string>> {
+  if (ids.length === 0) return new Set();
+  const { data } = await (await createClient()).from("devotionals").select("id").in("id", ids).eq("educational_category", "faculty_community");
+  return new Set(((data ?? []) as Array<{ id: string }>).map((r) => r.id));
+}

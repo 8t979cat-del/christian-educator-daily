@@ -18,7 +18,6 @@ const PROTECTED_PREFIXES = [
   "/devotional",
   "/themes",
   "/library",
-  "/resources",
   "/community",
   "/school",
   "/settings",

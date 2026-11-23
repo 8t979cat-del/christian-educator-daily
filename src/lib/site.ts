@@ -30,7 +30,6 @@ export const APP_NAV: NavItem[] = ([
   { href: "/archive", label: "Archive", icon: "calendar" },
   { href: "/library", label: "Library", icon: "book" },
   { href: "/create", label: "Write", icon: "presentation" },
-  { href: "/resources", label: "Resources", icon: "file" },
   { href: "/community", label: "Community", icon: "users" },
   { href: "/school", label: "My School", icon: "building" },
 ] satisfies NavItem[]).filter((item) => COMMUNITY_ENABLED || !item.href.startsWith("/community"));

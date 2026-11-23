@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { AiError, isAiConfigured, planWeek, writeResource, RESOURCE_GUIDES, type ResourceGuideKind, relevelDevotional, writeDevotional, writeWeekDay, type AiQuota, type ExistingDay, type Weekday, type WeekDayPlan } from "@/lib/ai/devotional-ai";
+import { AiError, isAiConfigured, planWeek, relevelDevotional, writeDevotional, writeWeekDay, type AiQuota, type ExistingDay, type Weekday, type WeekDayPlan } from "@/lib/ai/devotional-ai";
 import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { BIBLES, BIBLE_CODES, biblePassage } from "@/lib/bible/kjv";
@@ -411,32 +411,3 @@ export async function writeWeekAction(input: { themeId: string; translation?: st
   }
 }
 
-/**
- * Editors: an AI first draft of a resource (faculty devotional, staff meeting opener, guide or
- * classroom material), optionally for a weekly theme. Returns the text to review; nothing is saved.
- */
-export async function draftResourceAction(input: { kind: string; themeId?: string; focus?: string }): Promise<Result<{ title: string; summary: string; body: string; weekOf: string | null; remaining: number }>> {
-  await requirePlatformRole(["content_editor", "platform_admin"]);
-  const parsed = z.object({
-    kind: z.enum(Object.keys(RESOURCE_GUIDES) as [ResourceGuideKind, ...ResourceGuideKind[]]),
-    themeId: z.union([z.literal(""), uuidSchema]).optional(),
-    focus: z.string().trim().max(300).optional(),
-  }).safeParse(input);
-  if (!parsed.success) return fail("Choose a type, and keep the focus under 300 characters.");
-  const found = parsed.data.themeId ? await getTheme(parsed.data.themeId) : null;
-  if (parsed.data.themeId && !found) return fail("That weekly theme was not found.");
-  const spent = await consume();
-  if (spent.error !== null) return fail(spent.error);
-  try {
-    const theme = found ? {
-      title: found.theme.title,
-      summary: found.theme.summary,
-      days: found.devotionals.map((d) => `${d.title}${d.scripture_reference ? ` (${d.scripture_reference})` : ""}`),
-    } : null;
-    const used = describeUsed(await usedPassages(found?.theme.week_start ?? todayIn(getSiteTimeZone())), 60);
-    const draft = await writeResource(parsed.data.kind, theme, parsed.data.focus ?? "", used);
-    return { ok: true, ...draft, weekOf: found?.theme.week_start ?? null, remaining: spent.remaining };
-  } catch (error) {
-    return fail(error instanceof AiError ? error.message : "The AI service could not be reached. Please try again.");
-  }
-}

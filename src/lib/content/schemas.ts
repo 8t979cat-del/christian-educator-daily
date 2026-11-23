@@ -2,7 +2,7 @@ import { z } from "zod";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { isMonday, isValidIsoDate } from "./dates";
 import {
-  AUDIENCE_VALUES, CATEGORY_SLUGS, EDUCATIONAL_CATEGORY_VALUES, GRADE_BAND_VALUES,
+  AUDIENCE_VALUES, CATEGORY_SLUGS, EDUCATIONAL_CATEGORY_CHOICE_VALUES, GRADE_BAND_VALUES,
 } from "./options";
 import { BANDS, LEVEL_FIELDS, type Levels } from "./levels";
 import { isRichDocEmpty, parseRichDoc, type RichDoc } from "./richtext";
@@ -83,7 +83,7 @@ export const devotionalSchema = z
     audience: blankToNull(AUDIENCE_VALUES),
     accessLevel: z.enum(["free", "plus"]).default("free"),
     gradeLevels: z.array(z.enum(GRADE_BAND_VALUES)).max(4),
-    educationalCategory: blankToNull(EDUCATIONAL_CATEGORY_VALUES),
+    educationalCategory: blankToNull(EDUCATIONAL_CATEGORY_CHOICE_VALUES),
     authorName: optionalText(120, "The author name"),
     ...levelShape,
   })
