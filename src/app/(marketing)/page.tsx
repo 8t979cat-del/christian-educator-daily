@@ -117,7 +117,7 @@ export default async function LandingPage() {
             </p>
             <div className="grid gap-2 border-t border-line pt-5">
               <p className="text-sm text-muted">For school leaders</p>
-              <a href={contactHref} className={buttonStyles({ variant: "secondary", fullWidth: true })}>
+              <a href={contactHref} className={buttonStyles({ variant: "secondary", fullWidth: true, className: "px-3! text-center leading-snug text-balance" })}>
                 Become a founding school
               </a>
             </div>
