@@ -6,7 +6,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Alert } from "@/components/ui/feedback";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { requirePlatformRole } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { contributorProfileFor } from "@/lib/governance/queries";
 import { getDevotional, getThemeInfo, getTranslation } from "@/lib/content/queries";
 
 export const metadata: Metadata = { title: "Preview", robots: { index: false } };
@@ -18,11 +18,10 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   if (!uuidSchema.safeParse(id).success) notFound();
   const d = await getDevotional(id);
   if (!d) notFound();
-  const supabase = await createClient();
-  const [translation, theme, photo] = await Promise.all([
+  const [translation, theme, author] = await Promise.all([
     getTranslation(d.translation_code),
     getThemeInfo(d),
-    d.author_name ? supabase.rpc("contributor_photo_for", { p_name: d.author_name }) : null,
+    d.author_name ? contributorProfileFor(d.author_name) : null,
   ]);
 
   return (
@@ -35,7 +34,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
           </ButtonLink>
         </span>
       </Alert>
-      <DevotionalView devotional={d} translation={translation} theme={theme} authorPhoto={(photo?.data as string | null) ?? null} />
+      <DevotionalView devotional={d} translation={translation} theme={theme} author={author} />
     </>
   );
 }
