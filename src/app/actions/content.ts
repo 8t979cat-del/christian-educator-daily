@@ -240,14 +240,22 @@ export async function publishThemeAction(_previous: FormState, formData: FormDat
   await requirePlatformRole([...EDITORS]);
   const id = uuidSchema.safeParse(formData.get("id"));
   if (!id.success) return errorState("That theme was not found.");
+  // "sunday": all five days become readable at midnight on the Sunday before the week, so teachers can prepare.
+  const sunday = formData.get("release") === "sunday";
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("publish_weekly_theme", { p_theme: id.data, p_timezone: getSiteTimeZone() });
-  if (error) return errorState(describe(error, "The week could not be published."));
+  const { data, error } = await supabase.rpc(sunday ? "release_weekly_theme_sunday" : "publish_weekly_theme", { p_theme: id.data, p_timezone: getSiteTimeZone() });
+  if (error) {
+    if (sunday && /release_weekly_theme_sunday|function .* does not exist|schema cache/i.test(error.message))
+      return errorState("Releasing on Sunday is not set up in the database yet. Run migration 0022_sunday_week_release.sql in the Supabase SQL editor, then try again.");
+    return errorState(describe(error, "The week could not be published."));
+  }
   revalidatePath(`/admin/themes/${id.data}`);
   revalidatePath("/admin/devotionals");
   revalidatePath("/today");
   revalidatePath("/archive");
-  return successState(`Published the week: ${data} devotionals are live or scheduled for their days.`);
+  return successState(sunday
+    ? `Released the week: all ${data} devotionals open to teachers at midnight on the Sunday before (or now, if that Sunday has begun). Today still shows each day on its own date.`
+    : `Published the week: ${data} devotionals are live or scheduled for their days.`);
 }
 
 export async function unscheduleThemeAction(_previous: FormState, formData: FormData): Promise<FormState> {

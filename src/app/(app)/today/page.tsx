@@ -6,8 +6,8 @@ import { PageHeader } from "@/components/layout/container";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { requireAccess } from "@/lib/auth/session";
-import { formatDate, isoWeekday, todayIn } from "@/lib/content/dates";
-import { getLatestLiveOnOrBefore, getLiveDevotionalFor, getLiveThemeDevotionals, getThemeInfo, getUserState, getUserStates } from "@/lib/content/queries";
+import { formatDate, isoWeekday, readableThrough, todayIn } from "@/lib/content/dates";
+import { getLatestLiveOnOrBefore, getLiveDevotionalFor, getLiveThemeDevotionals, getThemeInfo, getUpcomingLive, getUserState, getUserStates } from "@/lib/content/queries";
 import { richTextToPlain } from "@/lib/content/richtext";
 import { getSiteTimeZone } from "@/lib/env";
 
@@ -21,14 +21,34 @@ const DAY_LETTERS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 export default async function TodayPage() {
   const { profile } = await requireAccess();
   const today = todayIn(getSiteTimeZone());
-  const todays = await getLiveDevotionalFor(today);
+  const [todays, upcoming] = await Promise.all([getLiveDevotionalFor(today), getUpcomingLive(today, readableThrough(today))]);
   const d = todays ?? (await getLatestLiveOnOrBefore(today));
   const greeting = `Welcome, ${profile.first_name || "friend"}`;
+
+  // A week released on Sunday: on a day with no devotional of its own (the weekend), lead with the week ahead.
+  const weekAhead = !todays && upcoming.length > 0 ? (
+    <section aria-labelledby="ahead-h" className="rounded-card border-2 border-brand bg-surface p-6">
+      <h2 id="ahead-h" className="font-serif text-2xl font-semibold">This week&rsquo;s devotionals are ready</h2>
+      <p className="mt-1 text-muted">Read, edit and prepare them ahead. Each one is also the Today devotional on its own day.</p>
+      <ol className="mt-4 grid gap-2">
+        {upcoming.map((u) => (
+          <li key={u.id}>
+            <Link href={`/devotional/${u.id}`} className="flex flex-wrap items-baseline gap-x-3 rounded-control border border-line p-3 hover:border-brand hover:bg-brand-soft/40">
+              <span className="w-10 shrink-0 text-sm font-semibold text-brand">{DAY_LETTERS[isoWeekday(u.devotional_date) - 1] ?? formatDate(u.devotional_date, "short")}</span>
+              <span className="font-serif text-lg font-semibold">{u.title}</span>
+              {u.scripture_reference ? <span className="text-sm text-muted">{u.scripture_reference}</span> : null}
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ) : null;
 
   if (!d) {
     return (
       <>
         <PageHeader title={greeting} description={formatDate(today)} />
+        {weekAhead}
         <EmptyState
           icon="sun"
           title="No devotional is published yet"
@@ -61,9 +81,12 @@ export default async function TodayPage() {
         <button type="submit" className="min-h-11 rounded-control bg-brand px-4 font-semibold text-white hover:bg-brand-hover">Search</button>
       </form>
 
+      {weekAhead}
+
       {!isToday ? (
         <p className="rounded-control bg-brand-soft p-3 text-sm">
-          Nothing is published for today yet, so here is the latest devotional from {formatDate(d.devotional_date, "short")}.
+          {weekAhead ? "There is no devotional for today. " : "Nothing is published for today yet, so "}
+          {weekAhead ? "The latest one" : "here is the latest devotional"} from {formatDate(d.devotional_date, "short")}{weekAhead ? " is below." : "."}
         </p>
       ) : null}
 
