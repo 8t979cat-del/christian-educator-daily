@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
 import { BIBLES, BIBLE_CODES, type BibleCode } from "@/lib/bible/bibles";
-import { BANDS, BAND_LONG, type GradeBand } from "@/lib/content/levels";
+import { BAND_LONG, STANDARD_BAND, type GradeBand } from "@/lib/content/levels";
 import { CATEGORIES } from "@/lib/content/options";
 import { DevotionalForm, type ThemeOption, type TranslationOption } from "./devotional-form";
 
@@ -34,7 +34,8 @@ export function NewDevotionalWithAi({
 }) {
   const [form, setForm] = useState<{ initial: Initial; key: number }>({ initial, key: 0 });
   const [chosen, setChosen] = useState<string[]>([]);
-  const [band, setBand] = useState<GradeBand>("g35");
+  // The standard text is written for grades 6 to 8; the other ages are drafted from it under Reading levels.
+  const band: GradeBand = STANDARD_BAND;
   const [bible, setBible] = useState<BibleCode>("kjv");
   const [quota, setQuota] = useState<AiQuota | null>(ai.quota);
   const [error, setError] = useState<string | null>(null);
@@ -127,19 +128,9 @@ export function NewDevotionalWithAi({
           </ul>
         </fieldset>
 
-        <fieldset className="mt-5">
-          <legend className="text-sm font-semibold">Write it for</legend>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {BANDS.map((b) => (
-              <label key={b} className="relative">
-                <input type="radio" name="ai-band" className="peer sr-only" checked={band === b} onChange={() => setBand(b)} />
-                <span className="grid min-h-11 place-items-center rounded-control border border-line-strong/50 bg-surface px-2 text-center text-sm font-semibold peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
-                  {BAND_LONG[b].replace("Kindergarten to grade 2", "K to grade 2")}
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <p className="mt-5 text-sm text-muted">
+          Written for {BAND_LONG[band].toLowerCase()}, as the standard text. The other ages are drafted from it under Reading levels.
+        </p>
 
         <fieldset className="mt-5">
           <legend className="text-sm font-semibold">Translation</legend>

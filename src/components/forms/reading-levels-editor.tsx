@@ -5,7 +5,7 @@ import { draftLevelForEditorAction } from "@/app/actions/ai";
 import { AiCounter, OUT_OF_REQUESTS, isUnlimited } from "@/components/present/ai-counter";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
 import { RichTextEditor } from "@/components/content/rich-text-editor";
-import { BANDS, BAND_LONG, BAND_SHORT, LEVEL_FIELDS, type GradeBand, type LevelField, type Levels, type LevelVersion } from "@/lib/content/levels";
+import { BANDS, BAND_LONG, BAND_SHORT, LEVEL_FIELDS, STANDARD_BAND, type GradeBand, type LevelField, type Levels, type LevelVersion } from "@/lib/content/levels";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import { levelFieldName } from "@/lib/content/schemas";
 
@@ -89,7 +89,8 @@ export function ReadingLevelsEditor({
   // Every age band that has no text of its own yet, drafted one after another.
   const [allStatus, setAllStatus] = useState<{ tone: "info" | "error"; message: string } | null>(null);
   const draftAllMissing = () => {
-    const missing = BANDS.filter((b) => !bandHasText(b));
+    // Grades 6 to 8 read the standard text, so they are never redrafted.
+    const missing = BANDS.filter((b) => b !== STANDARD_BAND && !bandHasText(b));
     if (missing.length === 0) { setAllStatus({ tone: "info", message: "Every reading level already has its own text." }); return; }
     start(async () => {
       const done: GradeBand[] = [];
@@ -135,7 +136,7 @@ export function ReadingLevelsEditor({
             >
               {pending ? "Writing…" : "Draft every missing level with AI"}
             </button>
-            <span className="text-sm text-muted">Writes each age band that has no text of its own yet, from the standard text above. One AI request per level.</span>
+            <span className="text-sm text-muted">Writes K–2, 3–5 and 9–12 where they have no text of their own yet, from the standard text above. Grades 6 to 8 keep the standard text. One AI request per level.</span>
           </div>
           {allStatus ? (
             <p role={allStatus.tone === "error" ? "alert" : "status"} className={`text-sm font-medium ${allStatus.tone === "error" ? "text-danger" : "text-brand"}`}>{allStatus.message}</p>
@@ -178,9 +179,11 @@ export function ReadingLevelsEditor({
           className="grid gap-8 pt-6"
         >
           <p className="text-sm text-muted">
-            Write {BAND_LONG[band].toLowerCase()} their own version of any part. Anything left empty uses the standard text above.
+            {band === STANDARD_BAND
+              ? `${BAND_LONG[band]} use the standard text above, which is written at this level. Write here only to change a part for this age.`
+              : `Write ${BAND_LONG[band].toLowerCase()} their own version of any part. Anything left empty uses the standard text above.`}
           </p>
-          {ai ? (
+          {ai && band !== STANDARD_BAND ? (
             <div className="grid gap-2 rounded-control border border-line bg-parchment p-3">
               <div className="flex flex-wrap items-center gap-3">
                 <button

@@ -5,7 +5,7 @@ import { AiError, isAiConfigured, relevelDevotional, writeDevotional, type AiQuo
 import { requireAccess, requirePlatformRole } from "@/lib/auth/session";
 import { uuidSchema } from "@/lib/auth/schemas";
 import { BIBLES, BIBLE_CODES, biblePassage } from "@/lib/bible/kjv";
-import { BANDS, LEVEL_FIELDS, type LevelVersion } from "@/lib/content/levels";
+import { BANDS, LEVEL_FIELDS, STANDARD_BAND, type LevelVersion } from "@/lib/content/levels";
 import { getDevotional, getTranslation } from "@/lib/content/queries";
 import { sanitizeRichDoc } from "@/lib/content/richtext";
 import { scriptureDisplay } from "@/lib/content/scripture";
@@ -244,6 +244,10 @@ export async function ensureAiLevelAction(input: { devotionalId: string; band: s
   if (!d || !["published", "scheduled"].includes(d.status)) return fail("That devotional is not available.");
   const b = parsed.data.band;
   if (d.levels[b]) return { ok: true, version: d.levels[b]!, kept: true };
+  // The standard text is written for grades 6 to 8, so that band is never rewritten by AI.
+  if (b === STANDARD_BAND) {
+    return { ok: true, kept: true, version: { reflection: d.reflection, discussion_question: d.discussion_question, practical_application: d.practical_application, prayer: d.prayer } };
+  }
   const kept = (await loadAiLevels(d))[b];
   if (kept) return { ok: true, version: kept, kept: true };
   if (!isAiConfigured()) return fail("The AI tools are not set up on this server yet.");
