@@ -76,6 +76,12 @@ const PATHS = {
     </>
   ),
   bookmark: <path d="M6 3h12v18l-6-4-6 4V3z" />,
+  pencil: (
+    <>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+      <path d="m13.5 6.5 4 4" />
+    </>
+  ),
   share: (
     <>
       <circle cx="18" cy="5" r="2.5" />

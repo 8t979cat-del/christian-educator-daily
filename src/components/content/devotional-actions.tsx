@@ -60,6 +60,16 @@ export function CompleteButton({ devotionalId, initial, size = "md" }: { devotio
   );
 }
 
+/** Opens the devotional as the teacher's own copy to change, save to their library and present later. */
+export function EditAndSaveLink({ devotionalId }: { devotionalId: string }) {
+  return (
+    <Link href={`/create?from=${devotionalId}`} className={CHIP()}>
+      <Icon name="pencil" />
+      Edit and save
+    </Link>
+  );
+}
+
 export function ShareButton({ path, title, reference }: { path: string; title: string; reference: string }) {
   const { notify } = useToast();
   async function share() {

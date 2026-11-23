@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { notFound } from "next/navigation";
-import { BookmarkButton, CompleteButton, PresentLink, PrintButton, ShareButton } from "@/components/content/devotional-actions";
+import { EditAndSaveLink, BookmarkButton, CompleteButton, PresentLink, PrintButton, ShareButton } from "@/components/content/devotional-actions";
 import { AddToCollectionControl } from "@/components/billing/collection-forms";
 import { LockedDevotional } from "@/components/billing/locked-devotional";
 import { canUse, getEntitlements, getLockInfo } from "@/lib/billing/queries";
@@ -75,6 +75,7 @@ export default async function DevotionalPage({
             <PresentLink href={`/devotional/${id}/present`} variant="primary" />
             <CompleteButton devotionalId={id} initial={Boolean(state?.completed_at)} />
             <BookmarkButton devotionalId={id} initial={Boolean(state?.bookmarked)} />
+            <EditAndSaveLink devotionalId={id} />
             <ShareButton path={`/devotional/${id}`} title={d.title} reference={d.scripture_reference} />
             <PrintButton />
           </div>
