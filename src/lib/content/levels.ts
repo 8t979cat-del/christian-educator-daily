@@ -13,6 +13,12 @@ export type GradeBand = (typeof BANDS)[number];
 export const BAND_SHORT: Record<GradeBand, string> = { k2: "K–2", g35: "3–5", g68: "6–8", g912: "9–12" };
 export const BAND_LONG: Record<GradeBand, string> = { k2: "Kindergarten to grade 2", g35: "Grades 3 to 5", g68: "Grades 6 to 8", g912: "Grades 9 to 12" };
 
+/**
+ * The age band the standard text is written for. "Draft a devotional with AI" writes at this
+ * level, and this band shows the standard text: it is never rewritten by AI, only by an editor.
+ */
+export const STANDARD_BAND: GradeBand = "g68";
+
 export const isBand = (v: unknown): v is GradeBand => typeof v === "string" && (BANDS as readonly string[]).includes(v);
 
 export const LEVEL_FIELDS = ["reflection", "discussion_question", "practical_application", "prayer"] as const;

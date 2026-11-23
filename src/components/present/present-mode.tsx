@@ -6,7 +6,7 @@ import {
   DEFAULT_SETTINGS, SIZE_SCALES, buildSlides, equivalentIndex, parseSettings,
   type PresentContent, type PresentSettings, type Stage,
 } from "@/lib/content/present";
-import { BANDS, BAND_SHORT, bandsWithVersion, textForBand, type GradeBand, type Levels, type LevelVersion } from "@/lib/content/levels";
+import { BANDS, BAND_SHORT, STANDARD_BAND, bandsWithVersion, textForBand, type GradeBand, type Levels, type LevelVersion } from "@/lib/content/levels";
 import { ensureAiLevelAction } from "@/app/actions/ai";
 import { EditPanel, type AiTools } from "./edit-panel";
 import { CommentComposer, CommentRail, type ClassComment } from "./comment-board";
@@ -113,7 +113,8 @@ export function PresentMode({
   // Choosing a level with no text of its own: ask the server to adapt it (about half a minute, once per devotional).
   useEffect(() => {
     const band = settings.band;
-    if (!ready || !band || !aiLevels?.canAdapt || withAdapted.levels[band] || tried.current.has(band)) return;
+    // Grades 6 to 8 read the standard text: it is written at that level, so it is not adapted.
+    if (!ready || !band || band === STANDARD_BAND || !aiLevels?.canAdapt || withAdapted.levels[band] || tried.current.has(band)) return;
     tried.current.add(band);
     setAdapting(band);
     void ensureAiLevelAction({ devotionalId, band }).then((result) => {
@@ -127,6 +128,7 @@ export function PresentMode({
     const out: Partial<Record<GradeBand, string>> = {};
     for (const band of BANDS) {
       if (content.levels[band] && !adaptedBands.has(band)) continue; // written by an editor: default label
+      if (band === STANDARD_BAND) continue; // the standard text, written at this level
       if (adaptedBands.has(band)) out[band] = "Adapted for this age";
       else if (adapting === band) out[band] = "Writing this level…";
       else if (adaptFailed[band]) out[band] = "Standard text (could not adapt)";
