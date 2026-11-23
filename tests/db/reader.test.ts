@@ -164,3 +164,19 @@ describe("Scripture reference search", () => {
     expect((await q(ann, `select id from search_devotionals(null,null,null,null,null,null,null,true,20,0,'1 John')`))).toHaveLength(0);
   });
 });
+
+describe("saving, completing and notes (src/app/actions/devotional-state.ts)", () => {
+  it("refuses an upsert that rewrites who and what a row belongs to, which is why the app updates, then inserts", async () => {
+    const cleo = await h.createUser("cleo-state@r.test");
+    // What supabase-js upsert sends: every column in the conflict update, including user_id and devotional_id.
+    await expect(q(cleo, `insert into devotional_user_state (user_id, devotional_id, bookmarked) values ($1, $2, true)
+      on conflict (user_id, devotional_id) do update set user_id = excluded.user_id, devotional_id = excluded.devotional_id, bookmarked = excluded.bookmarked`, [cleo, live]))
+      .rejects.toThrow(DENIED);
+    // What the app does now: update the row (none yet), so insert it; later changes update it.
+    expect(await q(cleo, `update devotional_user_state set bookmarked = true where user_id = $1 and devotional_id = $2 returning 1`, [cleo, live])).toHaveLength(0);
+    await q(cleo, `insert into devotional_user_state (user_id, devotional_id, bookmarked) values ($1, $2, true)`, [cleo, live]);
+    expect(await q(cleo, `update devotional_user_state set completed_at = now() where user_id = $1 and devotional_id = $2 returning 1`, [cleo, live])).toHaveLength(1);
+    const [row] = await q<{ bookmarked: boolean; done: boolean }>(cleo, `select bookmarked, completed_at is not null as done from devotional_user_state where devotional_id = $1`, [live]);
+    expect(row).toEqual({ bookmarked: true, done: true });
+  });
+});

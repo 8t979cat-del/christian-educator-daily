@@ -22,10 +22,19 @@ async function upsert(devotionalId: string, columns: Record<string, unknown>): P
   if (!id.success) return FAILED;
   const { user } = await requireAccess();
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("devotional_user_state")
-    .upsert({ user_id: user.id, devotional_id: id.data, ...columns }, { onConflict: "user_id,devotional_id" });
+  // Update the person's row if it exists, otherwise create it. Not an upsert: an upsert asks to update
+  // user_id and devotional_id as well, which the database (rightly) never lets a person change, so it
+  // was refused every time.
+  const table = () => supabase.from("devotional_user_state");
+  const update = () => table().update(columns).eq("user_id", user.id).eq("devotional_id", id.data).select("devotional_id");
+  let { data, error } = await update();
+  if (!error && (data ?? []).length === 0) {
+    ({ error } = await table().insert({ user_id: user.id, devotional_id: id.data, ...columns }));
+    // Saved at the same moment in another tab: the row now exists, so update it.
+    if (error?.code === "23505") ({ error } = await update());
+  }
   if (error) {
+    console.error("devotional state:", error.code, error.message);
     // The database states the limit in plain words; show it so the person knows what to do.
     if (error.code === "P0402") return { ok: false, error: error.message };
     return FAILED;
