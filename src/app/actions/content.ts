@@ -103,13 +103,17 @@ export async function saveDevotionalAction(_previous: FormState, formData: FormD
  * can hold one devotional per day. Names the devotional already using that date.
  */
 async function sameDayConflict(supabase: Awaited<ReturnType<typeof createClient>>, id: string): Promise<string> {
-  const { data: me } = await supabase.from("devotionals").select("devotional_date, theme_id").eq("id", id).maybeSingle();
+  const { data: me } = await supabase.from("devotionals").select("devotional_date, theme_id, educational_category, access_level").eq("id", id).maybeSingle();
   if (!me) return "Another devotional already uses this date.";
   const when = formatDate(me.devotional_date as string);
-  const { data: other } = await supabase.from("devotionals").select("title, status")
-    .eq("devotional_date", me.devotional_date).neq("id", id).in("status", ["scheduled", "published"]).limit(1).maybeSingle();
+  // Each day has one classroom devotional and one faculty devotional; only the same kind clashes.
+  const faculty = me.educational_category === "faculty_community";
+  let query = supabase.from("devotionals").select("title, status")
+    .eq("devotional_date", me.devotional_date).neq("id", id).in("status", ["scheduled", "published"]).eq("access_level", me.access_level as string);
+  query = faculty ? query.eq("educational_category", "faculty_community") : query.or("educational_category.is.null,educational_category.neq.faculty_community");
+  const { data: other } = await query.limit(1).maybeSingle();
   if (other) {
-    return `“${other.title || "Untitled"}” is already ${other.status === "published" ? "live" : "scheduled"} for ${when}. Each day has one devotional: change the Date under Basics (not Publish at) and click Save changes, or unschedule the other one first.`;
+    return `“${other.title || "Untitled"}” is already ${other.status === "published" ? "live" : "scheduled"} for ${when}. Each day has one ${faculty ? "faculty" : "classroom"} devotional: change the Date under Basics (not Publish at) and click Save changes, or unschedule the other one first.${faculty ? "" : " For a faculty devotional, set Educational category to Faculty community and save first."}`;
   }
   return `This devotional’s weekly theme already has another devotional on ${when}. Change the Date or the Weekly theme under Basics and click Save changes, then schedule again.`;
 }

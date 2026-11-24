@@ -20,6 +20,13 @@ export async function getDevotional(id: string): Promise<DevotionalRecord | null
 /** Published, or scheduled and past its time. Matches what row-level security shows readers; keeps editors' own views honest too. */
 const liveFilter = () => `status.eq.published,and(status.eq.scheduled,publish_at.lte.${new Date().toISOString()})`;
 
+/**
+ * Each day has one classroom devotional and may also have one for the faculty (educational category
+ * "Faculty community"). "Today's devotional" is always the classroom one; faculty devotionals are
+ * reached only through the Archive.
+ */
+const CLASSROOM = "educational_category.is.null,educational_category.neq.faculty_community";
+
 export async function getLiveDevotionalFor(date: string): Promise<DevotionalRecord | null> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -27,6 +34,7 @@ export async function getLiveDevotionalFor(date: string): Promise<DevotionalReco
     .select("*")
     .eq("devotional_date", date)
     .or(liveFilter())
+    .or(CLASSROOM)
     // The free daily devotional is the one for the day; Plus devotionals are extra.
     .order("access_level", { ascending: true })
     .order("published_at", { ascending: false, nullsFirst: false })
@@ -39,7 +47,7 @@ export async function getLiveDevotionalFor(date: string): Promise<DevotionalReco
 export async function getLatestLiveOnOrBefore(date: string): Promise<DevotionalRecord | null> {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("devotionals").select("*").lte("devotional_date", date).or(liveFilter())
+    .from("devotionals").select("*").lte("devotional_date", date).or(liveFilter()).or(CLASSROOM)
     .order("devotional_date", { ascending: false }).limit(1);
   return data?.[0] ? toDevotional(data[0]) : null;
 }
@@ -47,12 +55,14 @@ export async function getLatestLiveOnOrBefore(date: string): Promise<DevotionalR
 export type Neighbor = { id: string; title: string; devotional_date: string };
 
 /** The live devotionals just before and just after a date. Never reaches past `through` (the last readable date). */
-export async function getNeighbors(date: string, through: string): Promise<{ prev: Neighbor | null; next: Neighbor | null }> {
+export async function getNeighbors(date: string, through: string, faculty = false): Promise<{ prev: Neighbor | null; next: Neighbor | null }> {
   const supabase = await createClient();
+  // From a classroom devotional to the classroom days either side; from a faculty one to the faculty ones.
+  const kind = <Q extends { or: (f: string) => Q; eq: (c: string, v: string) => Q }>(q: Q) => (faculty ? q.eq("educational_category", "faculty_community") : q.or(CLASSROOM));
   const [prev, next] = await Promise.all([
-    supabase.from("devotionals").select("id, title, devotional_date").lt("devotional_date", date).or(liveFilter())
+    kind(supabase.from("devotionals").select("id, title, devotional_date").lt("devotional_date", date).or(liveFilter()))
       .order("devotional_date", { ascending: false }).limit(1),
-    supabase.from("devotionals").select("id, title, devotional_date").gt("devotional_date", date).lte("devotional_date", through).or(liveFilter())
+    kind(supabase.from("devotionals").select("id, title, devotional_date").gt("devotional_date", date).lte("devotional_date", through).or(liveFilter()))
       .order("devotional_date", { ascending: true }).limit(1),
   ]);
   return { prev: (prev.data?.[0] as Neighbor | undefined) ?? null, next: (next.data?.[0] as Neighbor | undefined) ?? null };
@@ -179,7 +189,7 @@ export async function getUpcomingLive(today: string, through: string): Promise<A
   if (through <= today) return [];
   const supabase = await createClient();
   const { data } = await supabase.from("devotionals").select("id, title, devotional_date, scripture_reference, access_level")
-    .gt("devotional_date", today).lte("devotional_date", through).or(liveFilter())
+    .gt("devotional_date", today).lte("devotional_date", through).or(liveFilter()).or(CLASSROOM)
     // One per day: the free daily devotional first, as on the Today page.
     .order("devotional_date").order("access_level");
   const seen = new Set<string>();
@@ -319,3 +329,4 @@ export async function facultyIds(ids: string[]): Promise<Set<string>> {
   const { data } = await (await createClient()).from("devotionals").select("id").in("id", ids).eq("educational_category", "faculty_community");
   return new Set(((data ?? []) as Array<{ id: string }>).map((r) => r.id));
 }
+

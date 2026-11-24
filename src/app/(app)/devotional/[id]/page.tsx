@@ -55,7 +55,7 @@ export default async function DevotionalPage({
     getTranslation(d.translation_code),
     getThemeInfo(d),
     getUserState(id),
-    getNeighbors(d.devotional_date, through),
+    getNeighbors(d.devotional_date, through, d.educational_category === "faculty_community"),
   ]);
 
   // Without an author credit, the Author field's name may still match a contributor (photo and bio).
