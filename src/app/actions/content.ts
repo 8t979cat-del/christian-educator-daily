@@ -22,7 +22,9 @@ function describe(error: PgError, fallback: string): string {
   if (error.code === "P0001") return error.message.charAt(0).toUpperCase() + error.message.slice(1) + (/[.!?]$/.test(error.message) ? "" : ".");
   if (error.code === "42501") return "You do not have permission to do that.";
   if (error.code === "23505") return "Another devotional is already scheduled or live for that date, or that theme already has one on that day.";
-  return fallback;
+  // Editors only (every action here requires an editor role): the database's own reason helps them, or us, fix it.
+  console.error("content action:", error.code, error.message);
+  return `${fallback} (${error.message}${error.code ? `, code ${error.code}` : ""})`;
 }
 
 /** Creates or updates a devotional. Saving never publishes. */
