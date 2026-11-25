@@ -11,7 +11,7 @@ import { CheckboxGroup } from "@/components/ui/choices";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/form";
 import { Heading } from "@/components/ui/typography";
 import { idleState } from "@/lib/auth/form-state";
-import { AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORY_CHOICES, GRADE_BANDS } from "@/lib/content/options";
+import { AI_AUTHOR, AUDIENCES, CATEGORIES, EDUCATIONAL_CATEGORY_CHOICES, GRADE_BANDS } from "@/lib/content/options";
 import { EMPTY_DOC, parseRichDoc, type RichDoc } from "@/lib/content/richtext";
 import type { DevotionalRecord } from "@/lib/content/types";
 import type { AiQuota } from "@/lib/ai/devotional-ai";
@@ -307,14 +307,7 @@ export function DevotionalForm({
               error={fe.gradeLevels}
               hint="Choose every band this devotional suits."
             />
-            <TextField
-              label="Author"
-              name="authorName"
-              defaultValue={v("authorName", initial.author_name)}
-              error={fe.authorName}
-              hint="Shown to readers."
-              maxLength={120}
-            />
+            <AuthorField key={`author:${v("authorName", initial.author_name)}`} initial={v("authorName", initial.author_name)} error={fe.authorName} />
           </div>
         </Card>
 
@@ -324,5 +317,36 @@ export function DevotionalForm({
         </div>
       </fieldset>
     </form>
+  );
+}
+
+/** Author: a person's name, or "AI generated" (readers then see "AI generated" instead of "Written by …"). */
+function AuthorField({ initial, error }: { initial: string; error?: string }) {
+  const [ai, setAi] = useState(initial === AI_AUTHOR);
+  // Remember the typed name, so switching to AI generated and back does not lose it.
+  const [name, setName] = useState(initial === AI_AUTHOR ? "" : initial);
+  return (
+    <fieldset className="grid gap-2">
+      <legend className="text-sm font-semibold">Author</legend>
+      <p className="text-sm text-muted">Shown to readers.</p>
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Who wrote it">
+        {([[false, "A person"], [true, AI_AUTHOR]] as const).map(([value, label]) => (
+          <label key={label} className="relative">
+            <input type="radio" name="authorKind" className="peer sr-only" checked={ai === value} onChange={() => setAi(value)} />
+            <span className="inline-flex min-h-11 items-center rounded-control border border-line-strong/50 bg-surface px-4 text-sm font-semibold peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand peer-focus-visible:ring-4 peer-focus-visible:ring-brand/40">
+              {label}
+            </span>
+          </label>
+        ))}
+      </div>
+      {ai ? (
+        <>
+          <input type="hidden" name="authorName" value={AI_AUTHOR} />
+          <p className="text-sm text-muted">Readers see “{AI_AUTHOR}” where the author&rsquo;s name would be.</p>
+        </>
+      ) : (
+        <TextField label="Author name" name="authorName" value={name} onChange={(e) => setName(e.currentTarget.value)} error={error} maxLength={120} />
+      )}
+    </fieldset>
   );
 }
