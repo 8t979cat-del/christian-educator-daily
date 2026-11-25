@@ -3,7 +3,7 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { SITE } from "@/lib/site";
 import { ContributorCard, type ContributorProfile } from "@/components/content/contributor-card";
 import { RichTextView } from "@/components/content/rich-text-view";
-import { AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
+import { AI_AUTHOR, AUDIENCES, EDUCATIONAL_CATEGORIES, GRADE_BANDS, categoryName, label } from "@/lib/content/options";
 import { passageLookupUrl, scriptureDisplay, type TranslationLicense } from "@/lib/content/scripture";
 import type { DevotionalRecord } from "@/lib/content/types";
 
@@ -39,7 +39,7 @@ export function DevotionalView({
   const date = new Date(`${d.devotional_date}T00:00:00Z`);
   const weekday = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
   const kinds = [d.category_slug ? categoryName(d.category_slug) : null, d.educational_category ? label(EDUCATIONAL_CATEGORIES, d.educational_category) : null].filter(Boolean);
-  const byline = !credited && d.author_name ? `Written by ${d.author_name}` : null;
+  const byline = !credited && d.author_name ? (d.author_name === AI_AUTHOR ? AI_AUTHOR : `Written by ${d.author_name}`) : null;
   const colophon = [
     d.audience ? `For ${label(AUDIENCES, d.audience).toLowerCase()}` : null,
     grades || null,

@@ -23,6 +23,9 @@ export const CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug) as [string, ...strin
 export const categoryName = (slug: string | null | undefined): string =>
   CATEGORIES.find((c) => c.slug === slug)?.name ?? "Uncategorized";
 
+/** The Author value for a devotional written by AI. Readers see "AI generated" instead of "Written by …". */
+export const AI_AUTHOR = "AI generated";
+
 export const AUDIENCES = [
   { value: "teachers", label: "Classroom teachers" },
   { value: "school_leaders", label: "School leaders and administrators" },
